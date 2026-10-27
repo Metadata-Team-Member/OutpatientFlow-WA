@@ -219,12 +219,12 @@
   function laneOf(a) { return L.lanes[D.prio[a.i] % L.lanes.length]; }
   function waitTarget(a, t) {
     const ln = laneOf(a); const u = (t - D.ref[a.i]) / D.target[D.prio[a.i]]; a.u = u;
-    return [L.laneX(ln, u) + (a.jx - 0.5) * 16, ln.y + gTop() + a.jy * Math.max(6, ln.h - gTop() - 20)];
+    return [L.laneX(ln, u) + (a.jx - 0.5) * 12, ln.y + gTop() + a.jy * Math.max(6, ln.h - gTop() - 20)];
   }
-  function careBase(a) { const c = L.cells[a.cell].court; return [c.x + 14 + a.jx * (c.w - 28), c.y + 18 + a.jy * Math.max(6, c.h - 26)]; }
+  function careBase(a) { const c = L.cells[a.cell].court; return [c.x + 10 + a.jx * (c.w - 20), c.y + 18 + a.jy * Math.max(6, c.h - 26)]; }
 
   function makeAgent(i, st, t) {
-    const a = { i, x: 0, y: 0, tx: 0, ty: 0, state: st.state === 2 ? 2 : 1, att: st.att, tot: D.prior[i] + st.att, jx: D.hash(i, 5), jy: D.hash(i, 6), ph: D.hash(i, 9) * 9, alpha: 1, pop: 1, vis: 1, script: [], si: 0, mood: -1, mt: 0, moving: false, wt: D.hash(i, 3) * 3, dead: false, u: 0, cell: D.hspOfSite[D.site[i]], door: null };
+    const a = { i, x: 0, y: 0, tx: 0, ty: 0, state: st.state === 2 ? 2 : 1, att: st.att, tot: D.prior[i] + st.att, jx: (0.5 + i * 0.7548776662) % 1, jy: (0.5 + i * 0.569840291) % 1, /* evenly spread offsets: markers fill lanes and yards without piling up */ ph: D.hash(i, 9) * 9, alpha: 1, pop: 1, vis: 1, script: [], si: 0, mood: -1, mt: 0, moving: false, wt: D.hash(i, 3) * 3, dead: false, u: 0, cell: D.hspOfSite[D.site[i]], door: null };
     a.gd = D.careLevel(a.tot);
     const cell = L.cells[a.cell]; a.door = cell.doorOf[D.spec[i]] || cell.doors[0];
     if (a.state === 1) { const p = waitTarget(a, t); a.tx = p[0]; a.ty = p[1]; } else { const p = careBase(a); a.tx = p[0]; a.ty = p[1]; }

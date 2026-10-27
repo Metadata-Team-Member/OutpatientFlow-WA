@@ -22,12 +22,12 @@
     return [Math.round(255 * f(0)), Math.round(255 * f(8)), Math.round(255 * f(4))];
   };
 
-  S.MARKER_W = 20; S.MARKER_H = 29;
+  S.MARKER_W = 13; S.MARKER_H = 28; // a narrow, upright, uniform marker shape: the same for every referral
   S.dims = function (bucket) { // the marker shape is a fixed size; only the ring changes with the number of attended events
     const gr = bucket / (NB - 1);
     const rings = bucket <= 0 ? 0 : 1 + Math.min(2, Math.floor(gr * 3));
-    const rx = bucket <= 0 ? 0 : 13 + 17 * Math.pow(gr, 0.85);
-    return { w: S.MARKER_W, h: S.MARKER_H, rings, rx, ry: rx * 0.3, lw: 0.9 + 1.6 * gr, total: S.MARKER_H + 12 };
+    const rx = bucket <= 0 ? 0 : 8.5 + 8 * Math.pow(gr, 0.8); // ring radius stays close to the marker so rings add little footprint
+    return { w: S.MARKER_W, h: S.MARKER_H, rings, rx, ry: rx * 0.3, lw: 0.8 + 1.1 * gr, total: S.MARKER_H + 12 };
   };
 
   function rr(ctx, x, y, w, h, rt, rb) {
@@ -48,7 +48,7 @@
     const ctx = cv.getContext('2d'); ctx.scale(SS, SS);
     const cx = W / 2, ground = H - pad - d.ry;
     const bw = d.w, bh = d.h, bx = cx - bw / 2, by = ground - 3 - bh;
-    const rt = Math.min(bw / 2, bh * 0.5), rb = Math.min(bw / 2, bh * 0.42);
+    const rt = Math.min(bw / 2, bh * 0.5), rb = Math.min(bw / 2, bh * 0.42); // fully rounded top and base
     // ground rings: more attended events = more and wider rings (drawn behind the marker)
     for (let k = 0; k < d.rings; k++) {
       const f = (k + 1) / d.rings; const rx = d.rx * (0.45 + 0.55 * f), ry = rx * 0.3;
@@ -57,7 +57,7 @@
     }
     // soft shadow is drawn by the scene. feet:
     ctx.fillStyle = css(shade(rgb, -0.38));
-    const fw = Math.max(3, bw * 0.2), fo = Math.max(2.4, bw * 0.2);
+    const fw = Math.max(3.4, bw * 0.24), fo = Math.max(2.4, bw * 0.2);
     ctx.beginPath(); ctx.ellipse(cx - fo, ground - 1.8, fw * 0.6, 2.2, 0, 0, 7); ctx.ellipse(cx + fo, ground - 1.8, fw * 0.6, 2.2, 0, 0, 7); ctx.fill();
     // sprout
     const sx = cx + bw * 0.04, sy = by + 1, sl = 6 + 3 * gr;
@@ -72,10 +72,10 @@
     ctx.lineWidth = 1; ctx.strokeStyle = css(shade(rgb, -0.45), 0.55); ctx.stroke();
     // highlight
     ctx.save(); rr(ctx, bx, by, bw, bh, rt, rb); ctx.clip();
-    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(bx + bw * 0.3, by + bh * 0.2, bw * 0.2, bh * 0.1, -0.5, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(bx + bw * 0.32, by + bh * 0.2, bw * 0.17, bh * 0.09, -0.3, 0, 7); ctx.fill();
     ctx.restore();
     // face
-    const er = Math.max(2, Math.min(4.8, bw * 0.13)); const ey = by + bh * 0.36; const es = Math.max(er * 1.3, bw * 0.2);
+    const er = Math.max(2.1, Math.min(4.8, bw * 0.17)); const ey = by + bh * 0.34; const es = Math.max(er * 1.3, bw * 0.22);
     ctx.fillStyle = '#fff';
     ctx.beginPath(); ctx.ellipse(cx - es, ey, er, er * 1.12, 0, 0, 7); ctx.ellipse(cx + es, ey, er, er * 1.12, 0, 0, 7); ctx.fill();
     const lookY = mood === 2 ? 0.5 : mood === 1 ? -0.2 : 0.1;
@@ -86,14 +86,14 @@
       ctx.strokeStyle = css(shade(rgb, -0.6), 0.8); ctx.lineWidth = 1; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(cx - es - er, ey - er * 1.6 + (mood === 2 ? 1 : 0)); ctx.lineTo(cx - es + er * 0.8, ey - er * 1.9); ctx.moveTo(cx + es + er, ey - er * 1.6 + (mood === 2 ? 1 : 0)); ctx.lineTo(cx + es - er * 0.8, ey - er * 1.9); ctx.stroke();
     }
-    const my = ey + er * 2.7, mw = Math.max(2, Math.min(6.5, bw * 0.17));
+    const my = ey + er * 2.7, mw = Math.max(1.8, Math.min(6.5, bw * 0.15));
     ctx.strokeStyle = '#0d2236'; ctx.lineWidth = 1.25; ctx.lineCap = 'round'; ctx.beginPath();
     if (mood === 1) { ctx.moveTo(cx - mw, my - 0.6); ctx.quadraticCurveTo(cx, my + mw * 0.95, cx + mw, my - 0.6); }
     else if (mood === 2) { ctx.moveTo(cx - mw * 0.8, my + 1.4); ctx.quadraticCurveTo(cx, my - mw * 0.55, cx + mw * 0.8, my + 1.4); }
     else if (mood === 3) { ctx.arc(cx, my + 0.6, Math.max(1, mw * 0.32), 0, 7); }
     else { ctx.moveTo(cx - mw * 0.8, my); ctx.quadraticCurveTo(cx, my + mw * 0.45, cx + mw * 0.8, my); }
     ctx.stroke();
-    if (mood === 1 && bw > 20) { ctx.fillStyle = 'rgba(255,120,150,.28)'; ctx.beginPath(); ctx.ellipse(cx - es - er * 0.9, my - 1, er * 0.9, er * 0.55, 0, 0, 7); ctx.ellipse(cx + es + er * 0.9, my - 1, er * 0.9, er * 0.55, 0, 0, 7); ctx.fill(); }
+    if (mood === 1 && bw > 16) { ctx.fillStyle = 'rgba(255,120,150,.28)'; ctx.beginPath(); ctx.ellipse(cx - es - er * 0.9, my - 1, er * 0.9, er * 0.55, 0, 0, 7); ctx.ellipse(cx + es + er * 0.9, my - 1, er * 0.9, er * 0.55, 0, 0, 7); ctx.fill(); }
     s = { cv, w: W, h: H, cx, ground, bw, bh, topY: H - d.total - pad - d.ry };
     cache.set(key, s);
     if (cache.size > 2500) cache.clear();
