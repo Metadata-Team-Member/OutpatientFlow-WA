@@ -146,7 +146,7 @@ const out = {
     hsps: Object.entries(hspNames).map(([code, name]) => ({ code, name })),
     regions: dims.regionOrder.map((name) => ({ name, hsp: ['North Metro', 'East Metro', 'South Metro'].includes(name) ? { 'North Metro': 'NMHS', 'East Metro': 'EMHS', 'South Metro': 'SMHS' }[name] : 'WACHS' })),
     districts: districts.map((d) => ({ name: d.name, region: regionIdx[d.region], code: d.code, lat: +d.lat.toFixed(3), lon: +d.lon.toFixed(3) })),
-    establishments: est.map((e) => ({ code: e.code, short: e.short, name: e.name, hsp: e.hspI, region: e.regionI, district: e.district, kind: e.kind, tier: e.tier, beds: e.beds, lat: e.lat, lon: e.lon, contracted: !!e.contracted, category: e.category, area: e.area })),
+    establishments: est.map((e) => ({ code: e.code, short: e.short, name: e.name, hsp: e.hspI, region: e.regionI, district: e.district, kind: e.kind, tier: e.tier, beds: e.beds, lat: e.lat, lon: e.lon, contracted: !!e.contracted, category: e.category, area: e.area, official: e.officialNadc ? 1 : 0, added: e.source === 'official-list-extract' ? 1 : 0 })),
     tiers: dims.tiers, specialties: dims.specialties.map(({ code, name, hue, verified, viaCrs }) => ({ code, name, hue, verified, viaCrs })),
     priorities: dims.priorities, sources: dims.sources.map(({ code, label, internal }) => ({ code, label, internal })), referralReasons: dims.referralReasons,
     modes: dims.modes, outcomes: dims.outcomes.map(({ code, label, ends }) => ({ code, label, ends })), nonAttendance: dims.nonAttendance.map(({ code, label }) => ({ code, label })),

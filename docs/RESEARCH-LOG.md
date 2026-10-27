@@ -49,6 +49,14 @@ The round-2 brief: use the public WA Health NADC documents and establishment inf
 * Probed the search index for NADC flags by name. Results (paraphrases) agree with the SLIP-based list for Joondalup, Fiona Stanley, Royal Perth, Rockingham, St John of God Midland, Burringurrah, Bremer Bay and Rottnest (not NADC). Differences: Bethesda (602) NADC = Y, Peel code 145 vs SLIP 645, Hedland 131 vs 240. Details in [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 4; questions 6a and 6c in OPEN-QUESTIONS.md. No data change except a note on Peel.
 * Fixed a misleading KPI: "Referrals, last 12 months" showed "+1117% on the 12 months before" in the first year, because data starts in July 2022. It now says "part year" or "no full prior year to compare" until two full years exist.
 
+## 27 Oct 2026, 22:16 AWST: the official Establishment List, first 28 rows verbatim
+
+* A natural-language search ("Bethesda Hospital Claremont non-admitted outpatient data collection WA Health reporting establishment 602") returned, as a highlight, the first rows of `Establishments-list.pdf` (the "Establishment List, Reporting" table with a Reports to NADC column). 28 rows, Abbotsford Private Hospital to Cambridge Day Surgery, 19 with NADC = Y. Stored in OFFICIAL-EXCERPTS.md section 4.
+* Compared them with HEALTH-001: 14 of 19 match with identical codes and no flagged site is absent. Five NADC = Y sites are not flagged in HEALTH-001: Abrolhos 462, Bethesda 602, Beacon 4281, Bencubbin 4282, Brookton 4283 (SLIP holds Beacon, Bencubbin and Brookton under 6025, 6026, 6027). **Resolves the Bethesda question:** the official list says NADC = Y. The simulation now has 117 establishments (86 hospitals, 31 nursing posts; NMHS 5, WACHS 101).
+* Ten more searches for other rows (Kalgoorlie, Katanning, Karratha, Kununurra, Royal Perth, Rockingham, Sir Charles Gairdner, Rottnest, Ravensthorpe) returned only generated summaries and no highlight. Those summaries disagree between runs (Rottnest), so none were used.
+* Peel 145 vs 645: another search gave a summary that both codes exist in the list (145 AH SORL 4 MOS 10; 645 "also Peel Health Campus with different reporting flags"). Not a verbatim row, so the question stays open.
+* Also fixed: the Mount Lawley note had been copied from the Peel note. METEOR NAPAAWL DC 2016-17 (648949) was read in full (OFFICIAL-EXCERPTS.md section 6).
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.

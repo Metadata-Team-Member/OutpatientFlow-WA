@@ -53,7 +53,7 @@ The questions it helps people ask:
 
 ### 2.3 Reference data
 
-* **Establishments:** [ESTABLISHMENTS.md](ESTABLISHMENTS.md) (112 flagged in HEALTH-001; official list not obtained).
+* **Establishments:** [ESTABLISHMENTS.md](ESTABLISHMENTS.md) (117: 112 flagged in HEALTH-001 plus 5 shown with NADC = Y in a verbatim extract of the official list; only rows A to C of the official list could be read, so the full current list is still needed).
 * **Regions:** 34 districts → 10 regions → 5 HSPs (SLIP HEALTH-002). A postcode to district concordance is needed. ❓
 * **Priority timeframes:** BR §8.1 priority 1 within 30 days, priority 2 within 90, priority 3 within 365. The URG / SEM / NUR to 1 / 2 / 3 mapping is an assumption. ❓
 * **Clinic categories:** Appendix C. Rows A to F were not visible; five sim codes are provisional.

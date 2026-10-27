@@ -162,3 +162,4 @@ table.est tr[data-i]:hover,table.est tr[data-i]:focus{background:#1a2c49;outline
   .intro-card{padding:16px}.intro-card h2{font-size:1.2rem}.intro-card p{font-size:.85rem}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+#estBody small{color:var(--muted)} #estBody small.ok{color:#5ad19a;white-space:nowrap}

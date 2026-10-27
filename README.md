@@ -24,7 +24,7 @@ Slim = still waiting, or little care so far; broad = lots of attended care. The 
 
 ## What changed in round 2
 
-* **Real establishments.** 112 sites flagged "Outpatient Reporting" in the WA Government's HEALTH-001 dataset (85 hospitals, 27 nursing posts), in 5 HSPs ([list](docs/ESTABLISHMENTS.md)). This is *not* a certified NADC list ([open question](docs/OPEN-QUESTIONS.md)).
+* **Real establishments.** 117 sites in 5 HSPs (86 hospitals, 31 nursing posts; [list](docs/ESTABLISHMENTS.md)): 112 flagged "Outpatient Reporting" in the WA Government's HEALTH-001 dataset, plus 5 that a verbatim extract of the official WA Health Establishment List shows with "Reports to NADC" = Y but that HEALTH-001 does not flag (Abrolhos Islands, Beacon, Bencubbin, Brookton, Bethesda). Only the first 28 rows of the official list (A to "Cambridge Day Surgery") could be read, so 19 sites are confirmed on it and the rest are not. In that slice HEALTH-001 matched 14 of 19, so the list is probably incomplete. See the [open question](docs/OPEN-QUESTIONS.md).
 * **Real geography.** WA outline, 10 health regions and 34 districts (HEALTH-002), simplified, plus a Perth metro inset.
 * **Specification-aligned data.** Column names and code sets from the NADC Data Specifications v1.0 (July 2021): Referral Priority AWT/NUR/SEM/UNK/URG, closure reasons, delivery modes, non-attendance and cancellation codes and so on. See [mapping](docs/DATA-DICTIONARY-MAPPING.md).
 * **Rule-aware indicators.** Attended = attendance code ATT with an outcome allocated; wait runs from received date to first attended appointment; OPM referrals are excluded from new-appointment wait measures ([summary](docs/BUSINESS-RULES-SUMMARY.md)).
@@ -35,7 +35,7 @@ Slim = still waiting, or little care so far; broad = lots of attended care. The 
 
 * KPI strip: referrals (12 months), waiting for a first appointment, seen within target, median wait, telehealth and did-not-attend shares.
 * Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, busiest clinics.
-* About 11,000 referrals and 36,000 appointments across 94 active establishments, July 2022 to June 2026. Playback runs July 2023 to June 2026.
+* About 11,000 referrals and 36,000 appointments across 95 active establishments, July 2022 to June 2026. Playback runs July 2023 to June 2026.
 * Plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
 
 ## Run it locally

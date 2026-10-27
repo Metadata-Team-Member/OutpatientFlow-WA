@@ -117,11 +117,11 @@ Several official PDFs cannot be downloaded here but are partly indexed by a web 
 
 ### 4.1 Which establishments report to the NADC
 
-The official Establishments list PDF (`Establishments-list.pdf`, which a search extract says carries a per-collection reporting flag) could not be retrieved. The repository therefore uses the Department of Health's own spatial layer instead, with its **"Outpatient Reporting"** attribute:
+The official Establishments list PDF (`Establishments-list.pdf`, with a per-collection reporting flag) could not be fetched directly. A search-index highlight reproduced its first 28 rows verbatim (Abbotsford Private Hospital to Cambridge Day Surgery, see OFFICIAL-EXCERPTS.md section 4). For the full list the repository uses the Department of Health's own spatial layer, with the five extra NADC = Y sites from that extract. The layer is only a proxy: in the 28 verbatim rows it matched 14 of the 19 NADC = Y sites, with no false positives. The layer's, with its **"Outpatient Reporting"** attribute:
 
 * **Source:** SLIP public service `SLIP_Public_Services/Health/MapServer`, layers 7 (Hospitals) and 6 (Nursing Posts), dataset **HEALTH-001**, field `outpatient` (alias "Outpatient Reporting").
   https://public-services.slip.wa.gov.au/public/rest/services/SLIP_Public_Services/Health/MapServer
-* **Rule applied:** an establishment is included if `outpatient = 'Y'`. This gives **112 establishments** (85 hospitals and 27 nursing posts), listed in [ESTABLISHMENTS.md](ESTABLISHMENTS.md).
+* **Rule applied:** an establishment is included if `outpatient = 'Y'`. This gives **112 establishments** (85 hospitals and 27 nursing posts). Five more are added from the verbatim extract of the official WA Health Establishment List (rows A to C only, see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 4), giving **117** (86 hospitals, 31 nursing posts), listed in [ESTABLISHMENTS.md](ESTABLISHMENTS.md).
 * **Caveat (important):** HEALTH-001 does not say that "Outpatient Reporting" means "reports to the NADC". The match is an inference. This is the first question in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). The establishment list is therefore labelled "flagged as outpatient-reporting in HEALTH-001" everywhere it appears.
 * **Codes:** the code shown is the HEALTH-001 `estab_id` left-padded to four digits. The Specification defines *Establishment Code* as "a unique four-digit number assigned by the Department of Health" (Appendix B element 1). That the SLIP identifier is the same number as the NADC *Establishment Code* is an **assumption** (it looks right for the well-known hospitals but was not checked against any official list). See OPEN-QUESTIONS.md.
 * **Reporting group (HSP):** the HSP for each site comes from the CRS page's hospital lists (last reviewed 8 Sep 2026) and, for a handful of exceptions, the pages named in the `hspNote` of each record in `data/reference/establishments.json` (Peel, Joondalup, Midland, Mount Lawley, PCH, SJOG Bunbury).
@@ -165,7 +165,7 @@ Pages on `health.wa.gov.au` that are plain HTML were readable through the fetch 
 
 ## 7. Fallback sources used for background only
 
-AIHW METEOR (https://meteor.aihw.gov.au) was used in round 1 to guess concept names. It is a national metadata registry, not the WA specification. **Round 2 removes METEOR-derived items wherever the WA Specification contradicts them** (for example, there is no attendance-status element in the WA Specification, see [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md)).
+AIHW METEOR (https://meteor.aihw.gov.au) is a national metadata registry. It hosts one WA data set specification, the 2016-17 predecessor of this collection (identifier 648949, read in full on 27 Oct 2026, see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 6). It is used for background and for its scope statement only, and it is a fallback, not the current WA specification. Round 1 used METEOR to guess concept names; **round 2 removed METEOR-derived items wherever the WA Specification or the Validation Manual contradicts them.**
 
 ## 8. Software
 
