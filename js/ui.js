@@ -47,7 +47,7 @@
   function setK(id, val, note, cls) { const el = $(id); el.querySelector('.val').textContent = val; el.querySelector('.note').textContent = note || ''; el.className = 'kpi' + (cls ? ' ' + cls : ''); }
   function updateKpis() {
     const s = S; const d = s.refsPrev12 ? (s.refs12 - s.refsPrev12) / s.refsPrev12 : 0; const dm = D.dims;
-    setK('k1', fmt(s.refs12), s.refsPrev12 ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(d * 100)) + '% on the 12 months before' : 'first year of data');
+    setK('k1', fmt(s.refs12), S.day >= 730 ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(d * 100)) + '% on the 12 months before' : (S.day < 365 ? 'part year: data starts Jul 2022' : 'no full prior year to compare'));
     const pOver = s.waiting ? s.over / s.waiting : 0;
     setK('k2', fmt(s.waiting), fmt(s.over) + ' past target (' + Math.round(pOver * 100) + '%)', pOver > 0.35 ? 'bad' : pOver > 0.2 ? 'warn' : '');
     const pw = s.seenAll12 ? s.withinAll12 / s.seenAll12 : null;
@@ -100,7 +100,7 @@
     const dots = r.events.map((e) => {
       let col, lab;
       if (e.kind === 0) { col = dm.modes[e.mode].remote ? '#7aa7ff' : '#5ad19a'; lab = 'Attended · ' + dm.modes[e.mode].label; }
-      else if (e.kind === 1) { col = '#f5b94a'; lab = 'Did not attend · ' + (dm.nonAttendance[e.code] ? dm.nonAttendance[e.code].label : ''); }
+      else if (e.kind === 1) { col = '#f5b94a'; lab = 'Did not attend / wait · ' + (dm.nonAttendance[e.code] ? dm.nonAttendance[e.code].label : ''); }
       else { col = '#9aa7bd'; lab = 'Cancelled · ' + (dm.cancellation[e.code] ? dm.cancellation[e.code].label : ''); }
       return '<i title="' + esc(D.fmtDate(e.day) + ' · ' + lab) + '" style="background:' + col + '"></i>';
     }).join('');

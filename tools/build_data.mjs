@@ -77,7 +77,8 @@ for (const r of refs) {
   cols.endReason.push(r.REFERRAL_REASON_FOR_CLOSURE_CODE ? iClose(r.REFERRAL_REASON_FOR_CLOSURE_CODE) : -1);
   const evs = (byRef.get(r.REFERRAL_ACCOUNT_NUMBER) || []).map((a) => {
     const out = a.APPOINTMENT_OUTCOME_CODE || '', non = a.APPOINTMENT_NON_ATTENDANCE_REASON_CODE || '';
-    const kind = out === 'CAN' ? 2 : non || !out ? 1 : 0;
+    const att = a.APPOINTMENT_ATTENDANCE_CODE || '';
+    const kind = out === 'CAN' ? 2 : (att === 'DNA' || att === 'DNW' || non || !out) ? 1 : 0; // ATT = attended; DNA/DNW = not attended (reason expected)
     const code = kind === 0 ? iOut(out) : kind === 1 ? iNon(non || 'UNK') : iCan(a.APPOINTMENT_CANCELLATION_CODE || 'UNK');
     const day = dayOf(a.APPOINTMENT_DATE);
     return { day, packed: day | (kind << 11) | (iMode(a.APPOINTMENT_DELIVERY_MODE_CODE) << 13) | (code << 16) | ((a.APPOINTMENT_TYPE_CODE === 'NEW' ? 0 : 1) << 21) };

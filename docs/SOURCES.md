@@ -103,11 +103,21 @@ Two official WA Health pages that were read directly point to later material:
 Search-engine summaries (machine-written, **not confirmed by any page that could be read**) also said that a Specification / Dictionary version 2.0 ("V002") applies from 1 July 2025 with a changed file name pattern, and that the Validation Manual is dated March 2025. These are listed in section 5 and are **not** used.
 The custodian should therefore treat the field names and code sets in this demo as the 2021 baseline, and tell us which later changes matter (see OPEN-QUESTIONS.md).
 
+### 3.5 Extracts of official PDFs reached through the search index
+
+Several official PDFs cannot be downloaded here but are partly indexed by a web search tool, which returns short extracts. They are collected, with quoted text kept separate from paraphrase, in **[OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md)**:
+
+* Non-Admitted Data Collection **Validation Manual** (severities Fatal / Critical / Warning / Review; nightly load from Health Support Services; Data Quality Dashboard; several rule texts).
+* Non-Admitted **Dental** Data Collection Data Specifications (`appointment_attendance_code`, Mandatory; ATT, DNA, DNW, NCE, NSP).
+* **MDG-10-001 Outpatient OOS Individual Definition v1.1** (what counts as an attended outpatient appointment).
+* **WA Health Establishment List** (Establishments-list.pdf): existence and purpose only; contents not reliably extractable.
+* The **Establishment List 2021/2022** (Hospital Morbidity version) via a DocsLib copy, for establishment codes and type codes.
+
 ## 4. Establishment list and geography
 
 ### 4.1 Which establishments report to the NADC
 
-The official Establishments list PDF could not be retrieved. The repository therefore uses the Department of Health's own spatial layer instead, with its **"Outpatient Reporting"** attribute:
+The official Establishments list PDF (`Establishments-list.pdf`, which a search extract says carries a per-collection reporting flag) could not be retrieved. The repository therefore uses the Department of Health's own spatial layer instead, with its **"Outpatient Reporting"** attribute:
 
 * **Source:** SLIP public service `SLIP_Public_Services/Health/MapServer`, layers 7 (Hospitals) and 6 (Nursing Posts), dataset **HEALTH-001**, field `outpatient` (alias "Outpatient Reporting").
   https://public-services.slip.wa.gov.au/public/rest/services/SLIP_Public_Services/Health/MapServer
@@ -127,15 +137,15 @@ The official Establishments list PDF could not be retrieved. The repository ther
 
 ## 5. Facts that are low confidence and are NOT asserted by the simulation
 
-Web search tools returned machine-written summaries on the topics below. They contradicted each other or the official pages, so none of it is used:
+Web search tools returned machine-written summaries on the topics below. They were not backed by a page or extract that could be read, so none of it is used:
 
-* The meaning of specific "OUT" validation rules.
-* A claimed five-working-day triage rule in the Validation Manual.
-* A claim that a did-not-attend is recorded as an attendance status.
-* A claim that a July 2026 version of the Specification and Dictionary exists, and a claim that version 2.0 (V002, file pattern `NADD_..._V002_...`) applies from 1 July 2025.
-* A claim that the Validation Manual is v1.0 dated March 2025 and that errors appear in an "NADC Data Quality Dashboard" with severity-based resubmission timeframes. (The Data Quality Team page, last reviewed 13 Jul 2023, says only that non-validation data quality processes apply to the Non-Admitted collections; query address RoyalSt.DataQuality@health.wa.gov.au.)
-* A claim that the Referral Category codes are `CAR` Cardiology, `DER` Dermatology and `END` Endocrinology (it came from a search summary, not a readable page).
+* A claim that a July 2026 version of the Specification and Dictionary exists, and a claim that version 2.0 (V002, file pattern `NADD_..._V002_...`) applies from 1 July 2025. (A search extract does show a *current* Dental Specification with an attendance-code element; see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 3. Its edition date was not shown.)
+* A claim that the Validation Manual is v1.0 dated March 2025. (The Manual itself was reached as search extracts; its date was not shown. See OFFICIAL-EXCERPTS.md section 1.)
+* A claim that the Referral Category codes are `CAR` Cardiology, `DER` Dermatology and `END` Endocrinology.
 * Referral category codes for Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology (`CAR`, `DER`, `END`, `ENT`, `GAS`). They are used in the simulation only as **provisional, unverified** labels and are flagged `verified: false` in `config/dimensions.json`.
+* Rule numbers (OUT0004 and so on) given in search summaries of the Validation Manual: two runs of the same query disagreed. The demo does not use them.
+
+**Items moved out of this list on 27 Oct 2026 (about 21:55 AWST)** because quoted extracts of the official PDF supported them: the existence and structure of the Validation Manual (OUT / GEN validation IDs, four severities), the five-working-day triage validation, and an Appointment Attendance Code with ATT / DNA / DNW. See [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md).
 
 ## 6. Retrieval attempts that failed (so the custodian knows what was and was not seen)
 

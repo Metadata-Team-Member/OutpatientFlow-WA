@@ -113,7 +113,7 @@
 
   function hspChart(cv, S) {
     const { c, w, h } = prep(cv); const hs = D.dims.hsps; const T = 34, B = 8, rowH = (h - T - B) / hs.length, lw = 52;
-    const cols = ['#5ad19a', '#7aa7ff', '#f5b94a', '#9aa7bd']; const labs = ['In person', 'Telehealth / phone', 'Did not attend', 'Cancelled'];
+    const cols = ['#5ad19a', '#7aa7ff', '#f5b94a', '#9aa7bd']; const labs = ['In person', 'Telehealth / phone', 'Did not attend / wait', 'Cancelled'];
     font(c, 10, 600); c.textAlign = 'left';
     labs.forEach((l, k) => { const lx = 4 + (k % 2) * 124, ly = 6 + (k > 1 ? 14 : 0); c.fillStyle = cols[k]; c.fillRect(lx, ly, 9, 9); c.fillStyle = '#c4d1e6'; c.fillText(l, lx + 13, ly + 8.5); });
     const tot = hs.map((_, i) => { const q = S.hsp12[i]; return q[0] + q[1] + q[2] + q[3]; }); const mx = Math.max(1, ...tot); const pw = w - lw - 62;

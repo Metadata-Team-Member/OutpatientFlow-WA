@@ -36,6 +36,7 @@
 | `APPOINTMENT_TYPE_CODE` | 81 | Appointment Type Code | Mandatory | NEW, FOL, NCE, OTH, UNK. |
 | `APPOINTMENT_DELIVERY_MODE_CODE` | (see Spec) | Appointment Delivery Mode Code | Mandatory | CLP, GCP, HOM, MCC, OTH, POS, SLF, TEL, THC, THH, THS, UNK, VID. Sim uses six. |
 | `APPOINTMENT_SESSION_TYPE_CODE` | 77 | Appointment Session Type Code | Mandatory | GRP, IND, MCC (and NCE, UNK as listed). |
+| `APPOINTMENT_ATTENDANCE_CODE` | not in the 2021 Specification | Appointment Attendance Code (`appointment_attendance_code`) | Mandatory in the current Dental Specification (extract) | ATT Attended, DNA Did Not Attend, DNW Did Not Wait, NCE Non-Client Event, NSP Unknown / not specified; MCC appears in the attended-appointment definition. The demo generates ATT, DNA and DNW only. Source: [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 3 (search extract, edition unknown). |
 | `APPOINTMENT_OUTCOME_CODE` | 69 | Appointment Outcome Code | Mandatory | 15 codes incl. CAN Cancelled. **Allocated outcome = attended** (Business Rules §5.1). |
 | `APPOINTMENT_NON_ATTENDANCE_REASON_CODE` | 68 | Appointment Non-Attendance Reason Code | Conditional | Mandatory when not attended. 13 codes (PDA Pt Did Not Attend, FGT Forgot, TRU Transport Unavailable ...). |
 | `APPOINTMENT_CANCELLATION_CODE` | 49 | Appointment Cancellation Code | Conditional | About 38 listed codes with duplicates. |

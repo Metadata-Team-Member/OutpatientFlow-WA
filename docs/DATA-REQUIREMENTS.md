@@ -43,7 +43,8 @@ The questions it helps people ask:
 | Appointment Date (53) | Time axis | M |
 | Appointment Type Code (81: NEW, FOL, NCE, OTH, UNK) | First appointment v follow-up | M |
 | Appointment Outcome Code (69) | **Allocated outcome = attended** (BR §5.1). Exit arrows | M |
-| Appointment Non-Attendance Reason Code (68) | Did-not-attend marker. ❓ how a DNA is recorded | S |
+| Appointment Attendance Code (later editions; extract only) | ATT / DNA / DNW marker. Not in the 2021 Specification | S |
+| Appointment Non-Attendance Reason Code (68) | Reason for a DNA or DNW (mandatory when not attended) | S |
 | Appointment Cancellation Code (49) and Date (50) | Cancelled events | S |
 | Appointment Delivery Mode Code | In person v telehealth | S |
 | Appointment Session Type Code (77) | Individual v group | N |

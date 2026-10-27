@@ -101,7 +101,7 @@ const REMOTE_MODES = ['TEL', 'VID'];
 const refRows = []; const appRows = []; let appId = 1;
 const header = {
   ref: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'REFERRAL_CATEGORY_CODE', 'REFERRAL_CREATED_DATE', 'REFERRAL_RECEIVED_DATE', 'REFERRAL_PRIORITY_CODE', 'REFERRAL_REASON_CODE', 'REFERRAL_SOURCE_CODE', 'REFERRAL_STATUS_CODE', 'REFERRAL_CLOSED_DATE', 'REFERRAL_REASON_FOR_CLOSURE_CODE', 'DERIVED_PERSON_KEY', 'DERIVED_AGE_YEARS', 'DERIVED_HEALTH_DISTRICT', 'DERIVED_PRIOR_ATTENDED'],
-  app: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'APPOINTMENT_ACCOUNT_NUMBER', 'CLINIC_CATEGORY_CODE', 'APPOINTMENT_DATE', 'APPOINTMENT_TYPE_CODE', 'APPOINTMENT_DELIVERY_MODE_CODE', 'APPOINTMENT_SESSION_TYPE_CODE', 'APPOINTMENT_OUTCOME_CODE', 'APPOINTMENT_NON_ATTENDANCE_REASON_CODE', 'APPOINTMENT_CANCELLATION_CODE', 'APPOINTMENT_CANCELLATION_DATE'],
+  app: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'APPOINTMENT_ACCOUNT_NUMBER', 'CLINIC_CATEGORY_CODE', 'APPOINTMENT_DATE', 'APPOINTMENT_TYPE_CODE', 'APPOINTMENT_DELIVERY_MODE_CODE', 'APPOINTMENT_SESSION_TYPE_CODE', 'APPOINTMENT_ATTENDANCE_CODE', 'APPOINTMENT_OUTCOME_CODE', 'APPOINTMENT_NON_ATTENDANCE_REASON_CODE', 'APPOINTMENT_CANCELLATION_CODE', 'APPOINTMENT_CANCELLATION_DATE'],
 };
 
 for (let n = 1; n <= N; n++) {
@@ -152,7 +152,7 @@ for (let n = 1; n <= N; n++) {
       const roll = u(); const thisDna = dnaP * (remote ? 0.6 : 1) * (first ? 1.15 : 1);
       if (roll < thisDna) {
         const rs = pickW(dims.nonAttendance, (x) => x.w).code;
-        events.push({ day, kind: 1, mode, code: rs, type });
+        events.push({ day, kind: 1, mode, code: rs, type, att: u() < 0.07 ? 'DNW' : 'DNA' });
         consecDNA++;
         if (consecDNA >= 2 && u() < 0.55) { closeReason = 'DIP'; closeDay = nextWeekday(day + 7 + Math.floor(u() * 21)); break; }
         day = nextWeekday(day + 14 + Math.floor(u() * 35));
@@ -180,6 +180,7 @@ for (let n = 1; n <= N; n++) {
   refRows.push([site.code, refNo, S.code, ddmmyyyy(refDay), ddmmyyyy(refDay), prio, reason, src.code, status, closeDay != null ? ddmmyyyy(closeDay) : '', closeReason || '', 'P' + String(n).padStart(7, '0'), age, dist.name, prior]);
   for (const e of events) {
     appRows.push([site.code, refNo, 'SYNA' + String(appId++).padStart(7, '0'), S.code, ddmmyyyy(e.day), e.type === 0 ? 'NEW' : 'FOL', e.mode, e.mode === 'GCP' ? 'GRP' : 'IND',
+      e.kind === 0 ? 'ATT' : e.kind === 1 ? e.att : '',
       e.kind === 0 ? e.code : e.kind === 2 ? 'CAN' : '', e.kind === 1 ? e.code : '', e.kind === 2 ? e.code : '', e.kind === 2 ? ddmmyyyy(e.cdate) : '']);
   }
 }

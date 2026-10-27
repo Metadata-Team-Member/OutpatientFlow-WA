@@ -11,7 +11,7 @@
 
 | # | Rule in plain English | Where | In the simulation |
 |---|---|---|---|
-| 1 | **Attended means an outcome has been allocated.** An appointment counts as attended when an Appointment Outcome Code has been recorded. The Spec has no separate attendance-status element. | BR §5.1 p.3 | ◑ Outcome present = attended. A did-not-attend is modelled as a *non-attendance reason* with a blank outcome. **How a DNA is recorded in real extracts is not confirmed** (open question). |
+| 1 | **Attended.** In the July 2021 Business Rules an appointment counts as attended when an Appointment Outcome Code has been recorded; the 2021 Specification has no attendance-status element. Later documents (Validation Manual, a current Dental Specification and MDG-10-001, see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md)) show an **Appointment Attendance Code** (ATT, DNA, DNW, NCE, NSP; MCC for case conferences), and attended means ATT or MCC. | BR §5.1 p.3; extracts | ✅ The simulation sets `APPOINTMENT_ATTENDANCE_CODE` = ATT for attended appointments (with an outcome), DNA or DNW for non-attended ones (with a non-attendance reason, blank outcome). Cancelled appointments have outcome CAN and no attendance code (**how they are coded is not confirmed**). |
 | 2 | **Every appointment must link to a valid referral**, unless the data custodian approves an exception. | BR (referral rules); Spec element 33/48 | ✅ Every appointment row carries a referral account number. |
 | 3 | **Referral category and appointment (clinic) category must match.** | BR (referral rules) | ✅ Appointments take the referral's category. |
 | 4 | **One open referral per category per condition.** | BR (referral rules) | ◑ Each synthetic person has exactly one referral, so the rule is trivially met. |

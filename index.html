@@ -122,7 +122,7 @@
   <div class="tbl-wrap"><table class="rules">
     <thead><tr><th>Rule</th><th>Source</th><th>In this simulation</th></tr></thead>
     <tbody>
-    <tr><td>An appointment is <b>attended</b> when an appointment outcome is allocated.</td><td>BR §5.1 p.3</td><td>Outcome allocated = attended. A did-not-attend is modelled as a non-attendance reason with a blank outcome. This is an assumption (open question).</td></tr>
+    <tr><td>An appointment is <b>attended</b> when an appointment outcome is allocated.</td><td>BR §5.1 p.3</td><td>Outcome allocated = attended. The simulation also sets an attendance code (ATT attended; DNA did not attend or DNW did not wait, with a non-attendance reason and a blank outcome). The code comes from later official documents seen only as extracts, so it is flagged as an open question.</td></tr>
     <tr><td>Priority 1 seen within <b>30</b> days, priority 2 within <b>90</b>, priority 3 within <b>365</b>.</td><td>BR §8.1 p.14</td><td>Queue lanes and the red target line. Urgent / Semi-urgent / Not urgent are read as priority 1 / 2 / 3 (assumption).</td></tr>
     <tr><td>Ongoing patient management (OPM) only after a first attended appointment; excluded from new-appointment wait reporting.</td><td>BR §8.3, §8.3.1 pp.15-16</td><td>About 8% of referrals are OPM and start inside the network. They are excluded from the "seen within target" and median-wait measures. They are not linked to an earlier referral.</td></tr>
     <tr><td>Transfer: the original received date is kept; the original referral is closed "Transfer and close"; the new one is OPM and its first appointment is Follow-up.</td><td>BR §8.4 p.16</td><td>"Transfer and close" appears as a closure reason, but the linked second referral is not generated (simplified).</td></tr>
@@ -152,7 +152,7 @@
   <p>This prototype runs on invented data shaped like the WA Non-Admitted Patient Activity collection. To swap in real data, the key items are:</p>
   <ul>
     <li><b>Referral records</b>: Establishment Code, Referral Account Number, Referral Received Date, Referral Priority Code, Referral Source Code, Referral Reason Code, Referral Category Code, Referral Closed Date and Reason for Closure Code.</li>
-    <li><b>Appointment records</b>: Appointment Account Number, Appointment Date, Appointment Outcome Code, Non-Attendance Reason Code, Cancellation Code and Date, Delivery Mode, Appointment Type (new / follow-up), Clinic Category and Clinic Title.</li>
+    <li><b>Appointment records</b>: Appointment Account Number, Appointment Date, Appointment Attendance Code (ATT / DNA / DNW), Appointment Outcome Code, Non-Attendance Reason Code, Cancellation Code and Date, Delivery Mode, Appointment Type (new / follow-up), Clinic Category and Clinic Title.</li>
     <li><b>De-identified person fields</b>: a project-specific person key, age, Aboriginal and Torres Strait Islander status, residential area (postcode or SA2) to place people on the map.</li>
     <li><b>Probably not in this collection</b> (to confirm with the custodian): people who never reached the hospital (not referred, not accepted, or still with the Central Referral Service before a hospital receives the referral).</li>
     <li><b>Governance</b>: approval through the WA Health data custodian / Data Linkage Services, small-number suppression, and Aboriginal data governance.</li>

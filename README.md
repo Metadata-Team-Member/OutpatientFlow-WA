@@ -6,7 +6,7 @@
 
 **Live demo:** https://metadata-team-member.github.io/OutpatientFlow-WA/
 
-**Documents:** [Sources and what was (not) obtained](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Research log](docs/RESEARCH-LOG.md)
+**Documents:** [Sources and what was (not) obtained](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Official excerpts](docs/OFFICIAL-EXCERPTS.md) · [Research log](docs/RESEARCH-LOG.md)
 
 ![Desktop view](docs/img/desktop.png)
 
@@ -27,9 +27,9 @@ Slim = still waiting, or little care so far; broad = lots of attended care. The 
 * **Real establishments.** 112 sites flagged "Outpatient Reporting" in the WA Government's HEALTH-001 dataset (85 hospitals, 27 nursing posts), in 5 HSPs ([list](docs/ESTABLISHMENTS.md)). This is *not* a certified NADC list ([open question](docs/OPEN-QUESTIONS.md)).
 * **Real geography.** WA outline, 10 health regions and 34 districts (HEALTH-002), simplified, plus a Perth metro inset.
 * **Specification-aligned data.** Column names and code sets from the NADC Data Specifications v1.0 (July 2021): Referral Priority AWT/NUR/SEM/UNK/URG, closure reasons, delivery modes, non-attendance and cancellation codes and so on. See [mapping](docs/DATA-DICTIONARY-MAPPING.md).
-* **Rule-aware indicators.** Attended = outcome allocated; wait runs from received date to first attended appointment; OPM referrals are excluded from new-appointment wait measures ([summary](docs/BUSINESS-RULES-SUMMARY.md)).
+* **Rule-aware indicators.** Attended = attendance code ATT with an outcome allocated; wait runs from received date to first attended appointment; OPM referrals are excluded from new-appointment wait measures ([summary](docs/BUSINESS-RULES-SUMMARY.md)).
 * **HSP view, establishment spotlight, establishment table**, and a "Rules in the sim" dialog that lists what is and is not simulated.
-* Round 1 codes from AIHW METEOR (ATT / DNA / DNW and similar) were removed because the NADC Specification has no attendance-status element.
+* **Attendance code.** The 2021 Specification has no attendance-status element, but later official documents (Validation Manual, a current Dental Specification) use an Appointment Attendance Code (ATT / DNA / DNW). The simulation generates it. See [official excerpts](docs/OFFICIAL-EXCERPTS.md) (partial, from the search index; edition unknown).
 
 ## What the demo includes
 
@@ -105,7 +105,7 @@ URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8`
 ## Honest limits
 
 * Synthetic activity: no real patterns, and no conclusions about real services.
-* The Specification and Business Rules were read as **July 2021 v1.0 editions through third-party mirrors**. The Business Rules were read only to section 8.5. The official Data Dictionary and Validation Manual were **not obtained**, and a "Business Rules 2024" is cited by the current Outpatient Services Policy (MP 0191/25). See [SOURCES.md](docs/SOURCES.md).
+* The Specification and Business Rules were read as **July 2021 v1.0 editions through third-party mirrors**. The Business Rules were read only to section 8.5. The official Data Dictionary was **not obtained**, and the Validation Manual and some other PDFs were seen only as **partial search extracts** ([excerpts](docs/OFFICIAL-EXCERPTS.md)), and a "Business Rules 2024" is cited by the current Outpatient Services Policy (MP 0191/25). See [SOURCES.md](docs/SOURCES.md).
 * The establishment list is an inference from a spatial dataset flag, not an official NADC list.
 * The URG / SEM / NUR to priority 1 / 2 / 3 mapping and the way a did-not-attend is recorded are assumptions.
 * Five clinic category codes (CAR, DER, END, ENT, GAS) are unverified placeholders.

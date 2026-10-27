@@ -37,6 +37,13 @@ The round-2 brief: use the public WA Health NADC documents and establishment inf
 * Read the Data Quality Team page (last reviewed 13 Jul 2023): non-validation data quality processes apply to the Non-Admitted collections.
 * More search-engine summaries (V002 from 1 July 2025; Validation Manual March 2025; a Data Quality Dashboard; CAR/DER/END labels). None confirmed by a readable page. Recorded as low confidence in SOURCES.md section 5; not used.
 
+## 27 Oct 2026, 21:55 AWST: a route to the official PDFs, and a correction
+
+* **New route.** Fetching still fails (tool HTTP 500; box TLS reset). But the web search tool indexes parts of the official PDFs and returns extracts. Targeted queries gave quoted text from the **Validation Manual**, an extract of the **Dental Specification**, **MDG-10-001** and the **Establishments list**. Recorded in [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md), with quoted text kept apart from machine-written paraphrase. Rule numbers from paraphrases are not used: two runs of one query gave OUT0013 and OUT0014 for the same rule.
+* **Correction to the entries above (21:10 and later).** I removed ATT / DNA / DNW because the 2021 Specification has no attendance code. The Validation Manual and the Dental Specification do have an Appointment Attendance Code (ATT, DNA, DNW, NCE, NSP), so the removal was wrong for the current collection. The generator now writes `APPOINTMENT_ATTENDANCE_CODE` (ATT, DNA, DNW), and `build_data.mjs` uses it. The regenerated dataset has 11,000 referrals and 35,888 appointments (29,331 ATT, 3,183 DNA, 230 DNW, 3,144 cancelled with a blank code).
+* Moved the five-working-day triage rule, the Data Quality Dashboard and the validation severities from "low confidence" to "supported by quoted extract" in SOURCES.md. The V002 / July 2026 / March 2025 claims stay unsupported.
+* **Establishment codes.** Compared the 2021/22 Hospital Morbidity list (DocsLib copy, letters A to C) with the SLIP ids: 14 of 14 sites that exist in both have the same code and name. Found that the HMDS list also holds sites missing from SLIP layer 7 (private day surgeries, renal and dialysis centres), and that Bethesda (602) is named as an NADC reporter in a search summary but has no outpatient flag in SLIP. Both are in OPEN-QUESTIONS.md (6a, 6b).
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.

@@ -168,6 +168,7 @@
     S.regMed = S.regWait.map((a) => { if (!a.length) return 0; a.sort((x, y) => x - y); return a[a.length >> 1]; });
     fw.sort((a, b) => a - b); S.medFirst = fw.length ? fw[fw.length >> 1] : 0; S.nFirst = fw.length;
     const sr = D.series;
+    S.day = day;
     S.refs12 = D.range(sr.refsC, day - 365, day + 1); S.refsPrev12 = D.range(sr.refsC, day - 730, day - 365);
     S.att12 = D.range(sr.attC, day - 365, day + 1); S.dna12 = D.range(sr.dnaC, day - 365, day + 1); S.can12 = D.range(sr.canC, day - 365, day + 1);
     S.dnaRate = S.att12 + S.dna12 ? S.dna12 / (S.att12 + S.dna12) : 0; // DNA / (attended + DNA); cancelled appointments are not counted as scheduled-and-missed
