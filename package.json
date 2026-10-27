@@ -1,12 +1,13 @@
 {
   "name": "outpatientflow-wa",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Animated simulation of WA public hospital outpatient flow, on SYNTHETIC example data.",
   "private": true,
   "type": "module",
   "license": "MIT",
   "scripts": {
     "data": "node tools/generate_synthetic.mjs && node tools/build_data.mjs",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 -m http.server 8080",
+    "establishments": "node tools/build_establishments.mjs && node tools/build_establishments_doc.mjs"
   }
 }

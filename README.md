@@ -1,11 +1,12 @@
 # OutpatientFlow WA
 
-**An animated picture of how referrals move through Western Australia's public hospital outpatient clinics: who is waiting, who is being seen, and who does not turn up.**
+**An animated picture of how referrals move through Western Australia's public hospital outpatient services: who is waiting, who is being seen, and who does not turn up.**
 
-> ⚠️ **SYNTHETIC EXAMPLE DATA.** Every number, hospital, person and postcode in this demo is invented by a seeded random generator. It is shaped like the WA Health Non-Admitted Data Collection (NADC) so we can design the tool before asking for real data. It says nothing about any real hospital, clinic or person. The six hospitals have made-up generic names.
+> ⚠️ **SYNTHETIC EXAMPLE DATA.** Every person, referral, appointment, wait time and count in this demo is invented by a seeded random generator. The *structure* (field names, code sets, priority timeframes) follows the WA Health Non-Admitted Data Collection (NADC) documents, and the *establishments and boundaries* are public reference data. Nothing here describes real activity at any hospital, clinic or person.
 
 **Live demo:** https://metadata-team-member.github.io/OutpatientFlow-WA/
-**Data we would need:** [docs/DATA-REQUIREMENTS.md](docs/DATA-REQUIREMENTS.md) · [dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md)
+
+**Documents:** [Sources and what was (not) obtained](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Research log](docs/RESEARCH-LOG.md)
 
 ![Desktop view](docs/img/desktop.png)
 
@@ -13,22 +14,29 @@
 
 Every little character is one referral.
 
-1. **Regions.** Referrals appear on a schematic map of WA, by region of residence.
-2. **Waiting yard.** Waiting characters are **slim**. They line up in an urgency lane (urgent, semi-urgent, routine). The further right, the longer they have waited compared with the target line.
-3. **Clinic doors.** Each hospital is a building with one door per clinic. When a person is seen, they walk through their door, the door glows, and they **grow broader** with every attended appointment.
-4. **Did not attend.** A missed appointment flashes amber. They stay on the books and may try again.
-5. **Discharge and closure.** People leave through the courtyard gate when the referral is closed.
+1. **Map.** Referrals start in the WA health region of residence (10 regions, real boundaries), with a Perth metro inset. Establishments sit at their real coordinates.
+2. **Queue lanes.** Waiting characters are **slim**. They queue in a lane by referral priority (Urgent, Semi-urgent, Not urgent). A red dashed line marks the Business Rules timeframe (30, 90 and 365 days), and each lane shows the share of first attended appointments seen within it.
+3. **Inside the network.** Five Health Service Provider cells (and an establishment spotlight) show activity. When a person has an appointment they walk to a clinic door, the door glows, and they **grow broader** with every *attended* appointment (an appointment outcome was allocated).
+4. **Did not attend and cancelled.** A missed appointment flashes amber; a cancellation is grey. Telephone and telehealth appear as a beam.
+5. **Closure.** The referral closes with a real closure reason (treatment completed, discharge policy, transferred, and so on).
 
-So the picture reads as: slim = still outside, broad = well inside the network, and a wide gap between the two is a story worth looking into.
+Slim = still waiting, or little care so far; broad = lots of attended care. The simulation opens **paused**; press **Play**.
 
-Use the controls to play, pause, change speed, scrub the time slider, filter by hospital, clinic, region, urgency or telehealth, change the colouring, and click any character to open its (fake) record. It opens paused; press **Play**. It works on phones too.
+## What changed in round 2
+
+* **Real establishments.** 112 sites flagged "Outpatient Reporting" in the WA Government's HEALTH-001 dataset (85 hospitals, 27 nursing posts), in 5 HSPs ([list](docs/ESTABLISHMENTS.md)). This is *not* a certified NADC list ([open question](docs/OPEN-QUESTIONS.md)).
+* **Real geography.** WA outline, 10 health regions and 34 districts (HEALTH-002), simplified, plus a Perth metro inset.
+* **Specification-aligned data.** Column names and code sets from the NADC Data Specifications v1.0 (July 2021): Referral Priority AWT/NUR/SEM/UNK/URG, closure reasons, delivery modes, non-attendance and cancellation codes and so on. See [mapping](docs/DATA-DICTIONARY-MAPPING.md).
+* **Rule-aware indicators.** Attended = outcome allocated; wait runs from received date to first attended appointment; OPM referrals are excluded from new-appointment wait measures ([summary](docs/BUSINESS-RULES-SUMMARY.md)).
+* **HSP view, establishment spotlight, establishment table**, and a "Rules in the sim" dialog that lists what is and is not simulated.
+* Round 1 codes from AIHW METEOR (ATT / DNA / DNW and similar) were removed because the NADC Specification has no attendance-status element.
 
 ## What the demo includes
 
-- KPI strip: referrals received, waiting now, median wait, attended events, did-not-attend rate, attended events per patient (inside v outside).
-- Live charts: attended events per patient (inside v outside), wait so far by urgency, monthly referrals / waiting list / attended events, region comparison, and busiest clinics (click a bar to filter).
-- ~10,000 referrals and ~34,000 appointments over four years of generated activity (July 2022 to June 2026). Playback runs July 2023 to June 2026.
-- Everything is plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
+* KPI strip: referrals (12 months), waiting for a first appointment, seen within target, median wait, telehealth and did-not-attend shares.
+* Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, busiest clinics.
+* About 11,000 referrals and 36,000 appointments across 94 active establishments, July 2022 to June 2026. Playback runs July 2023 to June 2026.
+* Plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
 
 ## Run it locally
 
@@ -46,17 +54,26 @@ The site loads `data/synthetic.json`. You do not need Node to view it.
 Needs Node 18 or newer. The generator is seeded, so the same seed always gives the same data.
 
 ```bash
-node tools/generate_synthetic.mjs --patients 10000 --seed 20261027   # writes data/csv/*.csv (git-ignored)
-node tools/build_data.mjs                                            # writes data/synthetic.json
+node tools/generate_synthetic.mjs --patients 11000 --seed 20261027   # data/csv/*.csv (git-ignored) and data/sample/*.sample.csv
+node tools/build_data.mjs                                            # data/synthetic.json
 # or both: npm run data
 ```
 
-Change `--patients` (5,000 to 20,000 works well) or `--seed` for a different crowd. Sites, clinics, regions and code lists live in `config/dimensions.json`.
+Code sets are in `config/dimensions.json` (from the Specification). The **weights, tiers and scope are invented**. Establishments come from `data/reference/establishments.json`.
+
+## Rebuild the reference data
+
+```bash
+node tools/fetch_reference.mjs            # downloads SLIP HEALTH-001/002 into data/reference/raw (git-ignored)
+/path/to/python tools/build_geo.py        # needs shapely 2.x; writes wa_regions.geojson, perth_metro.geojson
+node tools/build_establishments.mjs       # writes data/reference/establishments.json
+node tools/build_establishments_doc.mjs   # writes docs/ESTABLISHMENTS.md
+```
 
 ## Plug in real data (with approval)
 
 1. Get approval first. See [section 7 of the requirements log](docs/DATA-REQUIREMENTS.md#7-privacy-ethics-and-governance). **Do not commit real data and do not host it on public GitHub Pages.**
-2. Produce `referrals.csv` and `appointments.csv` in the layout in [section 6](docs/DATA-REQUIREMENTS.md#6-suggested-extract-format). `data/sample/` has a 25-row example.
+2. Produce `referrals.csv` and `appointments.csv` with the columns in [the mapping](docs/DATA-DICTIONARY-MAPPING.md) (dates DDMMYYYY). `data/sample/` has 25-row examples. The real-data path of `tools/build_data.mjs` is **untested against real extracts** and may need adjusting.
 3. Update `config/dimensions.json` with the real establishment list, clinics, regions and code lists.
 4. Build it:
 
@@ -68,28 +85,34 @@ Change `--patients` (5,000 to 20,000 works well) or `--seed` for a different cro
 ## Project layout
 
 ```
-index.html            page
-css/style.css         styles
-js/data.js            loads and indexes the data file, derived measures
-js/sprites.js         the blob characters
-js/scene.js           canvas scene: map, waiting yard, hospitals, event playback
-js/charts.js          small charts
-js/ui.js              filters, KPIs, controls, click-card
-config/dimensions.json  code lists and invented sites
-tools/                generator and CSV to JSON builder
-data/synthetic.json   what the site loads
-docs/                 data requirements and mapping
+index.html              page
+css/style.css           styles
+js/data.js              loads and indexes the data file, derived measures
+js/sprites.js           the blob characters
+js/scene.js             canvas scene: map, queue lanes, HSP cells, establishment spotlight, playback
+js/charts.js            small charts
+js/ui.js                filters, KPIs, controls, dialogs, click-card
+config/dimensions.json  code sets (from the Specification) and invented weights
+tools/                  generators, reference-data builders
+data/synthetic.json     what the site loads (synthetic)
+data/reference/         establishments and boundaries (public reference data)
+data/sample/            25-row sample CSVs in Specification column style
+docs/                   sources, establishments, rules summary, open questions, requirements
 ```
 
 URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N characters), `?color=stage|spec|region|prio`, `?data=file.json`.
 
 ## Honest limits
 
-- Synthetic data: no real patterns, and no conclusions about real services.
-- The urgency targets (30, 90 and 365 days) are indicative placeholders.
-- The WA Health data dictionary could not be fetched while this was built. Field names and code lists follow national (AIHW METEOR) concepts and need checking against the current NADC dictionary. See the requirements log.
-- The characters are a metaphor. They are not people, and nobody should be judged by them.
+* Synthetic activity: no real patterns, and no conclusions about real services.
+* The Specification and Business Rules were read as **July 2021 v1.0 editions through third-party mirrors**. The Business Rules were read only to section 8.5. The official Data Dictionary and Validation Manual were **not obtained**, and a "Business Rules 2024" is cited by the current Outpatient Services Policy (MP 0191/25). See [SOURCES.md](docs/SOURCES.md).
+* The establishment list is an inference from a spatial dataset flag, not an official NADC list.
+* The URG / SEM / NUR to priority 1 / 2 / 3 mapping and the way a did-not-attend is recorded are assumptions.
+* Five clinic category codes (CAR, DER, END, ENT, GAS) are unverified placeholders.
+* The characters are a metaphor. They are not people, and nobody should be judged by them.
 
-## Licence
+## Attribution and licence
 
-MIT. See [LICENSE](LICENSE).
+* Code: MIT. See [LICENSE](LICENSE).
+* Establishment and boundary data: © Government of Western Australia, Department of Health, via SLIP (Landgate) / data.wa.gov.au, datasets HEALTH-001 (Health Hospitals) and HEALTH-002 (Health Districts). The catalogue lists the licence as **"not specified"**; reuse is subject to confirmation ([open question 12](docs/OPEN-QUESTIONS.md)). Boundaries are simplified for display.
+* "WA Health", "NADC" and related names belong to the Western Australian Department of Health. This is an independent prototype and is not endorsed by it.
