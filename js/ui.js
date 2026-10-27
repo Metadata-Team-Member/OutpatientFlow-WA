@@ -115,7 +115,7 @@
   /* ---------- establishments dialog ---------- */
   function buildEstTable() {
     const dm = D.dims; const cnt = new Int32Array(dm.establishments.length); for (let i = 0; i < D.N; i++) cnt[D.site[i]]++;
-    $('estNote').innerHTML = '<b>' + dm.establishments.length + '</b> establishments: ' + dm.establishments.filter((e) => e.kind !== 'nursing_post').length + ' hospitals and ' + dm.establishments.filter((e) => e.kind === 'nursing_post').length + ' nursing posts flagged as outpatient-reporting in the WA Government SLIP health layer. Names, codes, beds, locations and health regions come from that layer. ' + esc(dm.attribution || '');
+    $('estNote').innerHTML = '<b>' + dm.establishments.length + '</b> establishments: ' + dm.establishments.filter((e) => e.kind !== 'nursing_post').length + ' hospitals and ' + dm.establishments.filter((e) => e.kind === 'nursing_post').length + ' nursing posts flagged as outpatient-reporting in the WA Government SLIP health layer. Names, codes, beds, locations and health regions come from that layer. Activity is synthetic and scales with size, so small posts have few or no rows by design ("none" says nothing about real activity), and Hedland, which has no bed count in the layer, is sized as if it had 60 beds. ' + esc(dm.attribution || '');
     const rows = dm.establishments.map((e, i) => ({ i, e, n: cnt[i], t: (e.code + ' ' + e.short + ' ' + e.name + ' ' + dm.hsps[e.hsp].code + ' ' + dm.regions[e.region].name + ' ' + e.district + ' ' + e.category).toLowerCase() }));
     const draw = (q) => {
       q = (q || '').toLowerCase().trim();

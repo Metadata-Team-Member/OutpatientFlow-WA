@@ -44,8 +44,8 @@
       mapPanel = { x: 16, y: 54, w: 470, h: 830 }; yardPanel = { x: 498, y: 54, w: 320, h: 830 }; mapH = 540;
       gx0 = 832; gy0 = 54; gap = 14; cw = (W - 16 - gx0 - gap) / 2; ch = (830 - gap * 2) / 3; Lo.H = 900; Lo.titleY = 34;
     } else {
-      mapPanel = { x: 10, y: 38, w: 620, h: 520 }; yardPanel = { x: 10, y: 590, w: 620, h: 450 }; mapH = 490;
-      gx0 = 10; gy0 = 1076; gap = 10; cw = (W - 20 - gap) / 2; ch = 250; Lo.H = gy0 + 3 * ch + 2 * gap + 12; Lo.titleY = 22; Lo.hospTitleY = gy0 - 12;
+      mapPanel = { x: 10, y: 38, w: 620, h: 520 }; yardPanel = { x: 10, y: 590, w: 620, h: 540 }; mapH = 490;
+      gx0 = 10; gy0 = 1166; gap = 10; cw = (W - 20 - gap) / 2; ch = 250; Lo.H = gy0 + 3 * ch + 2 * gap + 12; Lo.titleY = 22; Lo.hospTitleY = gy0 - 12;
     }
     Lo.map = mapPanel; Lo.yard = yardPanel;
     const s = (mapH - 28) / (LAT0 - LAT1 + 0), sx = s * cosφ; // px per degree
@@ -69,8 +69,8 @@
     Lo.ests = ests;
     Lo.spawn = dm.districts.map((d) => { const metro = d.region <= 2; const p = (metro ? Lo.insetProj : Lo.proj)(d.lon, d.lat); return { x: p[0], y: p[1] }; });
     // lanes
-    const y = Lo.yard, nP = dm.priorities.length, top = portrait ? 40 : 44, lg = 8;
-    const lh = (y.h - top - 12 - lg * (nP - 1)) / nP;
+    const y = Lo.yard, nP = dm.priorities.length, top = portrait ? 16 : 44, lg = 8;
+    const lh = (y.h - top - 20 - lg * (nP - 1)) / nP;
     Lo.lanes = dm.priorities.map((p, i) => ({ prio: i, x: y.x + 12, y: y.y + top + i * (lh + lg), w: y.w - 24, h: lh }));
     Lo.laneX = (lane, u) => { const a = lane.x + 26, w = lane.w - 40; const uu = clamp(u, 0, 3); return a + w * (uu <= 1 ? uu * 0.62 : 0.62 + Math.min(1, (uu - 1) / 2) * 0.38); };
     // cells: 5 HSP blocks + spotlight
@@ -120,7 +120,14 @@
       regF.forEach((f) => { const col = hspCol(hspOf(f.properties.name)); const p = pathOf(f, L.proj); c.strokeStyle = col + 'aa'; c.lineWidth = 1.2; c.stroke(p); });
       // region labels (non-metro)
       c.font = '700 ' + fz(9) + 'px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(200,220,255,.55)';
-      regF.forEach((f) => { if (hspOf(f.properties.name) !== 'WACHS') return; const q = L.proj(f.properties.cx, f.properties.cy); const nm = f.properties.name; if (nm === 'South West' || nm === 'Great Southern') { c.textAlign = 'center'; c.fillText(nm === 'South West' ? 'SW' : 'Gt Sthn', q[0] + (nm === 'South West' ? -14 : 8), q[1] + (nm === 'South West' ? 8 : 20)); } else c.fillText(nm, q[0], q[1]); });
+      const lab = (t, x, y, al) => { c.textAlign = al || 'center'; c.lineWidth = 3; c.strokeStyle = 'rgba(9,17,29,.85)'; c.strokeText(t, x, y); c.fillText(t, x, y); };
+      const k = Math.max(0.7, Math.min(1.3, L.map.w / 360)); // label offsets scale with the map
+      regF.forEach((f) => { if (hspOf(f.properties.name) !== 'WACHS') return; const q = L.proj(f.properties.cx, f.properties.cy); const nm = f.properties.name;
+        if (nm === 'South West') lab('SW', q[0] - 16 * k, q[1] + 14 * k, 'center'); // abbreviated: the full name is in the list
+        else if (nm === 'Great Southern') lab('Great Southern', q[0] + 34 * k, q[1] + 4 * k, 'left');
+        else if (nm === 'Wheatbelt') lab(nm, q[0] + 22 * k, q[1] - 14 * k);
+        else lab(nm, q[0], q[1]); });
+      c.lineWidth = 1;
       // Perth marker + inset connector
       const pr = L.perth, ib = L.insetBox;
       c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1; c.beginPath(); c.arc(pr[0], pr[1], 9, 0, 7); c.stroke();
@@ -132,7 +139,7 @@
       geo.metro.forEach((f) => { const col = hspCol(hspOf(f.properties.region)); const p = pathOf(f, L.insetProj); c.fillStyle = col + '30'; c.fill(p, 'evenodd'); c.strokeStyle = col + '99'; c.lineWidth = 0.8; c.stroke(p); });
       c.restore();
       c.fillStyle = '#9db0cf'; c.font = '700 ' + fz(9) + 'px ' + FONT; c.textAlign = 'left'; c.fillText('PERTH METRO (inset)', ins.x, ins.y - 6 + (L.portrait ? -2 : 0));
-      c.fillStyle = 'rgba(150,175,215,.5)'; c.font = fz(8.5) + 'px ' + FONT; c.fillText('34 health districts → 10 regions', L.portrait ? L.regList.x : L.map.x + 12, L.portrait ? L.map.y + L.map.h - 8 : L.map.y + 16);
+      c.fillStyle = 'rgba(150,175,215,.5)'; c.font = fz(8.5) + 'px ' + FONT; c.fillText('34 health districts → 10 regions', L.map.x + 12, L.map.y + 16);
     }
     // lanes
     L.lanes.forEach((ln) => {
@@ -208,11 +215,11 @@
     }
   };
 
-  function gTop() { return L.portrait ? 78 : 64; }
+  function gTop() { return L.portrait ? 92 : 64; }
   function laneOf(a) { return L.lanes[D.prio[a.i] % L.lanes.length]; }
   function waitTarget(a, t) {
     const ln = laneOf(a); const u = (t - D.ref[a.i]) / D.target[D.prio[a.i]]; a.u = u;
-    return [L.laneX(ln, u) + (a.jx - 0.5) * 16, ln.y + gTop() + a.jy * Math.max(6, ln.h - gTop() - 6)];
+    return [L.laneX(ln, u) + (a.jx - 0.5) * 16, ln.y + gTop() + a.jy * Math.max(6, ln.h - gTop() - 20)];
   }
   function careBase(a) { const c = L.cells[a.cell].court; return [c.x + 14 + a.jx * (c.w - 28), c.y + 18 + a.jy * Math.max(6, c.h - 26)]; }
 
@@ -454,7 +461,7 @@
       rs.forEach((r, i) => {
         const y = rl.y + i * rl.rowH, n = stats.regWait[i].length;
         ctx.fillStyle = '#c6d4ec'; ctx.font = fz(10) + 'px ' + FONT; ctx.textAlign = 'left'; ctx.fillText(r.name, rl.x, y + 11);
-        const lw = L.portrait ? 92 : 84; const bx = rl.x + lw, bw = rl.w - lw - 36;
+        const lw = Math.max(L.portrait ? 92 : 84, rs.reduce((m, q) => Math.max(m, ctx.measureText(q.name).width), 0) + 10); const bx = rl.x + lw, bw = rl.w - lw - 36;
         rrect(ctx, bx, y + 3, bw, 8, 4); ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fill();
         rrect(ctx, bx, y + 3, Math.max(3, bw * n / mx), 8, 4); ctx.fillStyle = Scene.hspCol[r.hsp]; ctx.fill();
         ctx.fillStyle = '#e3ecfb'; ctx.textAlign = 'right'; ctx.fillText(fmtN(n), rl.x + rl.w, y + 11);

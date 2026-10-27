@@ -54,11 +54,12 @@
       let x = L; rr(c, L, y, pw, bh, 5); c.fillStyle = 'rgba(255,255,255,.05)'; c.fill();
       if (n) for (let q = 0; q < 8; q++) { const bw = pw * arr[q] / n; c.fillStyle = cols[q]; c.fillRect(x, y, bw, bh); x += bw; }
       let over = 0; for (let q = 4; q < 8; q++) over += arr[q];
+      if (n && over < n) { const tx = L + pw * (1 - over / n); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 1.5; c.setLineDash([3, 2]); c.beginPath(); c.moveTo(tx, y - 4); c.lineTo(tx, y + bh + 4); c.stroke(); c.setLineDash([]); c.lineWidth = 1; }
       font(c, 11, 700); c.textAlign = 'left'; c.fillStyle = n && over / n > 0.3 ? RED : '#d5e0f3'; c.fillText(n ? Math.round(over / n * 100) + '%' : '–', L + pw + 7, y + bh * 0.68);
     });
-    c.strokeStyle = 'rgba(255,255,255,.8)'; c.setLineDash([4, 3]); const tx = L + pw * 0.0; c.setLineDash([]);
+    c.lineWidth = 1;
     font(c, 9.5); c.fillStyle = TXT2; c.textAlign = 'left'; c.fillText('just referred', L, h - 6); c.textAlign = 'right'; c.fillText('longer than 1.75× target →', L + pw, h - 6);
-    c.textAlign = 'center'; c.fillStyle = '#ffb3b3'; c.fillText('| target', L + pw / 2, T - 6);
+    c.textAlign = 'center'; c.fillStyle = '#ffb3b3'; c.fillText('┆ = at target (1.0×)', L + pw / 2 - 20, T - 6);
     c.fillStyle = '#d5e0f3'; c.textAlign = 'left'; c.fillText('% over target', L + pw - 4 - 52, T - 6);
   }
 

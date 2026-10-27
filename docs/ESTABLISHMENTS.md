@@ -10,7 +10,7 @@
 * **HSP** (Health Service Provider) comes from HEALTH-001's geographic service, with the overrides in the notes below (checked against the Department of Health Central Referral Service page, last reviewed 8 Sep 2026, and the cited sources).
 * **Region and district** are the HEALTH-001 / HEALTH-002 assignments. For example, the "City" district is in East Metro and "Lower West" (which contains Sir Charles Gairdner Hospital) is in North Metro. This follows SLIP and may differ from the HSP catchment a clinician would name.
 * **Lat/long** are the HEALTH-001 coordinates (decimal degrees; the datum is not stated in the layer description).
-* **Beds** are HEALTH-001 "No. of beds" (0 means not recorded, for example Hedland).
+* **Beds** are HEALTH-001 "No. of beds" (0 means not recorded, for example Hedland). For the synthetic volumes only, a regional-category site with no bed count is sized as if it had 60 beds (a modelling assumption, not a fact about Hedland).
 * **Contracted** marks sites run by a non-government operator on behalf of the State.
 * All data: © Government of Western Australia, Department of Health, via SLIP / data.wa.gov.au (HEALTH-001). Licence listed as "Not specified" on the catalogue.
 
