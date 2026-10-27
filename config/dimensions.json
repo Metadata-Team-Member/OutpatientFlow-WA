@@ -1,0 +1,97 @@
+{
+  "_note": "Reference lists used by the generator AND by tools/build_data.mjs. For real data, replace these with the current code sets from the Non-Admitted Data Collection Data Dictionary (and your real establishment list). Everything here is SYNTHETIC / illustrative.",
+  "start": "2022-07-01",
+  "end": "2026-06-30",
+  "simStart": "2023-07-01",
+  "sites": [
+    { "id": "SYN-A", "name": "Metro Tertiary Hospital A", "short": "Metro Tertiary A", "type": "Metro tertiary", "specs": ["CAR","ORT","OPH","DER","END","NEU","ENT","GAS","REN","RES"] },
+    { "id": "SYN-B", "name": "Metro Tertiary Hospital B", "short": "Metro Tertiary B", "type": "Metro tertiary", "specs": ["CAR","ORT","DER","END","NEU","GAS","RES","MEN","PAI","REN"] },
+    { "id": "SYN-C", "name": "Metro Secondary Hospital C", "short": "Metro Secondary C", "type": "Metro secondary", "specs": ["CAR","ORT","OPH","ENT","GAS","RES","DER","PAI"] },
+    { "id": "SYN-D", "name": "Metro Specialist Hospital D (Women & Children)", "short": "Women & Children D", "type": "Metro specialist", "specs": ["PAE","WOM","ENT","OPH","END","NEU","DER","MEN"] },
+    { "id": "SYN-E", "name": "Regional Hospital E (South)", "short": "Regional E (South)", "type": "Regional", "specs": ["CAR","ORT","DER","ENT","WOM","PAE","MEN"] },
+    { "id": "SYN-F", "name": "Regional Hospital F (North)", "short": "Regional F (North)", "type": "Regional / remote", "specs": ["ORT","WOM","PAE","MEN","RES","END","CAR"] }
+  ],
+  "specialties": [
+    { "code": "CAR", "name": "Cardiology",       "hue": 350 },
+    { "code": "ORT", "name": "Orthopaedics",     "hue": 28 },
+    { "code": "OPH", "name": "Ophthalmology",    "hue": 195 },
+    { "code": "DER", "name": "Dermatology",      "hue": 12 },
+    { "code": "END", "name": "Endocrinology",    "hue": 48 },
+    { "code": "NEU", "name": "Neurology",        "hue": 265 },
+    { "code": "ENT", "name": "Ear, Nose & Throat","hue": 160 },
+    { "code": "GAS", "name": "Gastroenterology", "hue": 85 },
+    { "code": "REN", "name": "Renal",            "hue": 220 },
+    { "code": "RES", "name": "Respiratory",      "hue": 180 },
+    { "code": "PAE", "name": "Paediatrics",      "hue": 310 },
+    { "code": "WOM", "name": "Women's Health",   "hue": 330 },
+    { "code": "MEN", "name": "Mental Health",    "hue": 245 },
+    { "code": "PAI", "name": "Pain Management",  "hue": 60 }
+  ],
+  "regions": [
+    { "code": "PER", "name": "Perth Metropolitan", "lon": 115.9, "lat": -31.95, "lx": 1.0, "ly": 0.0, "postcodes": ["6000","6050","6100","6150","6027","6064","6112","6163","6210"] },
+    { "code": "SWE", "name": "South West",         "lon": 115.75, "lat": -33.6, "postcodes": ["6230","6280","6233","6284"] },
+    { "code": "GSO", "name": "Great Southern",     "lon": 117.9, "lat": -34.2, "postcodes": ["6330","6324","6333"] },
+    { "code": "WHE", "name": "Wheatbelt",          "lon": 117.2, "lat": -31.6, "postcodes": ["6401","6407","6556","6302"] },
+    { "code": "GEF", "name": "Goldfields-Esperance","lon": 121.4, "lat": -30.8, "postcodes": ["6430","6450","6440"] },
+    { "code": "MID", "name": "Midwest",            "lon": 115.9, "lat": -28.8, "postcodes": ["6530","6535","6532"] },
+    { "code": "PIL", "name": "Pilbara",            "lon": 118.6, "lat": -21.3, "postcodes": ["6721","6714","6751"] },
+    { "code": "KIM", "name": "Kimberley",          "lon": 125.0, "lat": -17.6, "postcodes": ["6725","6743","6728"] }
+  ],
+  "sources": [
+    { "code": "GEP", "label": "General Practitioner", "internal": false },
+    { "code": "PRN", "label": "Private referral by General Practitioner", "internal": false },
+    { "code": "SPR", "label": "Specialist rooms", "internal": false },
+    { "code": "MEP", "label": "Medical Practitioner", "internal": false },
+    { "code": "NPR", "label": "Nurse Practitioner", "internal": false },
+    { "code": "AHP", "label": "Allied Health professional", "internal": false },
+    { "code": "MHC", "label": "Mental Health clinic or team", "internal": false },
+    { "code": "OTH", "label": "Other hospital", "internal": false },
+    { "code": "SLF", "label": "Self", "internal": false },
+    { "code": "OPH", "label": "Outpatient Department this Hospital", "internal": true },
+    { "code": "EMD", "label": "Emergency Department", "internal": true },
+    { "code": "INW", "label": "Inpatient ward", "internal": true }
+  ],
+  "priorities": [
+    { "code": "URG", "label": "Urgent",      "targetDays": 30,  "note": "Indicative target used for illustration" },
+    { "code": "SEM", "label": "Semi-urgent", "targetDays": 90,  "note": "Indicative target used for illustration" },
+    { "code": "ROU", "label": "Routine",     "targetDays": 365, "note": "Indicative target used for illustration" }
+  ],
+  "modes": [
+    { "code": "CLP", "label": "Client present",        "remote": false },
+    { "code": "GCP", "label": "Group client present",  "remote": false },
+    { "code": "TEL", "label": "Telephone",             "remote": true },
+    { "code": "VID", "label": "Video conference",      "remote": true }
+  ],
+  "outcomes": [
+    { "code": "REV", "label": "Further review" },
+    { "code": "REA", "label": "Reappointment" },
+    { "code": "DIS", "label": "Discharge from clinic" },
+    { "code": "RGP", "label": "Referred back to General Practitioner" },
+    { "code": "RAS", "label": "Refer to other specialty" },
+    { "code": "RWL", "label": "Refer to Inpatient Wait List" },
+    { "code": "ADM", "label": "Admit to ward" },
+    { "code": "ROH", "label": "Refer to other hospital" },
+    { "code": "NSP", "label": "Not specified (e.g. did not attend)" }
+  ],
+  "attendance": [
+    { "code": "ATT", "label": "Attended" },
+    { "code": "DNA", "label": "Did not attend" },
+    { "code": "DNW", "label": "Did not wait" }
+  ],
+  "closeReasons": [
+    { "code": "SEEN", "label": "Seen and discharged" },
+    { "code": "PRQ", "label": "Patient request / no longer required" },
+    { "code": "UTC", "label": "Unable to contact" },
+    { "code": "ELS", "label": "Seen elsewhere" },
+    { "code": "DEC", "label": "Deceased" },
+    { "code": "DNA", "label": "Closed after repeated did-not-attend" }
+  ],
+  "ageGroups": ["0-14","15-24","25-44","45-64","65-79","80+"],
+  "indigenous": [
+    { "code": "1", "label": "Aboriginal but not Torres Strait Islander" },
+    { "code": "2", "label": "Torres Strait Islander but not Aboriginal" },
+    { "code": "3", "label": "Both Aboriginal and Torres Strait Islander" },
+    { "code": "4", "label": "Neither Aboriginal nor Torres Strait Islander" },
+    { "code": "9", "label": "Not stated / unknown" }
+  ]
+}
