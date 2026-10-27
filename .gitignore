@@ -2,3 +2,4 @@ node_modules/
 data/csv/
 data/real*.json
 *.log
+data/reference/raw/
