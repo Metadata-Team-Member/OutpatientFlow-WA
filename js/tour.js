@@ -30,7 +30,7 @@
     {
       title: 'Telehealth and phone', day: () => dayAt(0.85), filter: { mode: 'tele' }, hl: ['#cHsp', '#fMode'],
       text: (S) => { let tele = 0, inp = 0; S.hsp12.forEach((h) => { inp += h[0]; tele += h[1]; });
-        return 'The characters now shown all had at least one telehealth or phone appointment (a blue pop-up such as “+1 video” appears and the character stays put instead of walking to a door). In the 12 months to ' + D.fmtDate(S.day) + ' <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH and THC in this simulation) and <b>' + pct(inp, tele + inp) + '%</b> were in person, shown by Health Service Provider in the chart. The filter returns to "all" when you move on.'; },
+        return 'The characters now shown all had at least one telehealth or phone appointment (a blue beam links the character to the clinic door and a “+1 video” or “+1 phone” note appears, with no walking). In the 12 months to ' + D.fmtDate(S.day) + ' <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH and THC in this simulation) and <b>' + pct(inp, tele + inp) + '%</b> were in person, shown by Health Service Provider in the chart. The filter returns to "all" when you move on.'; },
     },
     {
       title: 'What is real and what is not', day: () => OF.UI.simStart(), hl: ['#btnEst'], end: true,

@@ -16,7 +16,7 @@
     <svg class="logo" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ae7d6"/><stop offset="1" stop-color="#2aa7c9"/></linearGradient></defs><path d="M22 9c-1 3-4 5-4 8" stroke="#8be69e" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="17" cy="11" rx="4.5" ry="2.4" transform="rotate(-30 17 11)" fill="#8be69e"/><ellipse cx="27" cy="9.5" rx="4.5" ry="2.4" transform="rotate(25 27 9.5)" fill="#52c97a"/><rect x="8" y="14" width="28" height="26" rx="13" fill="url(#lg)"/><circle cx="17" cy="24" r="3" fill="#fff"/><circle cx="27" cy="24" r="3" fill="#fff"/><circle cx="17.6" cy="24.4" r="1.5" fill="#0b2233"/><circle cx="27.6" cy="24.4" r="1.5" fill="#0b2233"/><path d="M18 31q4 3.4 8 0" stroke="#0b2233" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
     <div class="titles">
       <h1>OutpatientFlow <span>WA</span></h1>
-      <p>WA Health outpatient (Non-Admitted Patient Activity) collection · visual prototype</p>
+      <p>WA Health Non-Admitted Data Collection (NADC) · outpatient flow prototype</p>
     </div>
   </div>
   <div class="top-right">
@@ -99,7 +99,7 @@
 
 <footer>
   <div class="foot-badge">SYNTHETIC EXAMPLE DATA</div>
-  <p>All activity (people, referrals, appointments, waits, counts) is invented by a random-number generator so the design can be tested before any real extract is requested. Nothing here should be quoted as a finding about WA Health. The establishment list and boundaries are reference data from the WA Government's SLIP / data.wa.gov.au HEALTH layers (hospitals, nursing posts, health districts and regions); field names and code sets follow the WA Health NAPDC data specification, business rules and dictionary. See <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/SOURCES.md" target="_blank" rel="noopener">sources</a>; the licence of those layers is "not specified", so reuse is subject to confirmation (<a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/OPEN-QUESTIONS.md" target="_blank" rel="noopener">open questions</a>).</p>
+  <p>All activity (people, referrals, appointments, waits, counts) is invented by a random-number generator so the design can be tested before any real extract is requested. Nothing here should be quoted as a finding about WA Health. The establishment list and boundaries are reference data from the WA Government's SLIP / data.wa.gov.au HEALTH layers (hospitals, nursing posts, health districts and regions); field names and code sets follow the WA Health Non-Admitted Data Collection (NADC) specification and business rules (the 2021 documents call it NAPDC). See <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/SOURCES.md" target="_blank" rel="noopener">sources</a>; the licence of those layers is "not specified", so reuse is subject to confirmation (<a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/OPEN-QUESTIONS.md" target="_blank" rel="noopener">open questions</a>).</p>
   <p class="attrib">Map and establishment data: © Government of Western Australia, Department of Health, via SLIP / data.wa.gov.au. Simplified for display. Not an official WA Health product and not endorsed by WA Health.</p>
   <p><a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/ESTABLISHMENTS.md" target="_blank" rel="noopener">Establishment list</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/BUSINESS-RULES-SUMMARY.md" target="_blank" rel="noopener">Business rules summary</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/DATA-REQUIREMENTS.md" target="_blank" rel="noopener">Data requirements</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/DATA-DICTIONARY-MAPPING.md" target="_blank" rel="noopener">Dictionary mapping</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA" target="_blank" rel="noopener">Source on GitHub</a></p>
 </footer>
@@ -109,7 +109,7 @@
   <ul>
     <li><b>One character = one referral episode.</b> Soft, neutral little beans with a sprout on top: no gender, no hair, no clothes.</li>
     <li><b>Size = care received.</b> Thin means few or no attended events. Each attended appointment makes the character larger (we count attended events, including earlier ones in the 24 months before the playback starts).</li>
-    <li><b>Panel 1, the map.</b> Real WA health regions (34 districts → 10 regions) with a Perth metro inset. Coloured dots are reporting establishments, sized by beds and coloured by Health Service Provider. A referral appears at the centre of its health district. A dot pulses when an appointment is attended there.</li>
+    <li><b>Panel 1, the map.</b> Real WA health regions (34 districts → 10 regions) with a Perth metro inset. Coloured dots are WA Health establishments (see Establishments &amp; sources for how many are confirmed as NADC reporters), sized by beds and coloured by Health Service Provider. A referral appears at the centre of its health district. A dot pulses when an appointment is attended there.</li>
     <li><b>Panel 2, the queue.</b> One lane per referral priority. The red dashed line is the Business Rules §8.1 timeframe (30 / 90 / 365 days). Characters who pass it look worried.</li>
     <li><b>Panel 3, inside the network.</b> One block per Health Service Provider, one door per clinic category. Attended appointment: the character goes through the door and comes out bigger. Telehealth or phone: a blue beam, no walking. <b>Did not attend</b>: walks to the door, turns away, with the non-attendance reason shown. <b>Cancelled</b>: a "✕ cancelled" note with the cancellation reason, blue if the hospital cancelled and amber if the patient did.</li>
     <li><b>Establishment spotlight</b> (last block): hover or click a dot to see one establishment, or click a row in the "busiest" list to filter to it.</li>
@@ -146,13 +146,13 @@
   <p class="dlg-note" id="estNote"></p>
   <input type="search" id="estSearch" placeholder="Search name, code, region, HSP…" aria-label="Search establishments">
   <div class="tbl-wrap tall"><table class="rules est"><thead><tr><th>Code</th><th>Establishment</th><th>HSP</th><th>Region</th><th>Type</th><th>Beds</th><th>Rows in this sim</th></tr></thead><tbody id="estBody"></tbody></table></div>
-  <p class="dlg-note">Click a row to filter the simulation to that establishment. The full list with sources: <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/ESTABLISHMENTS.md" target="_blank" rel="noopener">ESTABLISHMENTS.md</a>. Whether each site really reports to the collection is <b>not confirmed</b>: it is inferred from the SLIP hospital layer's "outpatient reporting" flag and needs checking with the data custodian.</p>
+  <p class="dlg-note">Click a row to filter the simulation to that establishment. The full list with sources: <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/ESTABLISHMENTS.md" target="_blank" rel="noopener">ESTABLISHMENTS.md</a>. Only the rows marked “✓ on official list” are confirmed as reporting to the collection (from the first 28 rows of the official Establishment List). The others come from the SLIP hospital layer's “outpatient reporting” flag and need checking with the data custodian.</p>
   <button class="btn primary">Close</button>
 </form></dialog>
 
 <dialog id="dlgData"><form method="dialog">
   <h2>What real data we'd need</h2>
-  <p>This prototype runs on invented data shaped like the WA Non-Admitted Patient Activity collection. To swap in real data, the key items are:</p>
+  <p>This prototype runs on invented data shaped like the WA Non-Admitted Data Collection (NADC). To swap in real data, the key items are:</p>
   <ul>
     <li><b>Referral records</b>: Establishment Code, Referral Account Number, Referral Received Date, Referral Priority Code, Referral Source Code, Referral Reason Code, Referral Category Code, Referral Closed Date and Reason for Closure Code.</li>
     <li><b>Appointment records</b>: Appointment Account Number, Appointment Date, Appointment Attendance Code (ATT / DNA / DNW), Appointment Outcome Code, Non-Attendance Reason Code, Cancellation Code and Date, Delivery Mode, Appointment Type (new / follow-up), Clinic Category and Clinic Title.</li>
