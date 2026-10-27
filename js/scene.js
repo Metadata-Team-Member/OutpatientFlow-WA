@@ -446,7 +446,13 @@
         // rule-aware indicator: of first appointments in the last 12 months, share within target
         const sn = stats.seen12[ln.prio], wn = stats.within12[ln.prio];
         ctx.textAlign = 'left'; ctx.font = '600 ' + fz(9.5) + 'px ' + FONT; ctx.fillStyle = sn ? (wn / sn >= 0.9 ? '#7fe0b4' : wn / sn >= 0.7 ? '#f5b94a' : '#ff8b8b') : '#6f819e';
-        ctx.fillText(sn ? 'Seen ≤' + dm.priorities[ln.prio].targetDays + ' d (12 mo): ' + Math.round(wn / sn * 100) + '% of ' + fmtN(sn) : 'No first appts in last 12 mo', ln.x + 22, ln.y + 32);
+        const td = dm.priorities[ln.prio].targetDays, pc = sn ? Math.round(wn / sn * 100) : 0;
+        const rw = over ? (ctx.font = fz(9.5) + 'px ' + FONT, ctx.measureText(fmtN(over) + ' past target').width) : 0;
+        ctx.font = '600 ' + fz(9.5) + 'px ' + FONT;
+        const room = ln.w - 22 - 8 - rw - 8;
+        const opts = sn ? ['Seen ≤' + td + ' d (12 mo): ' + pc + '% of ' + fmtN(sn), 'Seen ≤' + td + ' d: ' + pc + '% of ' + fmtN(sn), '≤' + td + ' d: ' + pc + '%'] : ['No first appts in last 12 mo', 'No first appts (12 mo)', 'No first appts'];
+        let txt = opts.find((o) => ctx.measureText(o).width <= room) || opts[opts.length - 1];
+        ctx.fillText(txt, ln.x + 22, ln.y + 32);
       });
       L.cells.forEach((c) => {
         if (c.spot || !c.doors) return;

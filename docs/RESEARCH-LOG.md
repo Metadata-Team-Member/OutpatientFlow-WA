@@ -66,6 +66,13 @@ Round of varied searches (Referral Priority code list; Business Rules section 9 
 * **Search-engine summaries (unverified paraphrase, not used as fact).** They said: the Referral Priority code set is AWT, NUR, SEM, URG, UNK (this matches the 2021 Specification we hold); attendance codes are ATT, DNA, DNW, NCE, NSP (matches the Dental Specification extract); "Did Not Attend" is an attendance status and not a valid appointment outcome (matches the Validation Manual extract we hold); Esperance 218, Geraldton 220, Derby 215, Fremantle 102, Kalgoorlie 226, Royal Perth 101 and Fiona Stanley 106 report to the NADC (the numbers equal our SLIP codes, but no official row was shown, so these sites stay "SLIP-flagged, not confirmed"); the Business Rules 2024 were superseded on 1 July 2025 and a Data Dictionary was superseded on 1 July 2026 (not confirmed anywhere; added to Open Question 1 as a reason to ask which edition is current).
 * Where a summary agrees with text we already hold verbatim, that adds nothing; where it does not, we did not use it.
 
+
+## 27 Oct 2026, about 22:35 AWST: second probe round and fixes
+
+* Searched again for Business Rules 2024 wording, Data Dictionary code lists, Information Compendium and Establishments rows beyond "C". The official health.wa.gov.au PDFs still return HTTP 500 to WebFetch (including the 2025-26 OBM KPI Data Definition Manual). Search summaries only repeated what is already logged: URG/SEM/NUR priority codes with AWT/UNK, attendance codes ATT/MCC/DNA/DNW/NCE/NSP/UNK (from the 2021 Business Rules mirror), and Peel Health Campus under SMHS from 13 Aug 2024. These are paraphrases (not verbatim) and change no counts, flags or rules.
+* Peel 145 vs 645, Hedland 131 vs 240 and Warmun 4243 stay open (OPEN-QUESTIONS 6c).
+* Simulation fixes in the same session: tour step 5 now reports the telehealth share across all appointments (17% in the default run) instead of the share among the filtered group (34%); the lane caption "Seen within target" shortens itself when the lane is narrow.
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.
