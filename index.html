@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OutpatientFlow WA — synthetic outpatient flow simulation</title>
+<meta name="description" content="A Lemmings-inspired visual prototype of Western Australian public hospital outpatient referrals and appointments. SYNTHETIC EXAMPLE DATA ONLY.">
+<meta name="theme-color" content="#0a111d">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ae7d6"/><stop offset="1" stop-color="#2aa7c9"/></linearGradient></defs><path d="M22 9c-1 3-4 5-4 8" stroke="#8be69e" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="17" cy="11" rx="4.5" ry="2.4" transform="rotate(-30 17 11)" fill="#8be69e"/><ellipse cx="27" cy="9.5" rx="4.5" ry="2.4" transform="rotate(25 27 9.5)" fill="#52c97a"/><rect x="8" y="14" width="28" height="26" rx="13" fill="url(#lg)"/><circle cx="17" cy="24" r="3" fill="#fff"/><circle cx="27" cy="24" r="3" fill="#fff"/><circle cx="17.6" cy="24.4" r="1.5" fill="#0b2233"/><circle cx="27.6" cy="24.4" r="1.5" fill="#0b2233"/><path d="M18 31q4 3.4 8 0" stroke="#0b2233" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+    <div class="titles">
+      <h1>OutpatientFlow <span>WA</span></h1>
+      <p>Outpatient referrals &amp; appointments · Non-Admitted Data Collection · visual prototype</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <span class="badge-syn" title="Every person, number and date on this page is invented.">SYNTHETIC EXAMPLE DATA · not real WA Health data</span>
+    <button class="btn ghost" id="btnHow">How to read this</button>
+    <button class="btn ghost" id="btnData">Data we'd need</button>
+  </div>
+</header>
+
+<main>
+<section class="kpis" id="kpis" aria-label="Key measures"></section>
+
+<section class="stage">
+  <div class="filters" id="filters">
+    <button class="btn ghost filter-toggle" id="btnFilters" aria-expanded="false">Filters ▾</button>
+    <div class="filter-grid" id="filterGrid">
+      <label>Hospital<select id="fSite"></select></label>
+      <label>Specialty (clinic)<select id="fSpec"></select></label>
+      <label>Region of residence<select id="fRegion"></select></label>
+      <label>Urgency category<select id="fPrio"></select></label>
+      <label>Appointment type<select id="fMode"><option value="all">All appointments</option><option value="person">Includes in-person</option><option value="tele">Includes telehealth</option></select></label>
+      <label>Colour characters by<select id="fColor"><option value="prio">Urgency category</option><option value="stage">Stage of care</option><option value="spec">Specialty</option><option value="region">Region</option></select></label>
+      <label>Crowd size<select id="fDensity"><option value="1">Every patient</option><option value="2">1 in 2 patients</option><option value="4">1 in 4 patients</option><option value="6">1 in 6 patients</option><option value="8">1 in 8 patients</option><option value="12">1 in 12 patients</option><option value="16">1 in 16 patients</option></select></label>
+      <button class="btn ghost" id="btnReset">Reset filters</button>
+    </div>
+  </div>
+
+  <div class="scene-wrap" id="sceneWrap">
+    <canvas id="scene" aria-label="Animated outpatient flow scene" role="img"></canvas>
+    <div class="intro" id="intro">
+      <div class="intro-card">
+        <div class="intro-badge">SYNTHETIC EXAMPLE DATA</div>
+        <h2>Who gets seen, and who is still waiting?</h2>
+        <p>Every little character is one invented referral. Referrals arrive from around Western Australia, <b>wait thin</b> in the queue, and <b>grow larger</b> with every outpatient appointment they attend inside the hospital network.</p>
+        <button class="btn primary big" id="introPlay"><span>▶</span> Press Play to begin</button>
+        <small>Tap or click any character to open its (fake) record. Space bar plays and pauses.</small>
+      </div>
+    </div>
+    <div class="tip" id="tip" hidden></div>
+    <aside class="card" id="card" hidden></aside>
+    <div class="loading" id="loading">Loading synthetic data…</div>
+  </div>
+
+  <div class="controls" id="controls">
+    <button class="btn primary play" id="btnPlay" aria-label="Play or pause"><span id="playIcon">▶</span><b id="playText">Play</b></button>
+    <div class="speed" role="group" aria-label="Speed">
+      <button data-speed="1.5">Slow</button><button data-speed="4" class="on">Normal</button><button data-speed="12">Fast</button><button data-speed="40">Turbo</button>
+    </div>
+    <div class="timebox">
+      <div class="dateline"><b id="dateLabel">—</b><span id="fyLabel"></span></div>
+      <input type="range" id="slider" min="0" max="100" value="0" aria-label="Date">
+      <div class="ticks" id="ticks"></div>
+    </div>
+    <button class="btn ghost" id="btnRestart" title="Back to the start">⟲</button>
+  </div>
+</section>
+
+<section class="legend" id="legend" aria-label="Legend"></section>
+
+<section class="charts" id="charts">
+  <article class="chart"><h3>Attended events per patient</h3><p class="sub" id="subHist">Inside the network vs waiting outside, right now</p><canvas id="cHist"></canvas></article>
+  <article class="chart"><h3>Wait so far, by urgency category</h3><p class="sub">Share of people waiting, compared with each category's indicative target</p><canvas id="cWait"></canvas></article>
+  <article class="chart wide"><h3>Referrals, waiting list and attended events by month</h3><p class="sub">The line marks the date on the clock above</p><canvas id="cTime"></canvas></article>
+  <article class="chart"><h3>By region: median wait &amp; events per patient</h3><p class="sub">People still waiting (left) and people in care (right)</p><canvas id="cReg"></canvas></article>
+  <article class="chart"><h3>Busiest clinics, last 90 days</h3><p class="sub">Attended appointments by specialty. Click a bar to filter.</p><canvas id="cSpec"></canvas></article>
+</section>
+</main>
+
+<footer>
+  <div class="foot-badge">SYNTHETIC EXAMPLE DATA</div>
+  <p>Everything on this page is invented by a random-number generator so the design can be tested before any real extract is requested. Hospital names are generic labels. No real patient, hospital or WA Health number appears here, and nothing here should be quoted as a finding. Designed around the field names and concepts of the WA Department of Health Non-Admitted Data Collection.</p>
+  <p><a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/DATA-REQUIREMENTS.md" target="_blank" rel="noopener">Data requirements log</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/DATA-DICTIONARY-MAPPING.md" target="_blank" rel="noopener">Dictionary mapping</a> · <a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA" target="_blank" rel="noopener">Source on GitHub</a></p>
+</footer>
+
+<dialog id="dlgHow"><form method="dialog">
+  <h2>How to read this</h2>
+  <ul>
+    <li><b>One character = one referral episode.</b> Soft, neutral little beans with a sprout on top: no gender, no hair, no clothes.</li>
+    <li><b>Size = care received.</b> Thin means few or no attended outpatient events. Each attended appointment makes the character larger (we count attended events, including earlier ones in the last 24 months).</li>
+    <li><b>Outside (left):</b> referrals from GPs, specialists and others arrive from their region of Western Australia and wait in the queue. The further right they drift, the closer they get to (and then past) the indicative wait target for their urgency category.</li>
+    <li><b>Inside (right):</b> six invented hospital sites with clinic doors. Attended appointments make characters walk in through the right door and come out bigger. People who do not attend (DNA) turn away. Telehealth appointments are shown as a signal beam.</li>
+    <li><b>Referrals from inside the hospital</b> (emergency department, inpatient ward, same hospital outpatient) start inside the network, which is part of why they tend to be seen sooner.</li>
+    <li><b>Crowd size</b> shows a sample so the screen stays readable. The numbers and charts always use every invented patient.</li>
+  </ul>
+  <button class="btn primary">Got it</button>
+</form></dialog>
+
+<dialog id="dlgData"><form method="dialog">
+  <h2>What real data we'd need</h2>
+  <p>This prototype runs on invented data shaped like the WA Non-Admitted Data Collection. To swap in real data, the key items are:</p>
+  <ul>
+    <li><b>Referral records</b>: referral source, priority, received date, discharge/closure date and reason, clinic category, establishment.</li>
+    <li><b>Appointment records</b>: appointment date, attendance (attended / did not attend / did not wait), outcome, delivery mode (in person, phone, video), new vs follow-up, clinic and establishment.</li>
+    <li><b>De-identified person fields</b>: a project-specific person key, age, Aboriginal and Torres Strait Islander status, residential postcode or SA2.</li>
+    <li><b>Not in this collection:</b> people who never reached the hospital (referrals not yet received, not accepted, or never sent). That "unmet demand" needs another source.</li>
+    <li><b>Governance:</b> approval through the WA Health data custodian / Data Linkage Services, small-number suppression, and Aboriginal data governance.</li>
+  </ul>
+  <p><a href="https://github.com/Metadata-Team-Member/OutpatientFlow-WA/blob/main/docs/DATA-REQUIREMENTS.md" target="_blank" rel="noopener">Read the full data requirements log →</a></p>
+  <button class="btn primary">Close</button>
+</form></dialog>
+
+<script src="js/data.js"></script>
+<script src="js/sprites.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
