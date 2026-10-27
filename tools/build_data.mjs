@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
  * Builds the compact file the website loads (data/synthetic.json) from two CSV extracts whose columns use the
- * element names of the NAPDC Data Specifications v1.0 (see docs/DATA-DICTIONARY-MAPPING.md).
+ * Field names of the WA Health Non-Admitted Data Collection Data Specifications, July 2026 (see docs/DATA-DICTIONARY-MAPPING.md).
+ * Header names are matched case-insensitively; the 2021 NAPDC names (e.g. APPOINTMENT_NON_ATTENDANCE_REASON_CODE) are still accepted as aliases.
  *
  *   node tools/build_data.mjs                                   # uses data/csv/*.csv (synthetic)
  *   node tools/build_data.mjs --referrals my_refs.csv --appointments my_apps.csv --out data/real.json --real
  *   node tools/build_data.mjs ... --real --start 2019-07-01 --end 2025-06-30 --sim-start 2023-07-01
  *
- * Dates may be DDMMYYYY (as in the Specification), DDMMYYYY HH:MM:SS, DD/MM/YYYY or YYYY-MM-DD. Unknown codes are
+ * Dates are YYYY-MM-DD as the 2026 Specification requires; DDMMYYYY (2021 format) and DD/MM/YYYY are still read. Unknown codes are
  * appended to the code lists (flagged auto:true) so nothing is dropped silently. Rows that cannot be used (unknown
  * establishment or district, unreadable received date) are counted and listed at the end, never dropped silently.
  * With --real and no --start / --end, the period is taken from the data (start = first of the month of the earliest
@@ -15,8 +16,9 @@
  *
  * Event encoding (one integer per appointment record):  day | kind<<11 | mode<<13 | code<<17 | type<<23
  *   day 11 bits (0..2047) | kind 2 bits | mode 4 bits (0..15) | code 6 bits (0..63) | type 1 bit
- *   kind 0 attended (ATT / outcome allocated) | 1 did not attend (DNA, DNW, or non-attendance reason, or blank outcome) | 2 cancelled (outcome CAN or a cancellation code)
- *   code = index into outcomes (kind 0), nonAttendance (kind 1) or cancellation (kind 2);  type 0 NEW | 1 FOL
+ *   kind 0 attended (ATT / outcome allocated) | 1 did not attend (DNA, DNW, 'Rescheduled' processing status, a non-attendance reason, or blank outcome) | 2 cancelled (outcome CAN or a cancellation code)
+ *        | 3 non-client event (attendance MCC or NCE, outcome CON, session MCC/NCE): never stops the wait (BR 2026 §10.2.7)
+ *   code = index into outcomes (kind 0), nonAttendance (kind 1), cancellation (kind 2) or nonClient (kind 3);  type 0 NEW | 1 FOL | (kind 3 uses 1)
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -49,6 +51,8 @@ function parseCsv(text) {
   }
   if (cur || row.length) { row.push(cur); rows.push(row); }
   const head = rows.shift().map((h) => h.replace(/^\uFEFF/, '').trim().toUpperCase());
+  const ALIAS = { APPOINTMENT_NON_ATTENDANCE_REASON_CODE: 'APPOINTMENT_NONATTEND_REAS_CODE', REFERRAL_REASON_FOR_CLOSURE_CODE: 'REFERRAL_REASON_CLOSURE_CODE' };
+  for (let i = 0; i < head.length; i++) if (ALIAS[head[i]]) head[i] = ALIAS[head[i]];
   return rows.filter((r) => r.length > 1).map((r) => Object.fromEntries(head.map((h, i) => [h, r[i]])));
 }
 const refs = parseCsv(fs.readFileSync(refFile, 'utf8'));
@@ -91,6 +95,7 @@ const iSite = new Map(est.map((e, i) => [e.code, i]));
 const iDist = new Map(districts.map((d, i) => [d.name, i]));
 const regionIdx = Object.fromEntries(dims.regionOrder.map((r, i) => [r, i]));
 const iSpec = idx(dims.specialties, 'code', 'referral/clinic category', 64, (c) => ({ name: c, hue: (c.split('').reduce((h, ch) => h * 31 + ch.charCodeAt(0), 7) % 360), verified: false })), iSrc = idx(dims.sources, 'code', 'referral source'), iPrio = idx(dims.priorities, 'code', 'priority', 16, (c) => ({ short: c, targetDays: 365, label2: 'No target defined in this tool (365 d drawn for display)' })), iReason = idx(dims.referralReasons, 'code', 'referral reason');
+const iNC = idx(dims.nonClient, 'code', 'non-client event', 8);
 const iMode = idx(dims.modes, 'code', 'delivery mode', 16, (c) => ({ remote: REMOTE_MODES.has(c) })), iOut = idx(dims.outcomes, 'code', 'outcome'), iNon = idx(dims.nonAttendance, 'code', 'non-attendance reason'), iCan = idx(dims.cancellation, 'code', 'cancellation code'), iClose = idx(dims.closeReasons, 'code', 'closure reason');
 const ageIdx = (age) => (age <= 14 ? 0 : age <= 24 ? 1 : age <= 44 ? 2 : age <= 64 ? 3 : age <= 79 ? 4 : 5);
 
@@ -121,13 +126,16 @@ for (const r of refs) {
   cols.ref.push(ref); cols.prior.push(+r.DERIVED_PRIOR_ATTENDED || 0);
   const end = r.REFERRAL_CLOSED_DATE ? dayOf(r.REFERRAL_CLOSED_DATE) : -1;
   cols.end.push(Number.isFinite(end) && end >= 0 && end < DAYS ? end : -1);
-  cols.endReason.push(r.REFERRAL_REASON_FOR_CLOSURE_CODE ? iClose(r.REFERRAL_REASON_FOR_CLOSURE_CODE) : -1);
+  cols.endReason.push(r.REFERRAL_REASON_CLOSURE_CODE ? iClose(r.REFERRAL_REASON_CLOSURE_CODE) : -1);
   const evs = (byRef.get(r.REFERRAL_ACCOUNT_NUMBER) || []).map((a) => {
-    const out = (a.APPOINTMENT_OUTCOME_CODE || '').trim(), non = (a.APPOINTMENT_NON_ATTENDANCE_REASON_CODE || '').trim();
+    const out = (a.APPOINTMENT_OUTCOME_CODE || '').trim(), non = (a.APPOINTMENT_NONATTEND_REAS_CODE || '').trim();
     const att = (a.APPOINTMENT_ATTENDANCE_CODE || '').trim(), can = (a.APPOINTMENT_CANCELLATION_CODE || '').trim();
-    // cancelled: outcome CAN or a cancellation code with no attendance. DNA / DNW / a non-attendance reason / no outcome: did not attend. Otherwise attended.
-    const kind = (out === 'CAN' || (can && att !== 'ATT')) ? 2 : (att === 'DNA' || att === 'DNW' || non || !out) ? 1 : 0;
-    const code = kind === 0 ? iOut(out) : kind === 1 ? iNon(non || 'UNK') : iCan(can || 'UNK');
+    const ses = (a.APPOINTMENT_SESSION_TYPE_CODE || '').trim(), proc = (a.APPOINTMENT_PROCESSING_STATUS || '').trim();
+    // non-client event: attendance MCC / NCE, outcome CON, or an NCE appointment type with MCC / NCE session (BR 2026 §9.1, §10.2.7)
+    const nc = att === 'MCC' || att === 'NCE' || out === 'CON' || (a.APPOINTMENT_TYPE_CODE === 'NCE' && (ses === 'MCC' || ses === 'NCE'));
+    // cancelled: outcome CAN or a cancellation code with no attendance. DNA / DNW / a webPAS 'Rescheduled' processing status (derives DNA, Data Dictionary 2026) / a non-attendance reason / no outcome: did not attend. Otherwise attended.
+    const kind = nc ? 3 : (out === 'CAN' || (can && att !== 'ATT')) ? 2 : (att === 'DNA' || att === 'DNW' || proc === 'Rescheduled' || non || !out) ? 1 : 0;
+    const code = kind === 0 ? iOut(out) : kind === 1 ? iNon(non || 'UNK') : kind === 2 ? iCan(can || 'UNK') : iNC(att === 'MCC' || ses === 'MCC' ? 'MCC' : 'CON');
     const day = dayOf(a.APPOINTMENT_DATE);
     return { day, packed: day | (kind << 11) | (iMode((a.APPOINTMENT_DELIVERY_MODE_CODE || 'UNK').trim()) << 13) | (code << 17) | ((a.APPOINTMENT_TYPE_CODE === 'NEW' ? 0 : 1) << 23) };
   }).filter((e) => { const ok = Number.isFinite(e.day) && e.day < DAYS && e.day >= ref; if (!ok) evDropped++; return ok; }).sort((a, b) => a.day - b.day);
@@ -146,11 +154,11 @@ const out = {
     hsps: Object.entries(hspNames).map(([code, name]) => ({ code, name })),
     regions: dims.regionOrder.map((name) => ({ name, hsp: ['North Metro', 'East Metro', 'South Metro'].includes(name) ? { 'North Metro': 'NMHS', 'East Metro': 'EMHS', 'South Metro': 'SMHS' }[name] : 'WACHS' })),
     districts: districts.map((d) => ({ name: d.name, region: regionIdx[d.region], code: d.code, lat: +d.lat.toFixed(3), lon: +d.lon.toFixed(3) })),
-    establishments: est.map((e) => ({ code: e.code, short: e.short, name: e.name, hsp: e.hspI, region: e.regionI, district: e.district, kind: e.kind, tier: e.tier, beds: e.beds, lat: e.lat, lon: e.lon, contracted: !!e.contracted, category: e.category, area: e.area, official: e.officialNadc ? 1 : 0, added: e.source === 'official-list-extract' ? 1 : 0 })),
-    tiers: dims.tiers, specialties: dims.specialties.map(({ code, name, hue, verified, viaCrs }) => ({ code, name, hue, verified, viaCrs })),
+    establishments: est.map((e) => ({ code: e.code, short: e.short, name: e.name, hsp: e.hspI, region: e.regionI, district: e.district, kind: e.kind, type: e.type, typeLabel: e.typeLabel, mps: e.mps ? 1 : 0, tier: e.tier, beds: e.beds, lat: e.lat, lon: e.lon, contracted: !!e.contracted, category: e.category, area: e.area, hspBasis: e.hspBasis, locationStatus: e.locationStatus, locationNote: e.locationNote, nadcColumn: e.nadcColumn })),
+    tiers: dims.tiers, specialties: dims.specialties.map(({ code, name, hue, verified, tier1, tier1Name, tier2, tier2Name }) => ({ code, name, hue, verified, tier1, tier1Name, tier2, tier2Name })),
     priorities: dims.priorities, sources: dims.sources.map(({ code, label, internal }) => ({ code, label, internal })), referralReasons: dims.referralReasons,
     modes: dims.modes, outcomes: dims.outcomes.map(({ code, label, ends }) => ({ code, label, ends })), nonAttendance: dims.nonAttendance.map(({ code, label }) => ({ code, label })),
-    cancellation: dims.cancellation.map(({ code, label, by }) => ({ code, label, by })), closeReasons: dims.closeReasons, ageGroups: dims.ageGroups, eventKinds: dims.eventKinds,
+    cancellation: dims.cancellation.map(({ code, label, by }) => ({ code, label, by })), closeReasons: dims.closeReasons, nonClient: dims.nonClient, ageGroups: dims.ageGroups, eventKinds: dims.eventKinds,
     attribution: raw._attribution,
   },
   cols,

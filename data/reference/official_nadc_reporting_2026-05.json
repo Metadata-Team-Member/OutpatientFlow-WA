@@ -1,0 +1,883 @@
+{
+ "_about": "Establishments with \"Reports to NADC\" = Y in the WA Health Establishment List, May 2026 (v0.1), Reporting table. Names are as printed. type = Est type from the same document's \"Hospital Morbidity System Codes\" table (null = code not in that table). nadcColumn: \"column-confirmed\" = the Y was read in the NADC column of a column-aware text extract; \"inferred\" = see docs/ESTABLISHMENTS.md.",
+ "_source": "WA Health Establishment List, May 2026 v0.1 (user-supplied PDF); column positions from the same publication via a search-index text extract. See docs/SOURCES.md.",
+ "reportingRows": 191,
+ "count": 125,
+ "establishments": [
+  {
+   "code": "0462",
+   "name": "Abrolhos Islands Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0201",
+   "name": "Albany Health Campus",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0203",
+   "name": "Armadale-Kelmscott Memorial Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0204",
+   "name": "Augusta Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4281",
+   "name": "Beacon Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4282",
+   "name": "Bencubbin Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0255",
+   "name": "Bentley Health Service",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0602",
+   "name": "Bethesda Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0401",
+   "name": "Beverley Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0402",
+   "name": "Boddington Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0432",
+   "name": "Boyup Brook Soldiers Memorial Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4074",
+   "name": "Bremer Bay Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0444",
+   "name": "Bridgetown Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4283",
+   "name": "Brookton Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0206",
+   "name": "Broome Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0403",
+   "name": "Bruce Rock Memorial Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0208",
+   "name": "Bunbury Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4171",
+   "name": "Burringurrah Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0209",
+   "name": "Busselton Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0210",
+   "name": "Carnarvon Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0211",
+   "name": "Collie Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4040",
+   "name": "Coral Bay Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0404",
+   "name": "Corrigin Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0357",
+   "name": "Cue Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0405",
+   "name": "Cunderdin Hospital",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0406",
+   "name": "Dalwallinu Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0214",
+   "name": "Denmark Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0215",
+   "name": "Derby Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0476",
+   "name": "Dongara Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0271",
+   "name": "Donnybrook Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0408",
+   "name": "Dumbleyung Memorial Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4284",
+   "name": "Eneabba Health Centre",
+   "type": "OH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0218",
+   "name": "Esperance Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4285",
+   "name": "Eucla Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0219",
+   "name": "Exmouth Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0106",
+   "name": "Fiona Stanley Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0127",
+   "name": "Fitzroy Crossing Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0102",
+   "name": "Fremantle Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0220",
+   "name": "Geraldton Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0410",
+   "name": "Gnowangerup Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0411",
+   "name": "Goomalling Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4275",
+   "name": "Hall and Prior Aged Care Organisation",
+   "type": null,
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0128",
+   "name": "Halls Creek Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0412",
+   "name": "Harvey Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0131",
+   "name": "Hedland Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4286",
+   "name": "Hyden Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0441",
+   "name": "Jerramungup Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0642",
+   "name": "Joondalup Health Campus",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4058",
+   "name": "Jurien Bay Hospital",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0454",
+   "name": "Kalamunda Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0475",
+   "name": "Kalbarri Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0226",
+   "name": "Kalgoorlie Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0132",
+   "name": "Karratha Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0227",
+   "name": "Katanning Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0409",
+   "name": "Kellerberrin Memorial Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0104",
+   "name": "King Edward Memorial Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0445",
+   "name": "Kojonup Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0413",
+   "name": "Kondinin Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0356",
+   "name": "Kukerin Health Centre",
+   "type": "NP",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4107",
+   "name": "Kulin Medical Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0414",
+   "name": "Kununoppin Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0257",
+   "name": "Kununurra Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4519",
+   "name": "Kwinana Community Health Centre",
+   "type": "RC",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0230",
+   "name": "Lake Grace Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4287",
+   "name": "Lancelin Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0272",
+   "name": "Laverton Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4288",
+   "name": "Leeman Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0273",
+   "name": "Leonora Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4518",
+   "name": "Mandurah Community Health Centre",
+   "type": "RC",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0232",
+   "name": "Marble Bar Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0233",
+   "name": "Margaret River Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0234",
+   "name": "Meekatharra Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0235",
+   "name": "Merredin Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4289",
+   "name": "Mingenew Health Centre",
+   "type": "OH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0417",
+   "name": "Moora Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0418",
+   "name": "Morawa Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0113",
+   "name": "Mount Lawley Hospital",
+   "type": null,
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0275",
+   "name": "Mount Magnet Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0355",
+   "name": "Mukinbudin Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0419",
+   "name": "Mullewa Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0420",
+   "name": "Murray District Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0422",
+   "name": "Nannup Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0423",
+   "name": "Narembeen Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0236",
+   "name": "Narrogin Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4506",
+   "name": "Neurological Council of Western Australia",
+   "type": null,
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0260",
+   "name": "Newman Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0424",
+   "name": "Norseman Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0426",
+   "name": "North Midlands Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0237",
+   "name": "Northam Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0425",
+   "name": "Northampton Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0351",
+   "name": "Northcliffe Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4174",
+   "name": "Nullagine Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0238",
+   "name": "Onslow Health Service",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0110",
+   "name": "Oral Health Centre of WA",
+   "type": "DS",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0239",
+   "name": "Osborne Park Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0267",
+   "name": "Paraburdoo Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0145",
+   "name": "Peel Health Campus",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0427",
+   "name": "Pemberton Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0107",
+   "name": "Perth Children's Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0428",
+   "name": "Pingelly Hospital",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0429",
+   "name": "Plantagenet Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0446",
+   "name": "Quairading Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0430",
+   "name": "Ravensthorpe Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0277",
+   "name": "Rockingham General Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0243",
+   "name": "Roebourne Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0101",
+   "name": "Royal Perth Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0358",
+   "name": "Sandstone Health Centre",
+   "type": "NP",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4290",
+   "name": "Shark Bay Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0652",
+   "name": "Silver Chain Hospital at Home",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0105",
+   "name": "Sir Charles Gairdner Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0431",
+   "name": "Southern Cross Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0612",
+   "name": "St John of God Bunbury Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "6007",
+   "name": "St John of God Midland Health Campus",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0629",
+   "name": "St John of God Mt Lawley Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0256",
+   "name": "Tom Price Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0245",
+   "name": "Wagin Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "4291",
+   "name": "Walpole Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "column-confirmed"
+  },
+  {
+   "code": "0433",
+   "name": "Warren Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0434",
+   "name": "Wickepin Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0436",
+   "name": "Williams Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0437",
+   "name": "Wongan Hills Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0438",
+   "name": "Wyalkatchem-Koorda and Districts Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0249",
+   "name": "Wyndham Hospital",
+   "type": "AH",
+   "mps": false,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0359",
+   "name": "Yalgoo Health Centre",
+   "type": "OH",
+   "mps": false,
+   "nadcColumn": "inferred"
+  },
+  {
+   "code": "0251",
+   "name": "York Hospital",
+   "type": "AH",
+   "mps": true,
+   "nadcColumn": "inferred"
+  }
+ ]
+}

@@ -1,8 +1,8 @@
 /* OutpatientFlow WA — data layer.
    Loads the compact columnar JSON (see tools/build_data.mjs), applies filters and answers
    "what is the status of referral i on day t?" cheaply. Everything here is code-list driven.
-   Attendance follows the NAPDC rule: an appointment is ATTENDED when an outcome is allocated (BR §5.1).
-   Event kinds: 0 attended | 1 did not attend (non-attendance reason, blank outcome) | 2 cancelled (outcome CAN). */
+   Attendance follows the NADC rule: an appointment is ATTENDED when it has an attended appointment status/outcome (Business Rules July 2026 §5.2; attendance code ATT).
+   Event kinds: 0 attended | 1 did not attend (DNA / DNW, non-attendance reason) | 2 cancelled (outcome CAN) | 3 non-client event (chart only, MCC: never stops the wait). */
 (function (g) {
   'use strict';
   const OF = (g.OF = g.OF || {});
@@ -99,7 +99,7 @@
       for (let k = 0; k < e.length; k += 5) {
         const d = e[k], kd = e[k + 1];
         if (kd === 0) { att[d]++; bySpec[spec[i]][d]++; bySite[site[i]][d]++; (remote[e[k + 2]] ? hspTele : hspAtt)[h][d]++; }
-        else if (kd === 1) { dna[d]++; hspDna[h][d]++; } else { can[d]++; hspCan[h][d]++; }
+        else if (kd === 1) { dna[d]++; hspDna[h][d]++; } else if (kd === 2) { can[d]++; hspCan[h][d]++; } // kind 3 (chart only / MCC) is not a client event: counted nowhere, never ends a wait (BR 2026 §10.2.7)
       }
       const stop = end[i] >= 0 ? end[i] : DAYS;
       if (internal[i]) { iD[ref[i]]++; iD[stop]--; }
@@ -118,14 +118,14 @@
 
   D.status = function (i, t, o) {
     o = o || {};
-    if (t < ref[i]) { o.state = 0; o.att = 0; o.dna = 0; o.can = 0; o.tele = 0; o.last = -1; return o; }
-    const e = evs[i]; let a = 0, d = 0, cn = 0, tl = 0, last = -1;
+    if (t < ref[i]) { o.state = 0; o.att = 0; o.dna = 0; o.can = 0; o.nce = 0; o.tele = 0; o.last = -1; return o; }
+    const e = evs[i]; let a = 0, d = 0, cn = 0, nc = 0, tl = 0, last = -1;
     for (let k = 0; k < e.length; k += 5) {
       if (e[k] > t) break;
-      if (e[k + 1] === 0) { a++; if (remote[e[k + 2]]) tl++; } else if (e[k + 1] === 1) d++; else cn++;
+      if (e[k + 1] === 0) { a++; if (remote[e[k + 2]]) tl++; } else if (e[k + 1] === 1) d++; else if (e[k + 1] === 2) cn++; else nc++;
       last = k;
     }
-    o.att = a; o.dna = d; o.can = cn; o.tele = tl; o.last = last;
+    o.att = a; o.dna = d; o.can = cn; o.nce = nc; o.tele = tl; o.last = last;
     if (end[i] >= 0 && end[i] <= t) o.state = 3; else o.state = (a > 0 || internal[i]) ? 2 : 1;
     return o;
   };

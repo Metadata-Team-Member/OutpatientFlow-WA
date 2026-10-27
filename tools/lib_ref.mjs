@@ -3,7 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export function tierOf(e) {
-  if (e.kind === 'nursing_post') return 'POST';
+  // Model tiers are NOT official. Official establishment type (Establishment List 2026 App. A) is kept separately in e.type.
+  if (e.code === '0652') return 'OTHR';                      // Silver Chain Hospital at Home: no beds, not a site
+  if (e.kind === 'nursing_post') return (e.type === 'NP' || e.type === 'OH') ? 'POST' : 'OTHR'; // NP / OH = nursing post, health centre; DS, RC, untyped = other
   if (e.code === '0107') return 'PAED';   // Perth Children's Hospital
   if (e.code === '0104') return 'WOMN';   // King Edward Memorial Hospital
   if (e.category === 'Teaching') return 'TERT';
@@ -16,7 +18,7 @@ export function loadEstablishments(root, dims) {
   const j = JSON.parse(fs.readFileSync(path.join(root, 'data/reference/establishments.json'), 'utf8'));
   const hspIndex = Object.keys(j.hspNames);
   const regionIdx = Object.fromEntries(dims.regionOrder.map((r, i) => [r, i]));
-  const order = { TERT: 0, PAED: 1, WOMN: 2, METR: 3, REGL: 4, DIST: 5, POST: 6 };
+  const order = { TERT: 0, PAED: 1, WOMN: 2, METR: 3, REGL: 4, DIST: 5, POST: 6, OTHR: 7 };
   const est = j.establishments.map((e) => ({ ...e, tier: tierOf(e), mbeds: e.beds || (e.category === 'Regional' ? 60 : 0), hspI: hspIndex.indexOf(e.hsp), regionI: regionIdx[e.region] }))
     .sort((a, b) => hspIndex.indexOf(a.hsp) - hspIndex.indexOf(b.hsp) || order[a.tier] - order[b.tier] || b.beds - a.beds || a.code.localeCompare(b.code));
   return { est, hspIndex, hspNames: j.hspNames, raw: j };

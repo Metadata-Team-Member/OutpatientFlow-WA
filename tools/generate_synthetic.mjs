@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 /**
- * OutpatientFlow WA - SYNTHETIC data generator (round 2)
- * ------------------------------------------------------
- * Produces fake, deterministic (seeded) referral + appointment extracts. Column names follow the data element
- * names of the WA Health NAPDC Data Specifications v1.0 (1 July 2021) - e.g. REFERRAL_RECEIVED_DATE,
- * APPOINTMENT_OUTCOME_CODE - and code values come from its Appendix B/C. Columns starting DERIVED_ are NOT NADC
- * elements: they stand in for things a real extract would derive (person key, age, health district).
- * Establishments are the 112 SLIP "outpatient reporting" facilities in data/reference/establishments.json.
- * Everything else (volumes, waits, DNA rates, who goes where) is an INVENTED model - see config/dimensions.json.
+ * OutpatientFlow WA - SYNTHETIC data generator (round 3, 2026 editions)
+ * ----------------------------------------------------------------------
+ * Produces fake, deterministic (seeded) referral + appointment extracts. Column names are the Field names of the
+ * WA Health Non-Admitted Data Collection Data Specifications, July 2026 (V003), Appendix B - e.g. referral_received_date,
+ * appointment_outcome_code, appointment_nonattend_reas_code - and code values come from its Appendix D-F. Dates are
+ * YYYY-MM-DD as the Specification requires. Columns starting derived_ are NOT NADC elements: they stand in for things a
+ * real extract would derive (person key, age, health district, prior attended count).
+ * Establishments are exactly the sites with "Reports to NADC = Y" in the WA Health Establishment List, May 2026
+ * (data/reference/establishments.json). Everything else (volumes, waits, DNA rates, who goes where, the pairing of
+ * each Clinic Category with a Tier 1 / Tier 2 code) is an INVENTED model - see config/dimensions.json.
  *
  *   node tools/generate_synthetic.mjs [--patients 10000] [--seed 20261027]
  *   -> data/csv/referrals.csv , data/csv/appointments.csv   (git-ignored, regenerate any time)
@@ -39,7 +41,8 @@ const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const ymd = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
 const D0 = ymd(dims.start);
 const DAYS = Math.round((ymd(dims.end) - D0) / 864e5) + 1;
-const ddmmyyyy = (d) => { const t = new Date(D0 + d * 864e5); return String(t.getUTCDate()).padStart(2, '0') + String(t.getUTCMonth() + 1).padStart(2, '0') + t.getUTCFullYear(); };
+const iso = (d) => new Date(D0 + d * 864e5).toISOString().slice(0, 10);
+const VID_END = Math.round((ymd(dims.vidEnd) - D0) / 864e5); // VID is end-dated 2023-06-30 (Data Dictionary 2026)
 const isWeekend = (d) => { const w = new Date(D0 + d * 864e5).getUTCDay(); return w === 0 || w === 6; };
 const nextWeekday = (d) => { while (isWeekend(d)) d++; return d; };
 
@@ -72,9 +75,9 @@ function siteWeights(di, si, child) {
   let c = siteW.get(key); if (c) return c;
   const d = districts[di], sp = specs[si]; const dMetro = metro(d.region);
   const w = est.map((e) => {
-    const scope = (dims.scopeByTier[e.tier] || {})[sp.code] || 0; if (!scope) return 0;
+    const scope = (dims.siteScope[e.code] ? dims.siteScope[e.code][sp.code] : (dims.scopeByTier[e.tier] || {})[sp.code]) || 0; if (!scope) return 0;
     let ageF = 1;
-    if (e.tier === 'PAED') ageF = child ? 8 : 0; else if (child && sp.code !== 'PAE') ageF = e.tier === 'TERT' ? 0.3 : 0.5; else if (child && e.tier !== 'PAED') ageF = 0.4;
+    if (e.tier === 'PAED') ageF = child ? 8 : 0; else if (e.tier === 'OTHR' && !(sp.code === 'DEN' || sp.code === 'PAE')) ageF = child ? 0.15 : 1; else if (child && sp.code !== 'PAE') ageF = e.tier === 'TERT' ? 0.3 : 0.5; else if (child && e.tier !== 'PAED') ageF = 0.4;
     if (!ageF) return 0;
     const cap = Math.pow(Math.max(e.mbeds, 12), 0.85);
     const dist = km(d, e);
@@ -96,12 +99,11 @@ const prioTarget = Object.fromEntries(dims.priorities.map((p) => [p.code, p.targ
 const finalOut = Object.entries(dims.finalOutcomeWeights);
 const outMap = Object.fromEntries(dims.outcomes.map((o) => [o.code, o]));
 const ageRanges = [[0, 14], [15, 24], [25, 44], [45, 64], [65, 79], [80, 95]];
-const REMOTE_MODES = ['TEL', 'VID'];
 
 const refRows = []; const appRows = []; let appId = 1;
 const header = {
-  ref: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'REFERRAL_CATEGORY_CODE', 'REFERRAL_CREATED_DATE', 'REFERRAL_RECEIVED_DATE', 'REFERRAL_PRIORITY_CODE', 'REFERRAL_REASON_CODE', 'REFERRAL_SOURCE_CODE', 'REFERRAL_STATUS_CODE', 'REFERRAL_CLOSED_DATE', 'REFERRAL_REASON_FOR_CLOSURE_CODE', 'DERIVED_PERSON_KEY', 'DERIVED_AGE_YEARS', 'DERIVED_HEALTH_DISTRICT', 'DERIVED_PRIOR_ATTENDED'],
-  app: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'APPOINTMENT_ACCOUNT_NUMBER', 'CLINIC_CATEGORY_CODE', 'APPOINTMENT_DATE', 'APPOINTMENT_TYPE_CODE', 'APPOINTMENT_DELIVERY_MODE_CODE', 'APPOINTMENT_SESSION_TYPE_CODE', 'APPOINTMENT_ATTENDANCE_CODE', 'APPOINTMENT_OUTCOME_CODE', 'APPOINTMENT_NON_ATTENDANCE_REASON_CODE', 'APPOINTMENT_CANCELLATION_CODE', 'APPOINTMENT_CANCELLATION_DATE'],
+  ref: ['establishment_code', 'referral_account_number', 'referral_category_code', 'referral_created_date', 'referral_received_date', 'referral_priority_code', 'referral_reason_code', 'referral_source_code', 'referral_status_code', 'referral_closed_date', 'referral_reason_closure_code', 'derived_person_key', 'derived_age_years', 'derived_health_district', 'derived_prior_attended'],
+  app: ['establishment_code', 'referral_account_number', 'appointment_account_number', 'clinic_category_code', 'clinic_nmds_tier1_code', 'clinic_tier2_code', 'appointment_date', 'appointment_type_code', 'appointment_session_type_code', 'appointment_client_type_code', 'appointment_care_type_code', 'appointment_delivery_mode_code', 'appointment_delivery_set_code', 'appointment_attendance_code', 'appointment_status_code', 'appointment_outcome_code', 'appointment_nonattend_reas_code', 'appointment_cancellation_code', 'appointment_cancellation_date'],
 };
 
 for (let n = 1; n <= N; n++) {
@@ -114,7 +116,7 @@ for (let n = 1; n <= N; n++) {
   const opm = u() < dims.opmShare;
   const siI = pickSite(di, spI, child); const site = est[siI];
   const distKm = km(dist, site);
-  const srcW = (s) => { if (s.code === 'MHC' && S.code !== 'PSY') return s.w * 0.1; if (s.code === 'SPR' && R.tele > 2) return s.w * 0.5; if (site.tier === 'POST' && s.internal) return s.w * 0.1; return s.w; };
+  const srcW = (s) => { if (s.code === 'MHC') return s.w * 0.1; /* specialised mental health is out of scope (BR 2026 §6.11) */ if (s.code === 'SPR' && R.tele > 2) return s.w * 0.5; if (site.tier === 'POST' && s.internal) return s.w * 0.1; return s.w; };
   const src = opm ? dims.sources.find((s) => s.code === 'CON') : pickW(srcAll, srcW);
   const internal = src.internal;
   const prio = pickW(prioCodes, (c) => dims.priorityWeight[c] * (c === 'URG' && internal && !opm ? 1.6 : 1) * (c === 'NUR' && internal && !opm ? 0.6 : 1) * (opm && c === 'URG' ? 0.1 : 1));
@@ -146,9 +148,12 @@ for (let n = 1; n <= N; n++) {
       if (u() < (first ? teleP * 0.55 : teleP)) {
         const regional = !metro(dist.region);
         const r = u();
-        mode = regional && distKm > 100 ? (r < 0.3 ? 'TEL' : r < 0.6 ? 'VID' : r < 0.88 ? 'THH' : 'THC') : (r < 0.5 ? 'TEL' : 'VID');
-      } else if ((S.code === 'PSY' || S.code === 'PHY') && u() < 0.1) mode = 'GCP';
-      const remote = ['TEL', 'VID', 'THH', 'THC'].includes(mode);
+        // VID (Video Conference) is end-dated 2023-06-30 (Data Dictionary 2026). After that a video call from the patient's home is recorded as THH; THS / THC are used when the patient is at a WA Health site.
+        const vid = day <= VID_END ? 'VID' : 'THH';
+        mode = regional && distKm > 100 ? (r < 0.3 ? 'TEL' : r < 0.55 ? vid : r < 0.75 ? 'THS' : r < 0.9 ? 'THH' : 'THC') : (r < 0.5 ? 'TEL' : r < 0.85 ? vid : 'THS');
+      } else if (S.code === 'PHY' && u() < 0.1) mode = 'GCP';
+      else if ((S.code === 'REH' || S.code === 'GER' || S.code === 'PHY') && site.tier !== 'TERT' && u() < 0.04) mode = 'HOM';
+      const remote = ['TEL', 'VID', 'THH', 'THS', 'THC'].includes(mode);
       const roll = u(); const thisDna = dnaP * (remote ? 0.6 : 1) * (first ? 1.15 : 1);
       if (roll < thisDna) {
         const rs = pickW(dims.nonAttendance, (x) => x.w).code;
@@ -172,16 +177,32 @@ for (let n = 1; n <= N; n++) {
       }
     }
   }
-  events = events.filter((e) => e.day <= DAYS - 1);
+  // ---- non-client events (BR 2026 §6.9, §9.1, §10.2.7): chart-only and MCC events never take a referral off the waiting list ----
+  if (!opm && events.length + 1 > 0) {
+    const nc = dims.nonClientRates; const firstAttDay = events.find((e) => e.kind === 0);
+    const lastDay = Math.min(DAYS - 1, closeDay != null ? closeDay : DAYS - 1);
+    if (u() < nc.chartOnlyWhileWaiting) { const hi = Math.min(firstAttDay ? firstAttDay.day - 1 : lastDay, refDay + 90); if (hi > refDay + 1) events.push({ day: nextWeekday(refDay + 1 + Math.floor(u() * (hi - refDay - 1))), kind: 3, nc: 'CON', mode: 'OTH', type: 2 }); }
+    if (u() < nc.mccPerReferral) {
+      if (firstAttDay && u() < nc.mccSameDayAsAttended) events.push({ day: firstAttDay.day, kind: 3, nc: 'MCC', mode: 'MCC', type: 2 }); // second same-day event: only the first counts nationally (BR §10.3.2)
+      else { const d1 = refDay + 5 + Math.floor(u() * Math.max(5, (firstAttDay ? firstAttDay.day : lastDay) - refDay)); events.push({ day: nextWeekday(Math.min(d1, lastDay)), kind: 3, nc: 'MCC', mode: 'MCC', type: 2 }); }
+    }
+  }
+  events = events.filter((e) => e.day <= DAYS - 1).sort((a, b) => a.day - b.day || a.kind - b.kind);
   if (closeDay != null && closeDay > DAYS - 1) { closeDay = null; closeReason = null; }
   const attendedAny = events.some((e) => e.kind === 0);
   const status = closeDay != null ? 'CL' : attendedAny || opm ? 'OP' : 'WL';
 
-  refRows.push([site.code, refNo, S.code, ddmmyyyy(refDay), ddmmyyyy(refDay), prio, reason, src.code, status, closeDay != null ? ddmmyyyy(closeDay) : '', closeReason || '', 'P' + String(n).padStart(7, '0'), age, dist.name, prior]);
+  refRows.push([site.code, refNo, S.code, iso(refDay), iso(refDay), prio, reason, src.code, status, closeDay != null ? iso(closeDay) : '', closeReason || '', 'P' + String(n).padStart(7, '0'), age, dist.name, prior]);
+  const careType = S.code === 'GER' ? 'GER' : S.code === 'REH' ? 'REH' : 'ACU';
+  // Appointment status: PR processed (all past events in this model); CA for cancelled. Delivery setting: Y on hospital campus, N off (home visit, telephone, telehealth at home).
   for (const e of events) {
-    appRows.push([site.code, refNo, 'SYNA' + String(appId++).padStart(7, '0'), S.code, ddmmyyyy(e.day), e.type === 0 ? 'NEW' : 'FOL', e.mode, e.mode === 'GCP' ? 'GRP' : 'IND',
-      e.kind === 0 ? 'ATT' : e.kind === 1 ? e.att : '',
-      e.kind === 0 ? e.code : e.kind === 2 ? 'CAN' : '', e.kind === 1 ? e.code : '', e.kind === 2 ? e.code : '', e.kind === 2 ? ddmmyyyy(e.cdate) : '']);
+    const ncd = e.kind === 3 ? dims.nonClient.find((x) => x.code === e.nc) : null;
+    const setting = e.mode === 'HOM' || e.mode === 'TEL' || e.mode === 'THH' || e.mode === 'VID' ? 'N' : 'Y';
+    const att = ncd ? ncd.attendance : e.kind === 0 ? 'ATT' : e.kind === 1 ? e.att : '';
+    const outc = ncd ? ncd.outcome : e.kind === 0 ? e.code : e.kind === 2 ? 'CAN' : e.att === 'DNW' ? 'PLN' : '';
+    appRows.push([site.code, refNo, 'SYNA' + String(appId++).padStart(7, '0'), S.code, S.tier1, S.tier2, iso(e.day), ncd ? 'NCE' : e.type === 0 ? 'NEW' : 'FOL',
+      ncd ? ncd.session : e.mode === 'GCP' ? 'GRP' : 'IND', ncd ? 'OP' : 'OP', careType, e.mode, setting, att, e.kind === 2 ? 'CA' : 'PR', outc,
+      e.kind === 1 ? e.code : '', e.kind === 2 ? e.code : '', e.kind === 2 ? iso(e.cdate) : '']);
   }
 }
 const csvDir = path.join(ROOT, 'data/csv'); fs.mkdirSync(csvDir, { recursive: true });

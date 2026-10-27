@@ -21,7 +21,7 @@
     },
     {
       title: 'The waiting list and the targets', day: () => dayAt(0.7), hl: ['#k2', '#k3', '#cWait'],
-      text: (S) => 'On ' + D.fmtDate(S.day) + ' <b>' + fmt(S.waiting) + '</b> people are waiting for a first appointment and <b>' + fmt(S.over) + '</b> (' + pct(S.over, S.waiting) + '%) are already past their priority target (30, 90 or 365 days, Business Rules §8.1). Over the last 12 months <b>' + (S.seenAll12 ? pct(S.withinAll12, S.seenAll12) + '%' : 'n/a') + '</b> of first appointments were within target, with a median wait of <b>' + Math.round(S.medFirst) + ' days</b> (synthetic).',
+      text: (S) => 'On ' + D.fmtDate(S.day) + ' <b>' + fmt(S.waiting) + '</b> people are waiting for a first appointment and <b>' + fmt(S.over) + '</b> (' + pct(S.over, S.waiting) + '%) are already past their priority target (30, 90 or 365 days, Business Rules July 2026 §8.1). Over the last 12 months <b>' + (S.seenAll12 ? pct(S.withinAll12, S.seenAll12) + '%' : 'n/a') + '</b> of first appointments were within target, with a median wait of <b>' + Math.round(S.medFirst) + ' days</b> (synthetic).',
     },
     {
       title: 'Did not attend, and cancelled', day: () => dayAt(0.85), hl: ['#k5'],
@@ -30,11 +30,11 @@
     {
       title: 'Telehealth and phone', day: () => dayAt(0.85), filter: { mode: 'tele' }, hl: ['#fMode', '#sceneWrap'],
       text: (S, S0) => { let tele = 0, inp = 0; S0.hsp12.forEach((h) => { inp += h[0]; tele += h[1]; });
-        return 'The characters now shown all had at least one telehealth or phone appointment (a blue beam links the character to the clinic door and a “+1 video” or “+1 phone” note appears, with no walking). Across all appointments (before the filter), in the 12 months to ' + D.fmtDate(S.day) + ', <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH and THC in this simulation) and <b>' + pct(inp, tele + inp) + '%</b> were in person, The “Appointments by Health Service Provider” chart further down shows only the filtered patients. The filter returns to "all" when you move on.'; },
+        return 'The characters now shown all had at least one telehealth or phone appointment (a blue beam links the character to the clinic door and a “+1 video” or “+1 phone” note appears, with no walking). Across all appointments (before the filter), in the 12 months to ' + D.fmtDate(S.day) + ', <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH, THS and THC in the 2026 code set; VID is end-dated 30 June 2023, so later video calls are generated as THH) and <b>' + pct(inp, tele + inp) + '%</b> were in person, The “Appointments by Health Service Provider” chart further down shows only the filtered patients. The filter returns to "all" when you move on.'; },
     },
     {
       title: 'What is real and what is not', day: () => OF.UI.simStart(), hl: ['#btnEst'], end: true,
-      text: () => 'Real: WA health regions and districts, the Perth map, ' + D.dims.establishments.filter((e) => e.official).length + ' establishments confirmed on the official Establishment List and ' + (D.dims.establishments.length - D.dims.establishments.filter((e) => e.official).length) + ' more from the SLIP health layer (unconfirmed). Synthetic: every person, referral, wait and appointment. The list of what a real extract needs, and the questions for the data custodian, are in "Data we\'d need" and "Establishments &amp; sources".',
+      text: () => 'Real: the <b>' + D.dims.establishments.length + '</b> establishments with “Reports to NADC” = Y in the WA Health Establishment List (May 2026), with their official codes, names and types; the field names and code sets of the Data Specifications (July 2026); the waiting-time targets in the Business Rules (July 2026); WA regions and districts. Not official: the grouping into Health Service Providers, regions and map positions, which come from SLIP / OpenStreetMap. Synthetic: every person, referral, wait and appointment, plus the pairing of clinic categories to sites. The list of what a real extract needs, and the questions for the data custodian, are in "Data we\'d need" and "Establishments &amp; sources".',
     },
   ];
 

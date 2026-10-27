@@ -1,5 +1,5 @@
 {
- "_note": "SYNTHETIC-MODEL CONFIGURATION. Code sets marked source=Spec come from the NAPDC Data Specifications v1.0 (1 July 2021, MP 0164/21), Appendix B/C, read via a mirror (see docs/SOURCES.md). Weights, shares, tiers and 'scope' tables are INVENTED model assumptions: they shape fake data and are not WA Health statistics.",
+ "_note": "SYNTHETIC-MODEL CONFIGURATION. Code sets (priorities, referral reasons/sources, closure reasons, outcomes, non-attendance and cancellation reasons, delivery modes, clinic categories, Tier 1 / Tier 2) are the official lists in the WA Health Non-Admitted Data Collection Data Specifications, July 2026 (V003), Appendix D-F, and the Data Dictionary 2026 (docs/SOURCES.md). Shares, wait medians, weights, tiers, 'scope' tables and the pairing of each clinic category with a Tier 1 / Tier 2 code are INVENTED model assumptions: they shape fake data and are not WA Health statistics.",
  "start": "2022-07-01",
  "end": "2026-06-30",
  "simStart": "2023-07-01",
@@ -117,7 +117,11 @@
   },
   {
    "id": "POST",
-   "label": "Nursing post"
+   "label": "Nursing post / health centre"
+  },
+  {
+   "id": "OTHR",
+   "label": "Other reporting entity (non-hospital)"
   }
  ],
  "tierWaitFactor": {
@@ -127,15 +131,15 @@
   "METR": 1.0,
   "REGL": 0.95,
   "DIST": 0.7,
-  "POST": 0.5
+  "POST": 0.5,
+  "OTHR": 0.6
  },
  "specialties": [
   {
    "code": "CAR",
    "name": "Cardiology",
    "hue": 350,
-   "verified": false,
-   "viaCrs": true,
+   "verified": true,
    "share": 8,
    "att": 4.2,
    "iv": 75,
@@ -149,14 +153,17 @@
     8,
     9,
     4
-   ]
+   ],
+   "tier1": "005.000",
+   "tier1Name": "Cardiology",
+   "tier2": "20.22",
+   "tier2Name": "Cardiology"
   },
   {
    "code": "DER",
    "name": "Dermatology",
    "hue": 12,
-   "verified": false,
-   "viaCrs": true,
+   "verified": true,
    "share": 7,
    "att": 2.8,
    "iv": 80,
@@ -170,14 +177,17 @@
     8,
     6,
     3
-   ]
+   ],
+   "tier1": "010.006",
+   "tier1Name": "Dermatology",
+   "tier2": "20.33",
+   "tier2Name": "Dermatology"
   },
   {
    "code": "END",
    "name": "Endocrinology",
    "hue": 48,
-   "verified": false,
-   "viaCrs": true,
+   "verified": true,
    "share": 6,
    "att": 6.2,
    "iv": 95,
@@ -191,14 +201,17 @@
     10,
     7,
     2
-   ]
+   ],
+   "tier1": "006.000",
+   "tier1Name": "Endocrinology",
+   "tier2": "20.34",
+   "tier2Name": "Endocrinology"
   },
   {
    "code": "ENT",
-   "name": "Ear, nose and throat",
+   "name": "Ear Nose Throat",
    "hue": 160,
-   "verified": false,
-   "viaCrs": true,
+   "verified": true,
    "share": 8,
    "att": 2.5,
    "iv": 60,
@@ -212,14 +225,17 @@
     6,
     5,
     2
-   ]
+   ],
+   "tier1": "018.000",
+   "tier1Name": "Ear, nose and throat",
+   "tier2": "20.18",
+   "tier2Name": "Ear, Nose and Throat (ENT)"
   },
   {
    "code": "GAS",
    "name": "Gastroenterology",
    "hue": 85,
-   "verified": false,
-   "viaCrs": true,
+   "verified": true,
    "share": 7,
    "att": 3.6,
    "iv": 90,
@@ -233,14 +249,17 @@
     9,
     7,
     3
-   ]
+   ],
+   "tier1": "009.000",
+   "tier1Name": "Gastroenterology",
+   "tier2": "20.25",
+   "tier2Name": "Gastroenterology"
   },
   {
    "code": "GPM",
-   "name": "General medicine",
+   "name": "General Medicine",
    "hue": 205,
    "verified": true,
-   "viaCrs": true,
    "share": 8,
    "att": 3.4,
    "iv": 70,
@@ -254,14 +273,17 @@
     8,
     10,
     6
-   ]
+   ],
+   "tier1": "010.010",
+   "tier1Name": "General medicine",
+   "tier2": "20.05",
+   "tier2Name": "General Medicine"
   },
   {
    "code": "GES",
-   "name": "General surgery",
+   "name": "General Surgery",
    "hue": 295,
    "verified": true,
-   "viaCrs": true,
    "share": 9,
    "att": 2.4,
    "iv": 50,
@@ -275,14 +297,17 @@
     10,
     8,
     3
-   ]
+   ],
+   "tier1": "022.006",
+   "tier1Name": "General surgery",
+   "tier2": "20.07",
+   "tier2Name": "General Surgery"
   },
   {
    "code": "GYN",
    "name": "Gynaecology",
    "hue": 330,
    "verified": true,
-   "viaCrs": true,
    "share": 7,
    "att": 3.0,
    "iv": 55,
@@ -296,14 +321,17 @@
     5,
     3,
     1
-   ]
+   ],
+   "tier1": "003.000",
+   "tier1Name": "Gynaecology",
+   "tier2": "20.38",
+   "tier2Name": "Gynaecology"
   },
   {
    "code": "NEU",
    "name": "Neurology",
    "hue": 265,
    "verified": true,
-   "viaCrs": true,
    "share": 5,
    "att": 4.5,
    "iv": 85,
@@ -317,14 +345,17 @@
     9,
     8,
     4
-   ]
+   ],
+   "tier1": "010.019",
+   "tier1Name": "Neurology, neurophysiology",
+   "tier2": "20.15",
+   "tier2Name": "Neurology"
   },
   {
    "code": "OPH",
    "name": "Ophthalmology",
    "hue": 195,
    "verified": true,
-   "viaCrs": true,
    "share": 7,
    "att": 3.2,
    "iv": 90,
@@ -338,14 +369,17 @@
     7,
     11,
     6
-   ]
+   ],
+   "tier1": "017.000",
+   "tier1Name": "Ophthalmology",
+   "tier2": "20.17",
+   "tier2Name": "Ophthalmology"
   },
   {
    "code": "ORT",
    "name": "Orthopaedics",
    "hue": 28,
    "verified": true,
-   "viaCrs": true,
    "share": 10,
    "att": 3.0,
    "iv": 45,
@@ -359,14 +393,17 @@
     10,
     8,
     3
-   ]
+   ],
+   "tier1": "016.003",
+   "tier1Name": "Orthopaedic surgery",
+   "tier2": "20.29",
+   "tier2Name": "Orthopaedics"
   },
   {
    "code": "PAE",
-   "name": "Paediatric medicine",
+   "name": "Paediatric Medicine",
    "hue": 310,
    "verified": true,
-   "viaCrs": true,
    "share": 6,
    "att": 4.0,
    "iv": 70,
@@ -380,14 +417,17 @@
     0,
     0,
     0
-   ]
+   ],
+   "tier1": "012.003",
+   "tier1Name": "Paediatric medicine",
+   "tier2": "20.11",
+   "tier2Name": "Paediatric Medicine"
   },
   {
    "code": "PHY",
    "name": "Physiotherapy",
    "hue": 140,
    "verified": true,
-   "viaCrs": false,
    "share": 5,
    "att": 5.0,
    "iv": 21,
@@ -401,35 +441,17 @@
     9,
     9,
     4
-   ]
-  },
-  {
-   "code": "PSY",
-   "name": "Adult psychiatry",
-   "hue": 245,
-   "verified": true,
-   "viaCrs": false,
-   "share": 5,
-   "att": 8.0,
-   "iv": 40,
-   "dna": 0.18,
-   "tele": 0.34,
-   "wait": 0.8,
-   "age": [
-    0,
-    6,
-    8,
-    6,
-    3,
-    1
-   ]
+   ],
+   "tier1": "001.009",
+   "tier1Name": "Physiotherapy",
+   "tier2": "40.09",
+   "tier2Name": "Physiotherapy"
   },
   {
    "code": "RES",
-   "name": "Respiratory medicine",
+   "name": "Respiratory Medicine",
    "hue": 180,
    "verified": true,
-   "viaCrs": true,
    "share": 5,
    "att": 4.8,
    "iv": 85,
@@ -443,14 +465,17 @@
     8,
     9,
     4
-   ]
+   ],
+   "tier1": "008.000",
+   "tier1Name": "Respiratory",
+   "tier2": "20.19",
+   "tier2Name": "Respiratory"
   },
   {
    "code": "URO",
    "name": "Urology",
    "hue": 70,
    "verified": true,
-   "viaCrs": true,
    "share": 5,
    "att": 3.5,
    "iv": 80,
@@ -464,7 +489,179 @@
     8,
     10,
     5
-   ]
+   ],
+   "tier1": "015.000",
+   "tier1Name": "Urology",
+   "tier2": "20.36",
+   "tier2Name": "Urology"
+  },
+  {
+   "code": "ONC",
+   "name": "Oncology",
+   "hue": 30,
+   "verified": true,
+   "share": 5,
+   "att": 6,
+   "iv": 30,
+   "dna": 0.06,
+   "tele": 0.2,
+   "wait": 0.6,
+   "age": [
+    1,
+    1,
+    3,
+    7,
+    9,
+    5
+   ],
+   "tier1": "007.000",
+   "tier1Name": "Oncology",
+   "tier2": "20.42",
+   "tier2Name": "Medical Oncology (Consultation)"
+  },
+  {
+   "code": "HAE",
+   "name": "Haematology",
+   "hue": 275,
+   "verified": true,
+   "share": 3,
+   "att": 4,
+   "iv": 60,
+   "dna": 0.08,
+   "tele": 0.15,
+   "wait": 0.8,
+   "age": [
+    1,
+    1,
+    3,
+    5,
+    7,
+    5
+   ],
+   "tier1": "010.012",
+   "tier1Name": "Haematology, haemophilia",
+   "tier2": "20.10",
+   "tier2Name": "Haematology"
+  },
+  {
+   "code": "RHE",
+   "name": "Rheumatology",
+   "hue": 200,
+   "verified": true,
+   "share": 4,
+   "att": 5,
+   "iv": 90,
+   "dna": 0.09,
+   "tele": 0.2,
+   "wait": 1.2,
+   "age": [
+    0,
+    1,
+    4,
+    8,
+    8,
+    3
+   ],
+   "tier1": "010.026",
+   "tier1Name": "Rheumatology",
+   "tier2": "20.30",
+   "tier2Name": "Rheumatology"
+  },
+  {
+   "code": "REH",
+   "name": "Rehabilitation Medicine",
+   "hue": 160,
+   "verified": true,
+   "share": 3,
+   "att": 8,
+   "iv": 30,
+   "dna": 0.1,
+   "tele": 0.12,
+   "wait": 0.8,
+   "age": [
+    0,
+    1,
+    3,
+    6,
+    8,
+    6
+   ],
+   "tier1": "010.025",
+   "tier1Name": "Rehabilitation",
+   "tier2": "20.47",
+   "tier2Name": "Rehabilitation"
+  },
+  {
+   "code": "GER",
+   "name": "Gerontology",
+   "hue": 100,
+   "verified": true,
+   "share": 4,
+   "att": 4,
+   "iv": 80,
+   "dna": 0.1,
+   "tele": 0.15,
+   "wait": 0.9,
+   "age": [
+    0,
+    0,
+    0,
+    1,
+    6,
+    12
+   ],
+   "tier1": "010.001",
+   "tier1Name": "Aged care, geriatric, gerontology",
+   "tier2": "20.09",
+   "tier2Name": "Geriatric Medicine"
+  },
+  {
+   "code": "ANT",
+   "name": "Antenatal",
+   "hue": 325,
+   "verified": true,
+   "share": 3,
+   "att": 6,
+   "iv": 28,
+   "dna": 0.1,
+   "tele": 0.1,
+   "wait": 0.5,
+   "age": [
+    0,
+    3,
+    10,
+    1,
+    0,
+    0
+   ],
+   "tier1": "004.003",
+   "tier1Name": "Antenatal",
+   "tier2": "20.40",
+   "tier2Name": "Obstetrics (Pregnancy without complications)"
+  },
+  {
+   "code": "DEN",
+   "name": "Dental",
+   "hue": 55,
+   "verified": true,
+   "share": 0.8,
+   "att": 3,
+   "iv": 60,
+   "dna": 0.08,
+   "tele": 0.02,
+   "wait": 1.0,
+   "age": [
+    3,
+    4,
+    8,
+    7,
+    5,
+    2
+   ],
+   "tier1": "002.000",
+   "tier1Name": "Dental",
+   "tier2": "10.04",
+   "tier2Name": "Dental"
   }
  ],
  "scopeByTier": {
@@ -483,9 +680,15 @@
    "ORT": 1,
    "PAE": 0.1,
    "PHY": 1,
-   "PSY": 1,
    "RES": 1,
-   "URO": 1
+   "URO": 1,
+   "ONC": 1,
+   "HAE": 1,
+   "RHE": 1,
+   "REH": 0.8,
+   "GER": 1,
+   "ANT": 0.1,
+   "DEN": 0
   },
   "PAED": {
    "CAR": 0.6,
@@ -501,9 +704,15 @@
    "ORT": 1,
    "PAE": 4,
    "PHY": 0.8,
-   "PSY": 0.8,
    "RES": 0.7,
-   "URO": 0.5
+   "URO": 0.5,
+   "ONC": 0.4,
+   "HAE": 0.5,
+   "RHE": 0.4,
+   "REH": 0.3,
+   "GER": 0,
+   "ANT": 0,
+   "DEN": 0
   },
   "WOMN": {
    "CAR": 0,
@@ -519,9 +728,15 @@
    "ORT": 0,
    "PAE": 0.6,
    "PHY": 0.6,
-   "PSY": 0.3,
    "RES": 0,
-   "URO": 0.5
+   "URO": 0.5,
+   "ONC": 0.1,
+   "HAE": 0,
+   "RHE": 0,
+   "REH": 0,
+   "GER": 0,
+   "ANT": 3,
+   "DEN": 0
   },
   "METR": {
    "CAR": 0.8,
@@ -537,9 +752,15 @@
    "ORT": 1,
    "PAE": 0.6,
    "PHY": 1,
-   "PSY": 0.6,
    "RES": 0.8,
-   "URO": 0.7
+   "URO": 0.7,
+   "ONC": 0.6,
+   "HAE": 0.4,
+   "RHE": 0.5,
+   "REH": 0.9,
+   "GER": 1,
+   "ANT": 0.5,
+   "DEN": 0
   },
   "REGL": {
    "CAR": 0.5,
@@ -555,9 +776,15 @@
    "ORT": 0.8,
    "PAE": 0.7,
    "PHY": 1,
-   "PSY": 0.7,
    "RES": 0.5,
-   "URO": 0.5
+   "URO": 0.5,
+   "ONC": 0.25,
+   "HAE": 0.2,
+   "RHE": 0.25,
+   "REH": 0.5,
+   "GER": 0.7,
+   "ANT": 0.7,
+   "DEN": 0
   },
   "DIST": {
    "CAR": 0.06,
@@ -573,9 +800,15 @@
    "ORT": 0.12,
    "PAE": 0.12,
    "PHY": 0.7,
-   "PSY": 0.35,
    "RES": 0.06,
-   "URO": 0.06
+   "URO": 0.06,
+   "ONC": 0.03,
+   "HAE": 0.02,
+   "RHE": 0.03,
+   "REH": 0.2,
+   "GER": 0.3,
+   "ANT": 0.1,
+   "DEN": 0
   },
   "POST": {
    "CAR": 0,
@@ -591,41 +824,71 @@
    "ORT": 0,
    "PAE": 0,
    "PHY": 0.4,
-   "PSY": 0.15,
    "RES": 0,
-   "URO": 0
+   "URO": 0,
+   "ONC": 0,
+   "HAE": 0,
+   "RHE": 0,
+   "REH": 0.05,
+   "GER": 0.1,
+   "ANT": 0,
+   "DEN": 0
+  },
+  "OTHR": {
+   "CAR": 0,
+   "DER": 0,
+   "END": 0,
+   "ENT": 0,
+   "GAS": 0,
+   "GPM": 0,
+   "GES": 0,
+   "GYN": 0,
+   "NEU": 0,
+   "OPH": 0,
+   "ORT": 0,
+   "PAE": 0,
+   "PHY": 0,
+   "RES": 0,
+   "URO": 0,
+   "ONC": 0,
+   "HAE": 0,
+   "RHE": 0,
+   "REH": 0,
+   "GER": 0,
+   "ANT": 0,
+   "DEN": 0
   }
  },
  "priorities": [
   {
    "code": "URG",
    "label": "Urgent",
-   "short": "Cat 1",
+   "short": "P1",
    "targetDays": 30,
-   "label2": "Priority 1: seen within 30 days",
-   "source": "BR §8.1 p.14"
+   "label2": "Priority 1 (Urgent): seen within 30 days",
+   "source": "BR 2026 §8.1; DD Referral Priority p.154"
   },
   {
    "code": "SEM",
-   "label": "Semi-urgent",
-   "short": "Cat 2",
+   "label": "Semi-Urgent",
+   "short": "P2",
    "targetDays": 90,
-   "label2": "Priority 2: seen within 90 days",
-   "source": "BR §8.1 p.14"
+   "label2": "Priority 2 (Semi-Urgent): seen within 90 days",
+   "source": "BR 2026 §8.1; DD p.154"
   },
   {
    "code": "NUR",
-   "label": "Not urgent",
-   "short": "Cat 3",
+   "label": "Not Urgent",
+   "short": "P3",
    "targetDays": 365,
-   "label2": "Priority 3: seen within 365 days",
-   "source": "BR §8.1 p.14"
+   "label2": "Priority 3 (Not Urgent): seen within 365 days",
+   "source": "BR 2026 §8.1; DD p.154"
   }
  ],
  "priorityNotSimulated": [
   {
    "code": "AWT",
-   "label": "Awaiting triage"
+   "label": "Awaiting Triage"
   },
   {
    "code": "UNK",
@@ -645,49 +908,49 @@
  "sources": [
   {
    "code": "GEP",
-   "label": "General practitioner",
+   "label": "General Practitioner",
    "w": 50,
    "internal": false
   },
   {
    "code": "SPR",
-   "label": "Specialist rooms",
+   "label": "Specialist Rooms",
    "w": 12,
    "internal": false
   },
   {
    "code": "MEP",
-   "label": "Medical practitioner",
+   "label": "Medical Practitioner",
    "w": 3,
    "internal": false
   },
   {
    "code": "NPR",
-   "label": "Nurse practitioner",
+   "label": "Nurse Practitioner",
    "w": 2,
    "internal": false
   },
   {
    "code": "AHP",
-   "label": "Allied health professional",
+   "label": "Allied Health Professional",
    "w": 2,
    "internal": false
   },
   {
    "code": "MHC",
-   "label": "Mental health clinic or team",
+   "label": "Mental Health Clinic or Team",
    "w": 2.5,
    "internal": false
   },
   {
    "code": "OTH",
-   "label": "Other hospital",
+   "label": "Other Hospital",
    "w": 3.5,
    "internal": false
   },
   {
    "code": "ANI",
-   "label": "Another institution",
+   "label": "Another Institution",
    "w": 2.5,
    "internal": false
   },
@@ -699,25 +962,25 @@
   },
   {
    "code": "OPH",
-   "label": "Outpatient department this hospital",
+   "label": "Outpatient Department this Hospital",
    "w": 9,
    "internal": true
   },
   {
    "code": "EMD",
-   "label": "Emergency department",
+   "label": "Emergency Department",
    "w": 6,
    "internal": true
   },
   {
    "code": "INW",
-   "label": "Inpatient ward",
+   "label": "Inpatient Ward",
    "w": 5,
    "internal": true
   },
   {
    "code": "CON",
-   "label": "Same consultant",
+   "label": "Same Consultant",
    "w": 0,
    "internal": true
   }
@@ -729,30 +992,30 @@
   },
   {
    "code": "TRE",
-   "label": "Treatment"
+   "label": "Treatment/Intervention"
   },
   {
    "code": "OPM",
-   "label": "Ongoing patient management"
+   "label": "Technical transfer"
   }
  ],
  "opmShare": 0.08,
  "closeReasons": [
   {
    "code": "TRE",
-   "label": "Treatment completed"
+   "label": "Treatment Completed"
   },
   {
    "code": "DIP",
-   "label": "Discharge policy"
+   "label": "Discharge Policy"
   },
   {
    "code": "PDT",
-   "label": "Declined treatment"
+   "label": "Patient Declined Treatment"
   },
   {
    "code": "TFC",
-   "label": "Transfer and close"
+   "label": "Transfer and Close"
   },
   {
    "code": "DEC",
@@ -761,12 +1024,16 @@
   {
    "code": "AUD",
    "label": "Audit"
+  },
+  {
+   "code": "ESC",
+   "label": "Escalation of care"
   }
  ],
  "outcomes": [
   {
    "code": "REV",
-   "label": "Further review",
+   "label": "Further Review",
    "ends": false
   },
   {
@@ -776,7 +1043,7 @@
   },
   {
    "code": "DIS",
-   "label": "Discharge from clinic",
+   "label": "Discharge From Clinic",
    "ends": true,
    "close": "TRE"
   },
@@ -788,33 +1055,44 @@
   },
   {
    "code": "RAS",
-   "label": "Referred to other specialty",
+   "label": "Refer to Another Speciality",
    "ends": true,
    "close": "TFC"
   },
   {
    "code": "ROH",
-   "label": "Referred to other hospital",
+   "label": "Refer Other Hospital",
    "ends": true,
    "close": "TFC"
   },
   {
    "code": "RWL",
-   "label": "Refer inpatient waitlist",
+   "label": "Refer IP Waitlist",
    "ends": true,
    "close": "TRE"
   },
   {
    "code": "ADM",
-   "label": "Admit to ward",
+   "label": "Admit to Ward",
    "ends": true,
    "close": "TRE"
   },
   {
    "code": "PRI",
-   "label": "Private referral",
+   "label": "Private Referral",
    "ends": true,
    "close": "TRE"
+  },
+  {
+   "code": "RED",
+   "label": "Refer to ED",
+   "ends": true,
+   "close": "ESC"
+  },
+  {
+   "code": "PLN",
+   "label": "Patient Left Not Seen",
+   "ends": false
   },
   {
    "code": "CAN",
@@ -829,154 +1107,162 @@
   "RWL": 8,
   "ADM": 2,
   "ROH": 3,
-  "PRI": 3
+  "PRI": 3,
+  "RED": 1
  },
  "nonAttendance": [
   {
-   "code": "GNR",
-   "label": "Gives no reason",
-   "w": 25
+   "code": "DNN",
+   "label": "DNA - no reason",
+   "w": 36
   },
   {
-   "code": "PDA",
-   "label": "Patient did not attend",
-   "w": 20
+   "code": "DNR",
+   "label": "DNA - reason",
+   "w": 28
   },
   {
-   "code": "FGT",
-   "label": "Forgot",
-   "w": 14
-  },
-  {
-   "code": "ISF",
-   "label": "Illness self and family",
-   "w": 10
-  },
-  {
-   "code": "DRN",
-   "label": "Patient did not receive notice",
-   "w": 9
-  },
-  {
-   "code": "TRU",
-   "label": "Transport unavailable",
-   "w": 6
-  },
-  {
-   "code": "SBE",
-   "label": "States better",
-   "w": 5
+   "code": "ATU",
+   "label": "Assisted transport unavailable",
+   "w": 7
   },
   {
    "code": "APE",
-   "label": "Inpatient and outpatient appointment elsewhere",
-   "w": 4
+   "label": "Inpatient or Outpatient Appointment Elsewhere",
+   "w": 7
+  },
+  {
+   "code": "TNR",
+   "label": "Treatment no longer required",
+   "w": 7
   },
   {
    "code": "COP",
-   "label": "Crisis - patient",
-   "w": 4
-  },
-  {
-   "code": "TPR",
-   "label": "Treated privately",
-   "w": 2
+   "label": "Crisis - Patient",
+   "w": 9
   },
   {
    "code": "COH",
-   "label": "Crisis - hospital",
-   "w": 1
+   "label": "Crisis - Hospital",
+   "w": 2
+  },
+  {
+   "code": "COQ",
+   "label": "Crisis - Patient In Quarantine",
+   "w": 0.4
+  },
+  {
+   "code": "DEC",
+   "label": "Deceased",
+   "w": 0.6
   }
  ],
  "cancellation": [
   {
-   "code": "CLU",
-   "label": "Clinician unavailable",
-   "w": 20,
-   "by": "hospital"
-  },
-  {
    "code": "CCA",
    "label": "Clinic cancelled",
-   "w": 9,
+   "w": 18,
    "by": "hospital"
   },
   {
-   "code": "PTC",
+   "code": "CLR",
+   "label": "Clinical request",
+   "w": 10,
+   "by": "hospital"
+  },
+  {
+   "code": "PCO",
    "label": "Patient convenience",
-   "w": 16,
+   "w": 22,
    "by": "patient"
   },
   {
-   "code": "ISF",
-   "label": "Illness self family",
-   "w": 12,
+   "code": "ATU",
+   "label": "Assisted transport unavailable",
+   "w": 5,
    "by": "patient"
   },
   {
-   "code": "PNA",
-   "label": "Patient not available",
-   "w": 8,
-   "by": "patient"
-  },
-  {
-   "code": "BET",
-   "label": "States better",
+   "code": "COP",
+   "label": "Crisis - Patient",
    "w": 6,
    "by": "patient"
   },
   {
-   "code": "RUN",
-   "label": "Rooms unavailable",
-   "w": 3,
+   "code": "COH",
+   "label": "Crisis - Hospital",
+   "w": 2,
    "by": "hospital"
   },
   {
-   "code": "SLC",
-   "label": "Slot change",
+   "code": "COQ",
+   "label": "Crisis - Patient In Quarantine",
+   "w": 0.3,
+   "by": "patient"
+  },
+  {
+   "code": "CLC",
+   "label": "Crisis - Legislative cancellation",
+   "w": 0.4,
+   "by": "hospital"
+  },
+  {
+   "code": "CUR",
+   "label": "Current Inpatient any site",
    "w": 6,
-   "by": "hospital"
+   "by": "patient"
   },
   {
-   "code": "URG",
-   "label": "Urgent patient",
+   "code": "DEC",
+   "label": "Deceased",
+   "w": 0.8,
+   "by": "patient"
+  },
+  {
+   "code": "ERR",
+   "label": "User error",
    "w": 4,
    "by": "hospital"
   },
   {
-   "code": "TUN",
-   "label": "Transport unavailable",
-   "w": 3,
+   "code": "IND",
+   "label": "Industrial action",
+   "w": 1.5,
+   "by": "hospital"
+  },
+  {
+   "code": "TNR",
+   "label": "Treatment no longer required",
+   "w": 8,
    "by": "patient"
   },
   {
-   "code": "PRI",
-   "label": "Treated privately",
-   "w": 3,
-   "by": "patient"
-  },
-  {
-   "code": "OTH",
-   "label": "Other",
-   "w": 5,
+   "code": "NSP",
+   "label": "Not specified",
+   "w": 4,
    "by": "unknown"
   },
   {
    "code": "UNK",
    "label": "Unknown",
-   "w": 5,
+   "w": 3,
    "by": "unknown"
   }
  ],
  "modes": [
   {
    "code": "CLP",
-   "label": "Client present",
+   "label": "Client Present (face-to-face)",
    "remote": false
   },
   {
    "code": "GCP",
-   "label": "Group client present",
+   "label": "Group Client Present (face-to-face)",
+   "remote": false
+  },
+  {
+   "code": "HOM",
+   "label": "Home Visit",
    "remote": false
   },
   {
@@ -985,19 +1271,36 @@
    "remote": true
   },
   {
-   "code": "VID",
-   "label": "Video conference",
+   "code": "THC",
+   "label": "Telehealth Support Clinician",
    "remote": true
   },
   {
    "code": "THH",
-   "label": "Telehealth at WA Health site",
+   "label": "Telehealth at non-WA Health Site",
    "remote": true
   },
   {
-   "code": "THC",
-   "label": "Telehealth support clinician",
+   "code": "THS",
+   "label": "Telehealth at WA Health Site",
    "remote": true
+  },
+  {
+   "code": "VID",
+   "label": "Video Conference (end-dated 2023-06-30)",
+   "remote": true
+  },
+  {
+   "code": "MCC",
+   "label": "Multidisciplinary Case Conference - patient not present",
+   "remote": false,
+   "nonClient": true
+  },
+  {
+   "code": "OTH",
+   "label": "Other",
+   "remote": false,
+   "nonClient": true
   }
  ],
  "appointmentTypes": [
@@ -1008,6 +1311,10 @@
   {
    "code": "FOL",
    "label": "Follow-up"
+  },
+  {
+   "code": "NCE",
+   "label": "Non-Client Event or Chart Only"
   }
  ],
  "ageGroups": [
@@ -1022,17 +1329,102 @@
   {
    "code": "ATT",
    "label": "Attended",
-   "rule": "An appointment outcome is allocated (BR §5.1 p.3)"
+   "rule": "Appointment attendance ATT; outcome allocated (BR 2026 §5.2)"
   },
   {
    "code": "DNA",
-   "label": "Did not attend",
-   "rule": "Non-attendance reason recorded, outcome blank (model assumption, see OPEN-QUESTIONS)"
+   "label": "Did not attend / did not wait",
+   "rule": "Attendance DNA (no prior notice, BR §9.3.2) or DNW (outcome PLN); non-attendance reason recorded"
   },
   {
    "code": "CAN",
    "label": "Cancelled",
-   "rule": "Outcome CAN with a cancellation reason and date"
+   "rule": "Outcome CAN with a cancellation reason and date (appointment status CA)"
+  },
+  {
+   "code": "NCE",
+   "label": "Non-client event",
+   "rule": "Chart only (attendance NCE, outcome CON) or MCC (attendance MCC, patient not present): never stops the wait (BR §10.2.7)"
   }
- ]
+ ],
+ "siteScope": {
+  "_note": "INVENTED. For sites that are not hospitals the tier table is replaced by this per-site table (keyed by establishment code).",
+  "0110": {
+   "DEN": 1
+  },
+  "4506": {
+   "NEU": 1,
+   "REH": 0.6,
+   "PHY": 0.3
+  },
+  "4275": {
+   "GER": 1,
+   "REH": 0.3
+  },
+  "0652": {
+   "GER": 0.6,
+   "RES": 0.5,
+   "CAR": 0.4,
+   "GPM": 0.3
+  },
+  "4518": {
+   "PHY": 1,
+   "END": 0.4,
+   "GER": 0.3,
+   "PAE": 0.2
+  },
+  "4519": {
+   "PHY": 1,
+   "END": 0.4,
+   "GER": 0.3,
+   "PAE": 0.2
+  }
+ },
+ "referralReasonsNotSimulated": [
+  {
+   "code": "CHR",
+   "label": "Chart Review"
+  },
+  {
+   "code": "EDU",
+   "label": "Education"
+  },
+  {
+   "code": "OTH",
+   "label": "Other"
+  },
+  {
+   "code": "RET",
+   "label": "Research Trial"
+  },
+  {
+   "code": "UNK",
+   "label": "Unknown"
+  }
+ ],
+ "vidEnd": "2023-06-30",
+ "nonClient": [
+  {
+   "code": "MCC",
+   "label": "Multidisciplinary case conference (patient not present)",
+   "mode": "MCC",
+   "attendance": "MCC",
+   "session": "MCC",
+   "outcome": ""
+  },
+  {
+   "code": "CON",
+   "label": "Chart only",
+   "mode": "OTH",
+   "attendance": "NCE",
+   "session": "NCE",
+   "outcome": "CON"
+  }
+ ],
+ "nonClientRates": {
+  "_note": "INVENTED. Share of referrals with a chart-only event while waiting / an MCC event; BR 2026 §10.2.7: these do not take the referral off the waiting list.",
+  "chartOnlyWhileWaiting": 0.05,
+  "mccPerReferral": 0.035,
+  "mccSameDayAsAttended": 0.15
+ }
 }
