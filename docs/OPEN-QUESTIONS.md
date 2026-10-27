@@ -4,7 +4,7 @@ Each question says why it matters to this demo. Everything in the demo is synthe
 
 ## A. Documents and versions
 
-1. **Which editions are current?** We read the July 2021 v1.0 Specification and Business Rules (via third-party mirrors). The Outpatient Services Policy MP 0191/25 (from 26 Nov 2025) cites "Business Rules 2024". Which Specification, Dictionary, Business Rules and Validation Manual versions apply today, and what changed from 2021? (Search-engine summaries mention a version 2.0 / "V002" from 1 July 2025 and a different file-name pattern. We could not confirm this and have not used it.)
+1. **Which editions are current?** We read the July 2021 v1.0 Specification and Business Rules (via third-party mirrors). The Outpatient Services Policy MP 0191/25 (from 26 Nov 2025) cites "Business Rules 2024". Which Specification, Dictionary, Business Rules and Validation Manual versions apply today, and what changed from 2021? (Search-engine summaries mention a version 2.0 / "V002" from 1 July 2025, a Business Rules edition superseded on 1 July 2025 and a Data Dictionary superseded on 1 July 2026. We could not confirm any of this and have not used it.)
 2. **Can the official PDFs be shared** (Business Rules sections 9 to 12 and Appendix A, the Data Dictionary, the Validation Manual, the Information Compendium)? Our tools could not download them. Without them the demo cannot cite page numbers for those parts.
 3. **Collection name.** The 2021 documents say NAPDC, the policy page says "Non-Admitted Data Collection", you say NADC. Which is preferred in public material?
 

@@ -57,6 +57,15 @@ The round-2 brief: use the public WA Health NADC documents and establishment inf
 * Peel 145 vs 645: another search gave a summary that both codes exist in the list (145 AH SORL 4 MOS 10; 645 "also Peel Health Campus with different reporting flags"). Not a verbatim row, so the question stays open.
 * Also fixed: the Mount Lawley note had been copied from the Peel note. METEOR NAPAAWL DC 2016-17 (648949) was read in full (OFFICIAL-EXCERPTS.md section 6).
 
+## 27 Oct 2026, 22:30 to 22:45 AWST: more probes, nothing new verbatim
+
+Round of varied searches (Referral Priority code list; Business Rules section 9 and 9.2.2; Establishment List rows for Esperance, Geraldton, Derby, Fremantle, Royal Perth, Fiona Stanley, Kalgoorlie; Data Dictionary 2024; Information Compendium) plus a re-fetch of the Patient Activity Data policy page and of the two Establishment-list URLs.
+
+* **No verbatim "Highlights" came back** for any of these. WebFetch returned an empty page for `Establishments-list.pdf/1000` and for the Emergency Department establishment list. The policy page does not expose the document links to WebFetch.
+* **ReadKong** serves only a truncated transcript of the Business Rules (it stops before section 9; the Contents list does show 9.1 Appointment classification and 9.2 Appointment attendance, 9.2.1 Attended, 9.2.2 Did not attend, 9.2.3 Interactions via information and communications technology). Pages 2 to 8 of the mirror return the same text or 404. So the wording of section 9 is still not read.
+* **Search-engine summaries (unverified paraphrase, not used as fact).** They said: the Referral Priority code set is AWT, NUR, SEM, URG, UNK (this matches the 2021 Specification we hold); attendance codes are ATT, DNA, DNW, NCE, NSP (matches the Dental Specification extract); "Did Not Attend" is an attendance status and not a valid appointment outcome (matches the Validation Manual extract we hold); Esperance 218, Geraldton 220, Derby 215, Fremantle 102, Kalgoorlie 226, Royal Perth 101 and Fiona Stanley 106 report to the NADC (the numbers equal our SLIP codes, but no official row was shown, so these sites stay "SLIP-flagged, not confirmed"); the Business Rules 2024 were superseded on 1 July 2025 and a Data Dictionary was superseded on 1 July 2026 (not confirmed anywhere; added to Open Question 1 as a reason to ask which edition is current).
+* Where a summary agrees with text we already hold verbatim, that adds nothing; where it does not, we did not use it.
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.
