@@ -1,30 +1,30 @@
 # OutpatientFlow WA
 
-**An animated picture of how referrals move through Western Australia's public hospital outpatient services: who is waiting, who is being seen, and who does not turn up.**
+**An animated picture of how referrals move through Western Australia's public hospital outpatient services: how many people are waiting for a first appointment, how many are in care, and how many appointments were not attended.**
 
 > ⚠️ **SYNTHETIC EXAMPLE DATA.** Every person, referral, appointment, wait time and count in this demo is invented by a seeded random generator. The *structure* (field names, code sets, priority timeframes) follows the WA Health Non-Admitted Data Collection (NADC) documents, and the *establishments and boundaries* are public reference data. Nothing here describes real activity at any hospital, clinic or person.
 
 **Live demo:** https://metadata-team-member.github.io/OutpatientFlow-WA/
 
-**Documents:** [Sources (four official 2026 documents)](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [2026 vs 2021 changes](docs/CHANGES-2026-vs-2021.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Official excerpts](docs/OFFICIAL-EXCERPTS.md) · [Research log](docs/RESEARCH-LOG.md)
+**Documents:** [Sources (four official 2026 documents)](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [2026 vs 2021 changes](docs/CHANGES-2026-vs-2021.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Official excerpts](docs/OFFICIAL-EXCERPTS.md) · [Language guide](docs/LANGUAGE-GUIDE.md) · [Research log](docs/RESEARCH-LOG.md)
 
 ![Desktop view](docs/img/desktop.png)
 
 ## The idea
 
-Every little character is one referral.
+Every small marker is one **referral**. All markers have the same shape and size. They stand for referrals, not for people, and they say nothing about anyone's build, age, sex or health.
 
 1. **Map.** Referrals start in the WA health region of residence (10 regions, real boundaries), with a Perth metro inset. Establishments sit at their real coordinates.
-2. **Queue lanes.** Waiting characters are **slim**. They queue in a lane by referral priority (Urgent, Semi-urgent, Not urgent). A red dashed line marks the Business Rules timeframe (30, 90 and 365 days), and each lane shows the share of first attended appointments seen within it.
-3. **Inside the network.** Five Health Service Provider cells (and an establishment spotlight) show activity. When a person has an appointment they walk to a clinic door, the door glows, and they **grow broader** with every *attended* appointment (an appointment outcome was allocated).
-4. **Did not attend and cancelled.** A missed appointment flashes amber; a cancellation is grey. Telephone and telehealth appear as a beam.
-5. **Closure.** The referral closes with a real closure reason (treatment completed, discharge policy, transferred, and so on).
+2. **Waiting for a first appointment.** Markers wait in a lane by referral priority (Urgent, Semi-urgent, Not urgent). A red dashed line marks the Business Rules timeframe (30, 90 and 365 days), and each lane shows the share of first attended appointments seen within it. A marker past its timeframe has a red outline and a concerned expression.
+3. **Outpatient services.** Five Health Service Provider panels (and an establishment spotlight) show activity. When a person has an appointment the marker walks to a clinic door and the door glows. Each *attended* appointment (an appointment outcome was allocated) adds to the marker's rings.
+4. **Did not attend (DNA) and cancelled.** An appointment that was not attended flashes amber; a cancellation is grey. Telephone and telehealth appear as a beam.
+5. **Closure.** The referral closes with a closure reason from the Data Dictionary (treatment completed, discharge policy, transferred, and so on).
 
-Slim = still waiting, or little care so far; broad = lots of attended care. The simulation opens **paused**; press **Play**.
+**Ring size = number of attended outpatient events (service use).** No ring means no attended events yet. More and wider rings mean a higher count. *Lower service use* and *higher service use* are plain counts of attended events. They are not a judgement about the care a person needed. See the [language guide](docs/LANGUAGE-GUIDE.md) for the terms used and avoided. The simulation opens **paused**; press **Play**.
 
 ## What changed in round 3 (official 2026 documents)
 
-The user supplied four official WA Health documents: the **Business Rules (July 2026)**, **Data Specifications (July 2026)**, **Data Dictionary (2026)** and the **Establishment List (May 2026, v0.1)**. The simulation was realigned to them ([sources](docs/SOURCES.md)).
+The project owner supplied four official WA Health documents: the **Business Rules (July 2026)**, **Data Specifications (July 2026)**, **Data Dictionary (2026)** and the **Establishment List (May 2026, v0.1)**. The simulation was realigned to them ([sources](docs/SOURCES.md)).
 
 * **Reporting establishments = Reports to NADC = Y.** **125 establishments**: NMHS 9, SMHS 7, EMHS 7, CAHS 1, WACHS 101 ([list](docs/ESTABLISHMENTS.md)). Codes, names and types are official. **HSP, region and map positions are not in the List**; they come from SLIP and the CRS page and are marked as non-official. Eight of the NADC flags are inferred (see the Honest limits).
 * **2026 data model.** snake_case field names and ISO dates; attendance code ATT / DNA / DNW / MCC / NCE; Clinic Category with NMDS Tier 1 and Tier 2 codes (22 categories); closure code ESC; OPM = Technical transfer; delivery modes THH / THS / THC / TEL (VID only up to 30 June 2023).
@@ -34,12 +34,16 @@ The user supplied four official WA Health documents: the **Business Rules (July 
 
 Round 2 (July 2021 mirrors, SLIP-flag establishment list of 117) is recorded in [docs/RESEARCH-LOG.md](docs/RESEARCH-LOG.md).
 
+## Language review (round 4)
+
+All text, labels, tooltips, alt text and documents were reviewed against WA Health and Dictionary wording. Markers are one uniform shape; service use is shown by rings; wording is person-first and count-based. Details, terms avoided and reasons are in [docs/LANGUAGE-GUIDE.md](docs/LANGUAGE-GUIDE.md).
+
 ## What the demo includes
 
-* KPI strip: referrals (12 months), waiting for a first appointment, seen within target, median wait, telehealth and did-not-attend shares.
-* Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, busiest clinics.
+* KPI strip: referrals received (12 months), people waiting for a first appointment, first appointments within target, median wait, did not attend (DNA) rate, attended events per person.
+* Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, clinic categories with the most attended appointments.
 * About 11,000 referrals and 39,000 events across 102 active establishments (of the 125), July 2022 to June 2026. Playback runs July 2023 to June 2026.
-* A six-step **guided tour** (header button, intro card, or `?tour=1`): characters, inside-versus-outside growth, waiting list against targets, did-not-attend, telehealth, and what is real versus synthetic. Every figure in the tour text is computed from the loaded data. Arrow keys move through it and Esc closes it.
+* A six-step **guided tour** (header button, intro card, or `?tour=1`): the markers, people in care and people waiting (service use), waiting against targets, did not attend and cancelled, telehealth, and what is real versus synthetic. Every figure in the tour text is computed from the loaded data. Arrow keys move through it and Esc closes it.
 * Print / Save as PDF button: a landscape print layout (scene on page 1, charts after). Keyboard skip link, visible focus rings, and muted text lifted to at least 4.5:1 contrast on the panels.
 * Plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
 
@@ -64,7 +68,7 @@ node tools/build_data.mjs                                            # data/synt
 # or both: npm run data
 ```
 
-Code sets are in `config/dimensions.json` (from the 2026 Specification). The **weights, tiers and scope are invented**. Establishments come from `data/reference/establishments.json`.
+Code sets are in `config/dimensions.json` (from the 2026 Specification). The **sampling weights, tiers and scope are invented**. Establishments come from `data/reference/establishments.json`.
 
 ## Rebuild the reference data
 
@@ -97,7 +101,7 @@ node tools/build_establishments_doc.mjs   # writes docs/ESTABLISHMENTS.md
 index.html              page
 css/style.css           styles
 js/data.js              loads and indexes the data file, derived measures
-js/sprites.js           the blob characters
+js/sprites.js           the markers and their rings (service use)
 js/scene.js             canvas scene: map, queue lanes, HSP cells, establishment spotlight, playback
 js/charts.js            small charts
 js/tour.js              guided tour
@@ -110,7 +114,7 @@ data/sample/            25-row sample CSVs in Specification column style
 docs/                   sources, establishments, rules summary, open questions, requirements
 ```
 
-URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N characters), `?color=stage|spec|region|prio`, `?data=file.json`, `?tour=1`.
+URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N markers), `?color=stage|spec|region|prio`, `?data=file.json`, `?tour=1`.
 
 ## Honest limits
 
@@ -120,7 +124,7 @@ URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8`
 * Not in the documents, so assumed: the Tier 1 / Tier 2 pairing per clinic category; how a DNA row carries an outcome; VID becoming THH after 30 June 2023; whether future bookings are in extracts. See [open questions](docs/OPEN-QUESTIONS.md).
 * Conflicts with the sim's concept are listed at the end of the [rules summary](docs/BUSINESS-RULES-SUMMARY.md): adult psychiatry and community care are excluded by the rules, and some private hospitals and a home-care service report anyway.
 * The Validation Manual and the Information Compendium were not supplied; no validation rules are simulated.
-* The characters are a metaphor. They are not people, and nobody should be judged by them.
+* The markers are a visual device. They are not people, the rings are a count of attended events, and nobody should be judged by them. Do not use the picture to make decisions about an individual.
 
 ## Attribution and licence
 

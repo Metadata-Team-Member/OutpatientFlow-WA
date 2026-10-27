@@ -8,14 +8,14 @@ This page is the working list of what we would need from the WA Health **Non-Adm
 
 ## 1. Purpose and unit of analysis
 
-The simulation follows **one referral** to an outpatient service from the day it is received until it is closed. Each referral is drawn as one small character, called a "patient" in the interface. A referral has a unique **Referral Account Number** (Specification element 33, Mandatory), and appointments carry the same number, so appointments link to their referral. *This resolves the round 1 question about a referral identifier.* The Business Rules require all activity to link to a valid referral unless the data custodian approves an exception.
+The simulation follows **one referral** to an outpatient service from the day it is received until it is closed. Each referral is drawn as one small marker, called a "patient" in the interface. A referral has a unique **Referral Account Number** (Specification element 33, Mandatory), and appointments carry the same number, so appointments link to their referral. *This resolves the round 1 question about a referral identifier.* The Business Rules require all activity to link to a valid referral unless the data custodian approves an exception.
 
 The questions it helps people ask:
 
-* Who is waiting for a first attended appointment, for how long, against the priority timeframe?
-* Once in the network, how many appointments are attended, where, and by which delivery mode?
-* Where do appointments end as did-not-attend or cancelled?
-* Which establishments, regions and Health Service Providers carry the load?
+* Which people are waiting for a first attended appointment, for how long, against the priority timeframe?
+* Once a person has a first attended appointment, how many appointments are attended, where, and by which delivery mode?
+* Where are appointments not attended (DNA) or cancelled?
+* Which establishments, regions and Health Service Providers have the most attended appointments?
 
 ## 2. Fields needed (2026 field names)
 
@@ -68,9 +68,9 @@ Priority: **M** = needed for the picture; **S** = useful; **N** = not needed. "R
 
 | What you see | Field(s) | Rule |
 |---|---|---|
-| A character | Referral Account Number | One per referral. Large crowds are sampled for the picture only. KPIs and charts use every referral that passes the filters. |
-| Character **size** | attended appointments (outcome allocated) plus prior attended | `g = 1 − exp(−attended / 6)`. Slim while waiting or with little care; larger with more attended events. |
-| Waiting v in the network | Referral Received Date, first attended appointment; OPM reason | Becomes "inside" at the first attended appointment, or at once for OPM. |
+| A marker | Referral Account Number | One per referral. Large numbers of markers are sampled for the picture only. KPIs and charts use every referral that passes the filters. |
+| Marker **rings** (service use) | attended appointments (outcome allocated) plus prior attended | `g = 1 − exp(−attended / 6)` sets the ring size. No ring at 0 events; up to three wider rings as the count rises. The marker shape never changes size. Lower and higher service use are counts only. |
+| Waiting v in care | Referral Received Date, first attended appointment; OPM reason | Moves to outpatient services at the first attended appointment, or at once for OPM. |
 | Waiting lane and target line | Priority code | The red dashed line is 30 / 90 / 365 days. |
 | Doors on a building | Clinic Category Code per Establishment Code | One door per clinic per site. Unverified codes are drawn fainter. |
 | Door flash | Outcome, non-attendance reason, delivery mode | Green attended; blue telehealth or phone; amber did not attend; grey cancelled. |
@@ -84,7 +84,7 @@ Priority: **M** = needed for the picture; **S** = useful; **N** = not needed. "R
 | Waiting, first appointment | Received, not closed, no attended appointment yet, excluding OPM. DNA, cancelled and chart-only / MCC events do not end the wait (BR §10.2.4 to §10.2.7) | The NADC records what happened; Status FU exists for future appointments, whether extracts carry them is an open question |
 | Seen within target (12 months) | Share of first attended appointments in the last 12 months within 30 / 90 / 365 days of the received date | BR §8.1; OPM excluded per §8.3.1 |
 | Median wait, first appointment | Median days from received date to first attended appointment | |
-| Did-not-attend rate | DNA and DNW events ÷ (attended + DNA + DNW) | Excludes cancelled and non-client events |
+| Did not attend (DNA) rate | DNA and DNW events ÷ (attended + DNA + DNW) | Excludes cancelled and non-client events |
 | Telehealth share | Delivery modes TEL, THH, THC, THS (and VID up to 30 Jun 2023) | Our grouping (BR §9.5 lists THH, THS, THC, TEL as the virtual modes) |
 | Referrals, last 12 months | Count of received dates in the last 365 days | |
 
@@ -94,7 +94,7 @@ Treat each as "not available until someone confirms it is". The demo cannot show
 
 - **People who were never referred, or who were referred outside the public system** (private specialists, GP-only care).
 - **The booking and scheduling record**: dates offered, cancelled by the hospital, rescheduled, or "booked in the future". The NADC is an activity collection, so it sees appointments that took place or were recorded as DNA, not the planned appointment book.
-- **Waiting list position** and whether a person was *offered* an earlier appointment and declined.
+- **Position on a waiting list** and whether a person was *offered* an earlier appointment and declined.
 - **Reason for referral / diagnosis / clinical urgency detail** beyond the priority category. Clinical content is deliberately out of scope for this tool.
 - **What happens next in another system**: admitted care (HMDS), emergency (EDDC), private hospital stays, primary care (MBS/PBS) unless separately linked.
 - **Referrals closed by "validation" processes** if they are not recorded in the collection.
@@ -118,10 +118,10 @@ Recommended handling:
 
 - **No real data in this repository, ever.** `.gitignore` already excludes `data/real*.json`. If you host a real build anywhere, host it privately and behind access control, not on public GitHub Pages.
 - **Approvals first.** Using a WA Health collection for a new purpose normally needs a data request to the data custodian and, depending on the use, a Human Research Ethics Committee decision or a documented quality-improvement exemption. Confirm the correct pathway with the Data Linkage / Purchasing and System Performance teams (or their current equivalents).
-- **Aboriginal data.** Indigenous status is sensitive. Using it requires attention to Aboriginal data governance and, for research, review by the **WA Aboriginal Health Ethics Committee**. The synthetic data deliberately does **not** let Aboriginal status drive any outcome, and the click-card does not show it. If it is ever used, it should be for equity monitoring *alongside* Aboriginal partners, never to label individuals.
-- **Small numbers.** A crowd of dots makes small groups visible. Suppress or merge small cells in any view that could identify a person (for example, a rare clinic at a remote site).
-- **Characters are not people.** The faces and growth are metaphors. They must not be used to make decisions about an individual, and the click-card on real data should be switched off for anyone who is not authorised to see record-level data.
-- **Humane language.** "Waiting" is not "failing". The tool should not imply blame on patients (DNA) or on staff.
+- **Aboriginal data.** Aboriginal status (`aboriginal_status_code`) is sensitive. Using it requires attention to Aboriginal data governance and, for research, review by the **WA Aboriginal Health Ethics Committee**. The synthetic data deliberately does **not** let Aboriginal status drive any outcome, and the click-card does not show it. If it is ever used, it should be for equity monitoring *alongside* Aboriginal partners, never to label individuals.
+- **Small numbers.** A display of many markers makes small groups visible. Suppress or merge small cells in any view that could identify a person (for example, a rare clinic at a remote site).
+- **Markers are not people.** The faces and rings are visual devices (rings count attended events; they are not a measure of need). They must not be used to make decisions about an individual, and the click-card on real data should be switched off for anyone who is not authorised to see record-level data.
+- **Person-centred language.** Waiting is not a failing. The tool should not imply blame on patients (DNA) or on staff. See the [language guide](LANGUAGE-GUIDE.md).
 - **Retention.** Delete extracts when the project ends, as agreed in the data-sharing agreement.
 
 ## 8. Open questions

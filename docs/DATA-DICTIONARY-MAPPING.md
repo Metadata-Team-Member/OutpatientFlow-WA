@@ -51,4 +51,4 @@ The Spec's element numbering is printed only on part of the listing in the copy 
 
 * **File naming** (Spec §4): `NAP_DATAPROVIDER_PASSYSTEM_V003_YYYYMMDD…`; the sim does not write real-format extracts.
 * **Format:** Spec §4.1 says csv while Appendix G (1 July 2024) says "double pipe delimited" (an inconsistency inside the document).
-* The **weights, tier scope and rates** in `config/dimensions.json` are invented and marked as such in the file.
+* The **sampling weights, tier scope and rates** in `config/dimensions.json` are invented and marked as such in the file.
