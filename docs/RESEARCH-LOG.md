@@ -44,6 +44,11 @@ The round-2 brief: use the public WA Health NADC documents and establishment inf
 * Moved the five-working-day triage rule, the Data Quality Dashboard and the validation severities from "low confidence" to "supported by quoted extract" in SOURCES.md. The V002 / July 2026 / March 2025 claims stay unsupported.
 * **Establishment codes.** Compared the 2021/22 Hospital Morbidity list (DocsLib copy, letters A to C) with the SLIP ids: 14 of 14 sites that exist in both have the same code and name. Found that the HMDS list also holds sites missing from SLIP layer 7 (private day surgeries, renal and dialysis centres), and that Bethesda (602) is named as an NADC reporter in a search summary but has no outpatient flag in SLIP. Both are in OPEN-QUESTIONS.md (6a, 6b).
 
+## 27 Oct 2026, 22:25 AWST: more probes of the Establishments list
+
+* Probed the search index for NADC flags by name. Results (paraphrases) agree with the SLIP-based list for Joondalup, Fiona Stanley, Royal Perth, Rockingham, St John of God Midland, Burringurrah, Bremer Bay and Rottnest (not NADC). Differences: Bethesda (602) NADC = Y, Peel code 145 vs SLIP 645, Hedland 131 vs 240. Details in [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 4; questions 6a and 6c in OPEN-QUESTIONS.md. No data change except a note on Peel.
+* Fixed a misleading KPI: "Referrals, last 12 months" showed "+1117% on the 12 months before" in the first year, because data starts in July 2022. It now says "part year" or "no full prior year to compare" until two full years exist.
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.

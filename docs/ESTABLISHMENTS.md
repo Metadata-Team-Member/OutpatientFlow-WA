@@ -28,9 +28,9 @@
 
 * **0107 Perth Children's Hospital** (CAHS): Perth Children's Hospital is part of CAHS (DoH CRS page, 8 Sep 2026; SLIP lists it under the North Metro geographic service).
 * **0612 St John of God Bunbury Hospital** (WACHS): Private hospital (St John of God Health Care) in the WACHS South West area; HEALTH-001 flags outpatient reporting. Contract detail not verified.
-* **0629 St John of God Mt Lawley Hospital** (EMHS): Mount Lawley Hospital: purchased from St John of God Health Care by the WA Government, transferring to State ownership on 31 Aug 2026 (WA Government media statement, 1 May 2026); listed on the EMHS website (26 Oct 2026). HEALTH-001 still lists it as Private.
+* **0629 St John of God Mt Lawley Hospital** (EMHS): Mount Lawley Hospital: purchased from St John of God Health Care by the WA Government, transferring to State ownership on 31 Aug 2026 (WA Government media statement, 1 May 2026); listed on the EMHS website (26 Oct 2026). HEALTH-001 still lists it as Private under code 645. Search summaries of the May 2026 Establishments list say the public code is 145 (645 an older or private-era code); not verified, so the SLIP code is kept.
 * **0642 Joondalup Health Campus** (NMHS): Joondalup Health Campus is operated by Ramsay Health Care under a public-private arrangement; listed under NMHS on the DoH CRS page. HEALTH-001 lists it as Private.
-* **0645 Peel Health Campus** (SMHS): Peel Health Campus returned to public hands (SMHS) on 13 Aug 2024; listed under SMHS on the DoH CRS page. HEALTH-001 still lists it as Private.
+* **0645 Peel Health Campus** (SMHS): Peel Health Campus returned to public hands (SMHS) on 13 Aug 2024; listed under SMHS on the DoH CRS page. HEALTH-001 still lists it as Private under code 645. Search summaries of the May 2026 Establishments list say the public code is 145 (645 an older or private-era code); not verified, so the SLIP code is kept.
 * **6007 St John of God Midland Hospital** (EMHS): St John of God Midland Public Hospital is operated by St John of God Health Care under a public-private arrangement; listed under EMHS (EMHS website and DoH CRS page). HEALTH-001 lists it as Private.
 
 ## EMHS: East Metropolitan Health Service (6)

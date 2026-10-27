@@ -21,8 +21,8 @@ const OVERRIDE = {
   642: { hsp: 'NMHS', contracted: true, note: 'Joondalup Health Campus is operated by Ramsay Health Care under a public-private arrangement; listed under NMHS on the DoH CRS page. HEALTH-001 lists it as Private.' },
   6007: { hsp: 'EMHS', contracted: true, note: 'St John of God Midland Public Hospital is operated by St John of God Health Care under a public-private arrangement; listed under EMHS (EMHS website and DoH CRS page). HEALTH-001 lists it as Private.' },
   612: { hsp: 'WACHS', contracted: true, note: 'Private hospital (St John of God Health Care) in the WACHS South West area; HEALTH-001 flags outpatient reporting. Contract detail not verified.' },
-  645: { hsp: 'SMHS', note: 'Peel Health Campus returned to public hands (SMHS) on 13 Aug 2024; listed under SMHS on the DoH CRS page. HEALTH-001 still lists it as Private.' },
-  629: { hsp: 'EMHS', note: 'Mount Lawley Hospital: purchased from St John of God Health Care by the WA Government, transferring to State ownership on 31 Aug 2026 (WA Government media statement, 1 May 2026); listed on the EMHS website (26 Oct 2026). HEALTH-001 still lists it as Private.' },
+  645: { hsp: 'SMHS', note: 'Peel Health Campus returned to public hands (SMHS) on 13 Aug 2024; listed under SMHS on the DoH CRS page. HEALTH-001 still lists it as Private under code 645. Search summaries of the May 2026 Establishments list say the public code is 145 (645 an older or private-era code); not verified, so the SLIP code is kept.' },
+  629: { hsp: 'EMHS', note: 'Mount Lawley Hospital: purchased from St John of God Health Care by the WA Government, transferring to State ownership on 31 Aug 2026 (WA Government media statement, 1 May 2026); listed on the EMHS website (26 Oct 2026). HEALTH-001 still lists it as Private under code 645. Search summaries of the May 2026 Establishments list say the public code is 145 (645 an older or private-era code); not verified, so the SLIP code is kept.' },
 };
 const SHORT = {
   101: 'RPH', 102: 'Fremantle', 104: 'KEMH', 105: 'SCGH', 106: 'FSH', 107: 'PCH', 203: 'Armadale', 255: 'Bentley', 239: 'Osborne Park',
