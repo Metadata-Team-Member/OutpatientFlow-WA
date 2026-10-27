@@ -89,7 +89,7 @@ The simulation follows **one referral to an outpatient clinic** from the day it 
 | **Doors** on a building | `CLINIC_CATEGORY_CODE` per `ESTABLISHMENT_ID` | One door per clinic per site. Doors glow when a service event happens. |
 | Door flash and pop-up | `APP_ATTENDANCE_CODE`, `APP_DELIVERY_TYPE_CODE` | Green = attended; blue = telehealth; amber = DNA; grey = did not wait. |
 | Map position | `PER_REGION_CODE` / postcode | Where a referral starts on the left. |
-| Leaving the courtyard | `REF_DISCHARGE_DATE`, `REF_CLOSURE_REASON_CODE` | "Discharged" gate. Closure reasons other than "seen" fade out differently. |
+| Leaving the courtyard | `REF_DISCHARGE_DATE`, `REF_CLOSURE_REASON_CODE` | "Discharged" gate at the edge of the courtyard. |
 | Time slider and clock | all dates | The scene is rebuilt from events, so you can jump anywhere. |
 
 ## 4. Derived measures
