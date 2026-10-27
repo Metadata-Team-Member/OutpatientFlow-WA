@@ -28,9 +28,9 @@
       text: (S) => 'In the 12 months to ' + D.fmtDate(S.day) + ' there were <b>' + fmt(S.att12) + '</b> attended, <b>' + fmt(S.dna12) + '</b> did-not-attend (DNA or did-not-wait) and <b>' + fmt(S.can12) + '</b> cancelled appointments. The did-not-attend rate is <b>' + (S.dnaRate * 100).toFixed(1) + '%</b> of attended + DNA; cancelled appointments are counted separately. Amber flashes at the doors mark a missed appointment: the character does not grow.',
     },
     {
-      title: 'Telehealth and phone', day: () => dayAt(0.85), filter: { mode: 'tele' }, hl: ['#cHsp', '#fMode'],
-      text: (S) => { let tele = 0, inp = 0; S.hsp12.forEach((h) => { inp += h[0]; tele += h[1]; });
-        return 'The characters now shown all had at least one telehealth or phone appointment (a blue beam links the character to the clinic door and a “+1 video” or “+1 phone” note appears, with no walking). In the 12 months to ' + D.fmtDate(S.day) + ' <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH and THC in this simulation) and <b>' + pct(inp, tele + inp) + '%</b> were in person, shown by Health Service Provider in the chart. The filter returns to "all" when you move on.'; },
+      title: 'Telehealth and phone', day: () => dayAt(0.85), filter: { mode: 'tele' }, hl: ['#fMode', '#sceneWrap'],
+      text: (S, S0) => { let tele = 0, inp = 0; S0.hsp12.forEach((h) => { inp += h[0]; tele += h[1]; });
+        return 'The characters now shown all had at least one telehealth or phone appointment (a blue beam links the character to the clinic door and a “+1 video” or “+1 phone” note appears, with no walking). Across all appointments (before the filter), in the 12 months to ' + D.fmtDate(S.day) + ', <b>' + pct(tele, tele + inp) + '%</b> of attended events were telehealth or phone (delivery modes TEL, VID, THH and THC in this simulation) and <b>' + pct(inp, tele + inp) + '%</b> were in person, The “Appointments by Health Service Provider” chart further down shows only the filtered patients. The filter returns to "all" when you move on.'; },
     },
     {
       title: 'What is real and what is not', day: () => OF.UI.simStart(), hl: ['#btnEst'], end: true,
@@ -46,11 +46,11 @@
   }
   function stopTimer() { if (timer) { cancelAnimationFrame(timer); timer = null; } }
 
-  function render(i, S, busy) {
+  function render(i, S, busy, S0) {
     const st = STEPS[i];
     panel.querySelector('.t-step').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
     panel.querySelector('h3').textContent = st.title;
-    panel.querySelector('.t-body').innerHTML = busy ? '<span class="t-wait">Playing the simulation forward…</span>' : st.text(S);
+    panel.querySelector('.t-body').innerHTML = busy ? '<span class="t-wait">Playing the simulation forward…</span>' : st.text(S, S0);
     panel.querySelector('.t-back').disabled = i === 0;
     const nx = panel.querySelector('.t-next'); nx.textContent = st.end ? 'Finish' : 'Next ▸';
     panel.querySelector('.t-dots').innerHTML = STEPS.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('');
@@ -60,16 +60,16 @@
     token++; const my = token; stopTimer(); step = i; const st = STEPS[i];
     OF.UI.setPlaying(false);
     OF.UI.resetFilters();
-    if (st.filter) OF.UI.filters(st.filter);
+    let S0 = null; if (st.filter) { S0 = OF.UI.statsAt(st.day ? st.day() : OF.UI.simStart()); OF.UI.filters(st.filter); }
     setHl(st.hl || []);
-    const finish = (day) => { if (my !== token) return; OF.UI.setPlaying(false); OF.UI.seekTo(day); render(i, OF.UI.statsAt(day), false); };
+    const finish = (day) => { if (my !== token) return; OF.UI.setPlaying(false); OF.UI.seekTo(day); render(i, OF.UI.statsAt(day), false, S0); };
     if (st.play) {
       const start = OF.UI.simStart(), to = st.play.to();
       OF.UI.seekTo(start); OF.UI.setSpeed(st.play.speed); render(i, null, true); OF.UI.setPlaying(true);
       const poll = () => { if (my !== token) return; if (window.__of.Scene.t >= to - 1 || !OF.UI.isPlaying()) { finish(Math.min(to, Math.floor(window.__of.Scene.t))); return; } timer = requestAnimationFrame(poll); };
       timer = requestAnimationFrame(poll);
     } else {
-      const day = st.day(); OF.UI.seekTo(day); render(i, OF.UI.statsAt(day), false);
+      const day = st.day(); OF.UI.seekTo(day); render(i, OF.UI.statsAt(day), false, S0);
     }
     panel.querySelector('.t-next').focus({ preventScroll: true });
   }
