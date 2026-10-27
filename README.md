@@ -73,13 +73,17 @@ node tools/build_establishments_doc.mjs   # writes docs/ESTABLISHMENTS.md
 ## Plug in real data (with approval)
 
 1. Get approval first. See [section 7 of the requirements log](docs/DATA-REQUIREMENTS.md#7-privacy-ethics-and-governance). **Do not commit real data and do not host it on public GitHub Pages.**
-2. Produce `referrals.csv` and `appointments.csv` with the columns in [the mapping](docs/DATA-DICTIONARY-MAPPING.md) (dates DDMMYYYY). `data/sample/` has 25-row examples. The real-data path of `tools/build_data.mjs` is **untested against real extracts** and may need adjusting.
-3. Update `config/dimensions.json` with the real establishment list, clinics, regions and code lists.
+2. Produce `referrals.csv` and `appointments.csv` with the columns in [the mapping](docs/DATA-DICTIONARY-MAPPING.md). `data/sample/` has 25-row examples. Header names are case-insensitive, a BOM is fine, and dates may be `DDMMYYYY` (optionally followed by a time), `DD/MM/YYYY` or `YYYY-MM-DD`.
+   - Required columns: referrals `ESTABLISHMENT_CODE, REFERRAL_ACCOUNT_NUMBER, REFERRAL_RECEIVED_DATE, REFERRAL_PRIORITY_CODE, DERIVED_HEALTH_DISTRICT`; appointments `REFERRAL_ACCOUNT_NUMBER, APPOINTMENT_DATE, APPOINTMENT_DELIVERY_MODE_CODE`.
+   - `--real` has been exercised only against a **small fake extract** (`npm run test:real`), never against real data. Treat the first real run as a trial: read the "Notes" list it prints.
+3. Update `config/dimensions.json` with the real code lists if they differ. Codes the file does not know (up to 16 delivery modes and 64 of each other list) are appended automatically and reported, and referrals from unknown establishments or districts are skipped and counted, never silently dropped.
 4. Build it:
 
    ```bash
    node tools/build_data.mjs --referrals my_refs.csv --appointments my_apps.csv --out data/real.json --real
+   # optional: --start 2021-07-01 --end 2026-06-30 --sim-start 2023-07-01  (window of at most 2,047 days)
    ```
+   Without `--start`/`--end` the window runs from the earliest received date (at most about 5.5 years before the latest) to the latest received date; appointments after it (future bookings) are dropped and counted. Output names must not be `data/synthetic.json`. `data/real*.json` is git-ignored.
 5. Open `index.html?data=real.json` from a private server. The banner changes from "SYNTHETIC EXAMPLE DATA" to "Real extract (approved use only)".
 
 ## Project layout

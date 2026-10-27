@@ -42,7 +42,7 @@
     evs = []; let p = 0;
     for (let i = 0; i < N; i++) {
       const n = c.evN[i]; const a = new Int16Array(n * 5);
-      for (let k = 0; k < n; k++) { const v = c.ev[p++]; a[k * 5] = v & 2047; a[k * 5 + 1] = (v >> 11) & 3; a[k * 5 + 2] = (v >> 13) & 7; a[k * 5 + 3] = (v >> 16) & 31; a[k * 5 + 4] = (v >> 21) & 1; }
+      for (let k = 0; k < n; k++) { const v = c.ev[p++]; a[k * 5] = v & 2047; a[k * 5 + 1] = (v >> 11) & 3; a[k * 5 + 2] = (v >> 13) & 15; a[k * 5 + 3] = (v >> 17) & 63; a[k * 5 + 4] = (v >> 23) & 1; }
       evs.push(a);
     }
     internal = new Uint8Array(N); hasTele = new Uint8Array(N); hasPerson = new Uint8Array(N); firstAtt = new Int32Array(N).fill(99999);

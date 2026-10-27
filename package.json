@@ -8,6 +8,7 @@
   "scripts": {
     "data": "node tools/generate_synthetic.mjs && node tools/build_data.mjs",
     "serve": "python3 -m http.server 8080",
-    "establishments": "node tools/build_establishments.mjs && node tools/build_establishments_doc.mjs"
+    "establishments": "node tools/build_establishments.mjs && node tools/build_establishments_doc.mjs",
+    "test:real": "node tools/test_real_mode.mjs"
   }
 }

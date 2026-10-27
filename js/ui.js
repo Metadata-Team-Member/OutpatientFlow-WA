@@ -47,7 +47,7 @@
   function setK(id, val, note, cls) { const el = $(id); el.querySelector('.val').textContent = val; el.querySelector('.note').textContent = note || ''; el.className = 'kpi' + (cls ? ' ' + cls : ''); }
   function updateKpis() {
     const s = S; const d = s.refsPrev12 ? (s.refs12 - s.refsPrev12) / s.refsPrev12 : 0; const dm = D.dims;
-    setK('k1', fmt(s.refs12), S.day >= 730 ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(d * 100)) + '% on the 12 months before' : (S.day < 365 ? 'part year: data starts Jul 2022' : 'no full prior year to compare'));
+    setK('k1', fmt(s.refs12), S.day >= 730 ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(d * 100)) + '% on the 12 months before' : (S.day < 365 ? 'part year: data starts ' + D.fmtDate(0).replace(/^\d+ /, '') : 'no full prior year to compare'));
     const pOver = s.waiting ? s.over / s.waiting : 0;
     setK('k2', fmt(s.waiting), fmt(s.over) + ' past target (' + Math.round(pOver * 100) + '%)', pOver > 0.35 ? 'bad' : pOver > 0.2 ? 'warn' : '');
     const pw = s.seenAll12 ? s.withinAll12 / s.seenAll12 : null;
@@ -136,7 +136,8 @@
   function seekTo(day) { Scene.finished = false; Scene.seek(day); statAcc = 99; dirty = true; if (!playing) $('playText').textContent = 'Play'; }
   function buildTicks() {
     const el = $('ticks'); const a = simStart, b = D.DAYS - 1; el.style.position = 'relative'; el.style.height = '14px'; el.innerHTML = '';
-    for (let y = 2023; y <= 2026; y++) { const d = D.dateToDay(y + '-07-01'); if (d > b) continue; const s = document.createElement('span'); s.style.cssText = 'position:absolute;transform:translateX(-50%);left:' + ((d - a) / (b - a) * 100) + '%'; s.textContent = 'Jul ' + y; if (d === a) s.style.transform = 'none'; el.appendChild(s); }
+    const y0 = D.dayToDate(0).getUTCFullYear(), y1 = D.dayToDate(b).getUTCFullYear(), MN = ['Jan', 'Apr', 'Jul', 'Oct'], mm = (b - a) < 1000 ? [0, 6] : [6];
+    for (let y = y0; y <= y1; y++) for (const m of mm) { const d = D.dateToDay(y + '-' + String(m + 1).padStart(2, '0') + '-01'); if (d < a || d > b) continue; const s = document.createElement('span'); s.style.cssText = 'position:absolute;transform:translateX(-50%);left:' + ((d - a) / (b - a) * 100) + '%'; s.textContent = (m === 0 ? 'Jan ' : 'Jul ') + y; if (d === a) s.style.transform = 'none'; el.appendChild(s); }
   }
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
