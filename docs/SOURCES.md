@@ -92,6 +92,17 @@ Other facts used and where they come from (all HTML pages read on 27 Oct 2026; s
 * Peel Health Campus returned to public hands under SMHS on 13 August 2024, and the CRS page lists it under SMHS.
 * A new "Women, Babies and Children" HSP is planned from July 2027, combining CAHS, KEMH and the Women and Babies Hospital (WA Government media statement of 9 Sep 2026). **Medium confidence**: read once, not cross-checked against a second source.
 
+### 3.4 Version warning: newer editions than the ones this demo read (found 27 Oct 2026, about 21:45 AWST)
+
+The only copies of the Specification and Business Rules that could be read are **third-party mirrors of the July 2021 v1.0 editions** (the mirrored Business Rules cover page says "July 2021", "Current version: 1.0", "Original approval date 2 June 2021").
+Two official WA Health pages that were read directly point to later material:
+
+* The **Outpatient Services Policy, MP 0191/25** (official page, date of effect **26 November 2025**; supersedes OD 0503/14 *Central Referral Allocation, Outpatient Services* and OD 0530/14 *Specialist Outpatient Services Access Policy*). Its "to be read in conjunction with" list names **"Non-Admitted Patient Activity Business Rules 2024"**. So a 2024 edition of the Business Rules exists and was **not obtained**. The simulation's rules (section 8 priorities and so on) come from the 2021 edition and may differ from the 2024 edition. This is confirmed by the official page and replaces the earlier "not asserted" note about the 26 Nov 2025 policy.
+* The Patient Activity Data Policy page (MP 0164/21, still dated 1 July 2021) lists the Business Rules, the Data Specifications and the Data Dictionary without version numbers.
+
+Search-engine summaries (machine-written, **not confirmed by any page that could be read**) also said that a Specification / Dictionary version 2.0 ("V002") applies from 1 July 2025 with a changed file name pattern, and that the Validation Manual is dated March 2025. These are listed in section 5 and are **not** used.
+The custodian should therefore treat the field names and code sets in this demo as the 2021 baseline, and tell us which later changes matter (see OPEN-QUESTIONS.md).
+
 ## 4. Establishment list and geography
 
 ### 4.1 Which establishments report to the NADC
@@ -121,8 +132,9 @@ Web search tools returned machine-written summaries on the topics below. They co
 * The meaning of specific "OUT" validation rules.
 * A claimed five-working-day triage rule in the Validation Manual.
 * A claim that a did-not-attend is recorded as an attendance status.
-* A claim that the Outpatient Services Policy replaced the Specialist Outpatient Services Access Policy on 26 Nov 2025.
-* A claim that a July 2026 version of the Specification and Dictionary exists.
+* A claim that a July 2026 version of the Specification and Dictionary exists, and a claim that version 2.0 (V002, file pattern `NADD_..._V002_...`) applies from 1 July 2025.
+* A claim that the Validation Manual is v1.0 dated March 2025 and that errors appear in an "NADC Data Quality Dashboard" with severity-based resubmission timeframes. (The Data Quality Team page, last reviewed 13 Jul 2023, says only that non-validation data quality processes apply to the Non-Admitted collections; query address RoyalSt.DataQuality@health.wa.gov.au.)
+* A claim that the Referral Category codes are `CAR` Cardiology, `DER` Dermatology and `END` Endocrinology (it came from a search summary, not a readable page).
 * Referral category codes for Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology (`CAR`, `DER`, `END`, `ENT`, `GAS`). They are used in the simulation only as **provisional, unverified** labels and are flagged `verified: false` in `config/dimensions.json`.
 
 ## 6. Retrieval attempts that failed (so the custodian knows what was and was not seen)
@@ -138,7 +150,7 @@ Web search tools returned machine-written summaries on the topics below. They co
 | Search for other mirrors of the Business Rules and the Dictionary | Only the two readkong pages were found. The Dictionary has no mirror |
 | Business Rules mirror, section 9 onward | Paywalled on the mirror |
 
-A final retry was made at the end of the session; its result is in [RESEARCH-LOG.md](RESEARCH-LOG.md).
+A retry was made later in the session (27 Oct 2026, about 21:40 AWST): the Data Dictionary, the Validation Manual and the Non-Admitted Dental Specification PDFs again returned HTTP 500. See [RESEARCH-LOG.md](RESEARCH-LOG.md).
 Pages on `health.wa.gov.au` that are plain HTML were readable through the fetch tool. The PDFs were not.
 
 ## 7. Fallback sources used for background only

@@ -28,6 +28,15 @@ The round-2 brief: use the public WA Health NADC documents and establishment inf
 * Searched for alternative sources of the Dictionary, Business Rules and the Establishments list. Found none. Search-tool summaries about "DNA as a status", "five working days to triage" and a "1 July 2026 supersession" were not supported by any page that could be read and are **not used**.
 * Searched for the referral category codes for Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology. No readable source. They stay unverified.
 
+## 27 Oct 2026, 21:35 to 21:55 AWST
+
+* Pushed `b5a799e` (spec-aligned data model, real regions and establishments, HSP view). Live site, `data/synthetic.json` and the three reference GeoJSON/JSON files all return HTTP 200 on GitHub Pages.
+* Retried the official PDFs with varied approaches: Data Dictionary (`/-/media/` and `/~/media/` URL forms), Validation Manual, Non-Admitted Dental Specification. All HTTP 500 again. Nothing new gained.
+* **Read the Outpatient Services Policy page directly (official HTML).** MP 0191/25, date of effect 26 Nov 2025, supersedes OD 0503/14 and OD 0530/14, and says it is to be read with "Non-Admitted Patient Activity Business Rules 2024". **Consequence:** a 2024 edition of the Business Rules exists; the 2021 mirror is out of date. Added a version warning (SOURCES.md 3.4).
+* Re-read the Patient Activity Data Policy page: still lists the Business Rules, Specifications and Dictionary without versions, and the Information Compendium as supporting.
+* Read the Data Quality Team page (last reviewed 13 Jul 2023): non-validation data quality processes apply to the Non-Admitted collections.
+* More search-engine summaries (V002 from 1 July 2025; Validation Manual March 2025; a Data Quality Dashboard; CAR/DER/END labels). None confirmed by a readable page. Recorded as low confidence in SOURCES.md section 5; not used.
+
 ## Planned for the rest of the session
 
 * Rebuild the generator and data on the real establishments, the real code sets and the real column names.
