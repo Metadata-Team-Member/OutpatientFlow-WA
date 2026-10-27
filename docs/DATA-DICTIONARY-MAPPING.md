@@ -1,54 +1,54 @@
-# Dictionary mapping (extract columns → Specification elements)
+# Mapping: sample CSV columns → 2026 Specification elements
 
-**Status.** This table maps the columns of the sample CSVs (`data/sample/*.sample.csv`) and the generator (`tools/generate_synthetic.mjs`) to the elements of the *Non-Admitted Patient Data Collection Data Specifications* **v1.0, July 2021** (MP 0164/21, Ref F-AA-74148, 115 elements). That document was read through a third-party mirror, not the official PDF ([SOURCES.md](SOURCES.md)). The **Data Dictionary** itself was **not obtained**, so definitions here come from the Specification's own "Comments" column.
+**Status.** The columns of `data/sample/*.sample.csv` (and the generator `tools/generate_synthetic.mjs`) follow the **field names** of *Non-Admitted Data Collection Data Specifications July 2026*, Appendix B (pp.8-34); code sets are from Appendix D (pp.36-49). "Req." is the Requirement column as printed: **M** Mandatory, **C** Conditional, **O** Optional. "Page" is the printed page of Spec Appendix B. Definitions and derivations are in the *Data Dictionary 2026* (DD); rules are in [BUSINESS-RULES-SUMMARY.md](BUSINESS-RULES-SUMMARY.md). Dates are ISO `YYYY-MM-DD`, as in the Specification. The 2021 field names are accepted as aliases by `tools/build_data.mjs` only for old files.
 
-* "Elem." is the element number in the Specification's Appendix B listing (the mirror's page numbers are unreliable, so we cite numbers).
-* Requirement is as printed in the Specification: Mandatory, Conditional or Optional.
-* Later editions may differ ([SOURCES.md](SOURCES.md) 3.4).
+The Spec's element numbering is printed only on part of the listing in the copy we read, so elements are cited by **field name and page**, not number.
 
-## Referral (record type REF)
+## Referral (one row per referral)
 
-| Extract column | Elem. | Specification element | Requirement | Code set used / note |
-|---|---|---|---|---|
-| `ESTABLISHMENT_CODE` | 1 | Establishment Code | Mandatory | Four digits assigned by the Department of Health. Sim uses the HEALTH-001 `estab_id`, padded (assumption). |
-| `REFERRAL_ACCOUNT_NUMBER` | 33 | Referral Account Number | Mandatory | Unique referral identifier. Sim: `SYN` + 8 digits. |
-| `REFERRAL_CATEGORY_CODE` | 35 | Referral Category Code | Mandatory | Appendix C. 11 of 16 sim codes verified; `CAR DER END ENT GAS` provisional. |
-| `REFERRAL_CREATED_DATE` | 36 | Referral Created Date | Mandatory | DDMMYYYY. Sim: equal to received date. |
-| `REFERRAL_RECEIVED_DATE` | 43 | Referral Received Date | Mandatory | Starts the wait until a first appointment is attended. |
-| `REFERRAL_PRIORITY_CODE` | 40 | Referral Priority Code | Mandatory | AWT, NUR, SEM, UNK, URG. Sim uses URG / SEM / NUR. |
-| `REFERRAL_REASON_CODE` | 41 | Referral Reason Code | Mandatory | ASS, CHR, EDU, OPM, OTH, RET, TRE, UNK. Sim uses ASS, TRE, OPM, OTH. |
-| `REFERRAL_SOURCE_CODE` | 44 | Referral Source Code | Mandatory | 30 codes (GEP, SPR, OTH Other Hospital, CON Same Consultant ...). |
-| `REFERRAL_STATUS_CODE` | 45 | Referral Status Code | Mandatory | CA, CL, IN, OP, RE, UN, WL. Sim uses OP and CL. |
-| `REFERRAL_CLOSED_DATE` | 37 | Referral Closed Date | Conditional | Blank while open. |
-| `REFERRAL_REASON_FOR_CLOSURE_CODE` | 42 | Referral Reason for Closure Code | Conditional | AUD, DEC, DIP, PDT, TFC, TRE. |
-| `DERIVED_PERSON_KEY` | n/a | not a Specification element | n/a | Stands in for the patient identifier group (elements 2 to 5). Real extracts carry identifiers. |
-| `DERIVED_AGE_YEARS` | 8 | Date of Birth (derived) | Mandatory | Sim stores age only. |
-| `DERIVED_HEALTH_DISTRICT` | n/a | derived from Australian Postcode (residential address group) | n/a | Sim chooses a district directly. A postcode to district concordance is an open question. |
-| `DERIVED_PRIOR_ATTENDED` | n/a | derived | n/a | Count of earlier attended events. Used for starting size of a character. |
+| Sample column | Req. | Page | Code set / note |
+|---|---|---|---|
+| `establishment_code` | M | 8 | N(4), assigned by the Department of Health. Sim uses the 125 codes from the Establishment List with Reports to NADC = Y |
+| `referral_account_number` | M | 13 | Unique referral id. Sim: `SYN` + digits |
+| `referral_category_code` | M | 14 | Spec App D. Sim uses 22 categories (CAR, DER, END …; the clinic-category code is the same) |
+| `referral_created_date` | M | 16 | Sim: equals received date |
+| `referral_received_date` | M | 14 | "commencement of the referral wait time until a first appointment is attended" |
+| `referral_priority_code` | M | 14 | AWT, NUR, SEM, UNK, URG. Sim uses URG / SEM / NUR |
+| `referral_reason_code` | M | 14 | ASS, CHR, EDU, **OPM (Technical transfer)**, OTH, RET, TRE, UNK. Sim uses ASS, TRE, OPM |
+| `referral_source_code` | M | 14-15 | 30 codes (GEP, SPR, OTH Other Hospital, CON Same Consultant …) |
+| `referral_status_code` | M | 14 | CA, CL, IN, OP, RE, UN, WL. Sim uses OP and CL |
+| `referral_closed_date` | C | 15 | Blank until closed |
+| `referral_reason_closure_code` | C | 16 | AUD, DEC, DIP, **ESC**, PDT, NSP, TFC, TRE. Sim uses all but NSP |
+| `derived_*` columns | n/a | n/a | Stand-ins (person key, age, district, prior attended). Real extracts carry the identifier group (Spec pp.8-13) |
 
-## Appointment (record types APP, RES, CAN)
+## Appointment (one row per appointment event)
 
-| Extract column | Elem. | Specification element | Requirement | Code set used / note |
-|---|---|---|---|---|
-| `APPOINTMENT_ACCOUNT_NUMBER` | 48 | Appointment Account Number | Mandatory | Sim: `SYNA` + 7 digits. |
-| `CLINIC_CATEGORY_CODE` | 83 | Clinic Category Code | Mandatory | Must match the referral category (Business Rules). |
-| `APPOINTMENT_DATE` | 53 | Appointment Date | Mandatory | DDMMYYYY. |
-| `APPOINTMENT_TYPE_CODE` | 81 | Appointment Type Code | Mandatory | NEW, FOL, NCE, OTH, UNK. |
-| `APPOINTMENT_DELIVERY_MODE_CODE` | (see Spec) | Appointment Delivery Mode Code | Mandatory | CLP, GCP, HOM, MCC, OTH, POS, SLF, TEL, THC, THH, THS, UNK, VID. Sim uses six. |
-| `APPOINTMENT_SESSION_TYPE_CODE` | 77 | Appointment Session Type Code | Mandatory | GRP, IND, MCC (and NCE, UNK as listed). |
-| `APPOINTMENT_ATTENDANCE_CODE` | not in the 2021 Specification | Appointment Attendance Code (`appointment_attendance_code`) | Mandatory in the current Dental Specification (extract) | ATT Attended, DNA Did Not Attend, DNW Did Not Wait, NCE Non-Client Event, NSP Unknown / not specified; MCC appears in the attended-appointment definition. The demo generates ATT, DNA and DNW only. Source: [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 3 (search extract, edition unknown). |
-| `APPOINTMENT_OUTCOME_CODE` | 69 | Appointment Outcome Code | Mandatory | 15 codes incl. CAN Cancelled. **Allocated outcome = attended** (Business Rules §5.1). |
-| `APPOINTMENT_NON_ATTENDANCE_REASON_CODE` | 68 | Appointment Non-Attendance Reason Code | Conditional | Mandatory when not attended. 13 codes (PDA Pt Did Not Attend, FGT Forgot, TRU Transport Unavailable ...). |
-| `APPOINTMENT_CANCELLATION_CODE` | 49 | Appointment Cancellation Code | Conditional | About 38 listed codes with duplicates. |
-| `APPOINTMENT_CANCELLATION_DATE` | 50 | Appointment Cancellation Date | Conditional | DDMMYYYY. |
+| Sample column | Req. | Page | Code set / note |
+|---|---|---|---|
+| `appointment_account_number` | M | 16 | Sim: `SYNA` + digits |
+| `appointment_date` | M | 17 | |
+| `appointment_attendance_code` | M | 17 | ATT, DNA, DNW, MCC, NCE, NSP, UNK. "Derived from the Appointment Outcome Code in webPAS". Sim leaves it **blank on cancelled rows** (status CA, outcome CAN); the Spec lists it as Mandatory (open question) |
+| `appointment_status_code` | M | 17 | PR, PP, UN, FU, RS, CA. Sim writes PR (processed) or CA |
+| `appointment_type_code` | M | 18 | NEW, FOL, **NCE** (non-client event or chart only), OTH, UNK |
+| `appointment_session_type_code` | M | 19 | IND, GRP, **MCC**, NCE, UNK |
+| `appointment_client_type_code` | M | 20 | CC, ED, EX, IP, NS, **OP**, PH. Sim writes OP |
+| `appointment_care_type_code` | M | 20 | ACU, GER, MEN, NSP, OTH, PAL, PSY, REH, UNK. Sim writes ACU, except GER for Gerontology and REH for Rehabilitation |
+| `appointment_delivery_mode_code` | M | 21 | CLP, ELE, GCP, HOM, MCC, OTH, POS, SLF, TEL, THC, THH, THS, UNK. **VID is not in App B** (it is in App D; end-dated 30 Jun 2023 in the DD) |
+| `appointment_delivery_set_code` | M | 21 | Y on campus / N off campus |
+| `appointment_outcome_code` | M | 24-25 | ADM … UNK (23 codes). "Used to derive the appointment attendance code". DNA rows are blank in the sim (see open question) |
+| `appointment_nonattend_reas_code` | C | 24 | APE, ATU, COH, COP, COQ, DEC, DNN, DNR, TNR. Mandatory when not attended |
+| `appointment_cancellation_code` | C | 19-20 | ATU, CCA, CLC, CLR, COH, COP, COQ, CUR, DEC, ERR, IND, NSP, PCO, TNR, UNK |
+| `appointment_cancellation_date` | C | 20 | |
+| `clinic_category_code` | M | 27 | Spec App D; must match the referral category (BR §7) |
+| `clinic_nmds_tier1_code` | M | 28 | `NNN.NNN` from Spec App E. **Pairing with the category is assumed** |
+| `clinic_tier2_code` | M | 28 | `NN.NN` from Spec App F (IHACPA). **Pairing assumed** |
 
-## Elements in the Specification that the sim does **not** generate
+## Mandatory elements the sim does **not** generate (so sample files are not valid NADC extracts)
 
-Appointment Status Code (78: PR, PP, UN, FU, RS, CA), Appointment Time (80), Clinic Title (89), Appointment Reason for Reschedule Code (75) and Reschedule Count (76), Delivery Setting (Y/N, on or off campus), Care Type, Client Type (CC, ED, EX, IP, NS, OP, PH), Event Type (WACHS only), the patient demographic group (names, Medicare, address and so on), and the cancer and community / palliative element groups.
+`establishment_site_code` (O), the identifier and demographic group (client_identifier, names, date_of_birth, sex_code, gender_code, country_or_state_of_birth_code, interpreter_required_code, aboriginal_status_code, address, postcode, state, residency status; all M), `referral_entered_date` (M), `appointment_time` (M), `appointment_pay_class_code` (M), `clinic_identifier` (M), `clinic_multidisciplinary_code` (M), `clinic_title` (M). Conditional / optional elements not generated include `appointment_contracting_estab_number` (new in 2026), diagnoses, healthcare providers, program, reschedule reason and count, processing status, arrival and seen times, and the cancer, community and palliative groups.
 
 ## Other conventions
 
-* **Change types.** Real extracts carry change type I (insert) or U (update). Not generated.
-* **File naming (v1.0).** `NAP_DATAPROVIDER_PASSYSTEM_YYYYMMDD_YYYYMMDD.csv`. The sim does not write real-format extracts.
-* **Dates** are DDMMYYYY in the sample CSVs, as in the Specification. The internal JSON uses day offsets.
-* The code lists in `config/dimensions.json` are from Appendix B/C of the Specification; the **weights, tiers and scope are invented**.
+* **File naming** (Spec §4): `NAP_DATAPROVIDER_PASSYSTEM_V003_YYYYMMDD…`; the sim does not write real-format extracts.
+* **Format:** Spec §4.1 says csv while Appendix G (1 July 2024) says "double pipe delimited" (an inconsistency inside the document).
+* The **weights, tier scope and rates** in `config/dimensions.json` are invented and marked as such in the file.

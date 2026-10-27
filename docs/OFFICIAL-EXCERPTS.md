@@ -1,5 +1,8 @@
 # Excerpts from official WA Health PDFs (reached through the search index)
 
+> **HISTORICAL (28 Oct 2026).** This file holds search-index extracts gathered in round 2, before the official July 2026 documents were supplied by the user. It is **not** authoritative and nothing in the simulation depends on it. Where it disagrees with the 2026 Specification, Business Rules, Data Dictionary or Establishment List, those win (see [SOURCES.md](SOURCES.md) section 1 and [CHANGES-2026-vs-2021.md](CHANGES-2026-vs-2021.md)). Claims here that the 2021 Specification had no attendance element, that Appendix C rows were unreadable, or that only rows A to C of the Establishment List were readable are **superseded**. Its one still-useful item: the Validation Manual, which has not been supplied.
+
+
 *Last updated 27 Oct 2026, about 21:55 AWST.*
 
 **Why this file exists.** The official PDFs cannot be downloaded from this project's environment (HTTP 500 from the fetch tool, TLS reset from the box; see [SOURCES.md](SOURCES.md) section 6). A web search tool does index parts of some of them and returns short extracts. This file records what those extracts showed, so the custodian can see exactly what the demo relies on.

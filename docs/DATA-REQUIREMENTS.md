@@ -4,7 +4,7 @@
 
 This page is the working list of what we would need from the WA Health **Non-Admitted Data Collection (NADC)** to run OutpatientFlow WA on real data. It is written so that a data custodian can read it without having seen the demo.
 
-**How sure are we of the field names?** Round 2 replaced the earlier METEOR-based guesses with the element names in the *Non-Admitted Patient Data Collection Data Specifications* **v1.0 (July 2021)** and the *Business Rules* v1.0 (read to section 8.5), both read through third-party mirrors. The **Data Dictionary** and **Validation Manual** were **not** obtained, and newer editions exist (a "Business Rules 2024" is cited by MP 0191/25). See [SOURCES.md](SOURCES.md) and [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md) for element numbers. Items that remain unconfirmed are marked ❓ and collected in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md).
+**How sure are we of the field names?** Since 28 Oct 2026 the names, requirement status and code sets come from the official *Non-Admitted Data Collection Data Specifications* **July 2026** (Appendix B pp.8-34), the *Business Rules* July 2026 and the *Data Dictionary* 2026, all supplied by the user ([SOURCES.md](SOURCES.md)). The 2021 mirror-based names are historical ([CHANGES-2026-vs-2021.md](CHANGES-2026-vs-2021.md)). Field-level mapping with pages: [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md).
 
 ## 1. Purpose and unit of analysis
 
@@ -17,46 +17,52 @@ The questions it helps people ask:
 * Where do appointments end as did-not-attend or cancelled?
 * Which establishments, regions and Health Service Providers carry the load?
 
-## 2. Fields needed (real element names)
+## 2. Fields needed (2026 field names)
+
+Priority: **M** = needed for the picture; **S** = useful; **N** = not needed. "Req." is the Specification's own status (Mandatory / Conditional / Optional). Pages are printed pages of Spec Appendix B.
 
 ### 2.1 Referral level
 
-| Element (number) | Used for | Priority |
-|---|---|---|
-| Establishment Code (1) | Which building. Four digits assigned by the Department of Health | M |
-| Referral Account Number (33) | Identity; links appointments | M |
-| Referral Category Code (35) | Door on the building (clinic category) | M |
-| Referral Received Date (43) | Start of the wait ("commencement of the referral wait time until a first appointment is attended") | M |
-| Referral Priority Code (40: AWT, NUR, SEM, UNK, URG) | Waiting lane and target line | M |
-| Referral Reason Code (41) | OPM is excluded from new-appointment wait reporting (BR §8.3.1) | M |
-| Referral Source Code (44) | Click-card; internal v external | S |
-| Referral Status Code (45) and Closed Date (37), Reason for Closure Code (42) | End of the journey | M |
-| Australian Postcode (residential address) | Region of residence, derived | M |
-| Date of Birth (8) | Age group, derived then discarded | S |
-| Patient identifier group (elements 2 to 5) | Person key for prior attendance; must be pseudonymised | N |
+| Field (Spec page) | Req. | Used for | Priority |
+|---|---|---|---|
+| `establishment_code` (p.8) | M | Which building. N(4), assigned by the Department of Health. Only the 125 sites with Reports to NADC = Y | M |
+| `referral_account_number` (p.13) | M | Identity; links appointments | M |
+| `referral_category_code` (p.14; App D) | M | Door on the building (clinic category) | M |
+| `referral_received_date` (p.14) | M | Start of the wait ("commencement of the referral wait time until a first appointment is attended") | M |
+| `referral_priority_code` (p.14: AWT, NUR, SEM, UNK, URG) | M | Waiting lane and target line (30 / 90 / 365 days, BR §8.1) | M |
+| `referral_reason_code` (p.14) | M | OPM = Technical transfer is excluded from first-attended wait reporting (BR §8.3.7, DD p.155) | M |
+| `referral_source_code` (pp.14-15) | M | Click-card; internal v external | S |
+| `referral_status_code` (p.14), `referral_closed_date` (p.15), `referral_reason_closure_code` (p.16) | M / C / C | End of the journey (closure includes the new ESC) | M |
+| `referral_created_date` (p.16) | M | Carried; equals received date in the sim | S |
+| `postcode` (p.11) | M | Region of residence, derived | M |
+| `date_of_birth` (p.8) | M | Age group, derived then discarded | S |
+| `client_identifier` (p.8) | M | Person key for prior attendance; must be pseudonymised | N |
 
 ### 2.2 Appointment level
 
-| Element (number) | Used for | Priority |
-|---|---|---|
-| Appointment Account Number (48) | De-duplication; link to referral | M |
-| Appointment Date (53) | Time axis | M |
-| Appointment Type Code (81: NEW, FOL, NCE, OTH, UNK) | First appointment v follow-up | M |
-| Appointment Outcome Code (69) | **Allocated outcome = attended** (BR §5.1). Exit arrows | M |
-| Appointment Attendance Code (later editions; extract only) | ATT / DNA / DNW marker. Not in the 2021 Specification | S |
-| Appointment Non-Attendance Reason Code (68) | Reason for a DNA or DNW (mandatory when not attended) | S |
-| Appointment Cancellation Code (49) and Date (50) | Cancelled events | S |
-| Appointment Delivery Mode Code | In person v telehealth | S |
-| Appointment Session Type Code (77) | Individual v group | N |
-| Clinic Category Code (83) | Which door fires; must match referral category | M |
-| Appointment Status Code (78) | Not used. ❓ meaning | N |
+| Field (Spec page) | Req. | Used for | Priority |
+|---|---|---|---|
+| `appointment_account_number` (p.16) | M | De-duplication; link to referral | M |
+| `appointment_date` (p.17) | M | Time axis | M |
+| `appointment_attendance_code` (p.17: ATT, DNA, DNW, MCC, NCE, NSP, UNK) | M | Attended / did not attend / did not wait / non-client event. "Derived from the Appointment Outcome Code in webPAS" (DD pp.5-6) | M |
+| `appointment_outcome_code` (pp.24-25) | M | Exit arrows; derives attendance (BR §5.2) | M |
+| `appointment_type_code` (p.18: NEW, FOL, NCE, OTH, UNK) | M | First appointment v follow-up v chart only | M |
+| `appointment_session_type_code` (p.19: IND, GRP, MCC, NCE) | M | Individual v group v case conference | S |
+| `appointment_client_type_code` (p.20) | M | Only OP counts as outpatient (DD pp.10-11) | S |
+| `appointment_delivery_mode_code` (p.21) | M | In person v telehealth v phone (BR §9.4, §9.5; DD pp.14-15) | M |
+| `appointment_nonattend_reas_code` (p.24) | C | Reason for a DNA or DNW | S |
+| `appointment_cancellation_code` (pp.19-20), `appointment_cancellation_date` (p.20) | C | Cancelled events | S |
+| `appointment_status_code` (p.17: PR, PP, UN, FU, RS, CA) | M | CA = cancelled; FU would show future bookings if present in extracts | S |
+| `clinic_category_code` (p.27; App D) | M | Which door fires; must match the referral category | M |
+| `clinic_nmds_tier1_code` (p.28; App E), `clinic_tier2_code` (p.28; App F) | M | Clinic type shown on the door and clinic card | S |
+| `appointment_contracting_estab_number` (p.19, new 2026) | C | Would show contracted-provider activity | N |
 
 ### 2.3 Reference data
 
-* **Establishments:** [ESTABLISHMENTS.md](ESTABLISHMENTS.md) (117: 112 flagged in HEALTH-001 plus 5 shown with NADC = Y in a verbatim extract of the official list; only rows A to C of the official list could be read, so the full current list is still needed).
-* **Regions:** 34 districts → 10 regions → 5 HSPs (SLIP HEALTH-002). A postcode to district concordance is needed. ❓
-* **Priority timeframes:** BR §8.1 priority 1 within 30 days, priority 2 within 90, priority 3 within 365. The URG / SEM / NUR to 1 / 2 / 3 mapping is an assumption. ❓
-* **Clinic categories:** Appendix C. Rows A to F were not visible; five sim codes are provisional.
+* **Establishments:** [ESTABLISHMENTS.md](ESTABLISHMENTS.md): 125 with Reports to NADC = Y (Establishment List, May 2026 v0.1). Code, name and type are official; HSP, region and coordinates are **not** in the List (SLIP / CRS page).
+* **Regions:** 34 districts → 10 regions → 5 HSP groupings (SLIP HEALTH-002; display only). A postcode-to-district concordance is needed (OPEN-QUESTIONS).
+* **Priority timeframes:** BR §8.1 and DD p.154: URG 30 days, SEM 90, NUR 365.
+* **Clinic categories and tiers:** Spec Appendices D, E, F. The category-to-Tier pairing in the sim is our assumption.
 
 ## 3. How fields become pictures
 
@@ -75,11 +81,11 @@ The questions it helps people ask:
 
 | Measure | Definition used in the demo | Notes |
 |---|---|---|
-| Waiting, first appointment | Received, not closed, no attended appointment yet, excluding OPM | ❓ The NADC records what happened, not necessarily future bookings (Status code FU exists for future appointments) |
+| Waiting, first appointment | Received, not closed, no attended appointment yet, excluding OPM. DNA, cancelled and chart-only / MCC events do not end the wait (BR §10.2.4 to §10.2.7) | The NADC records what happened; Status FU exists for future appointments, whether extracts carry them is an open question |
 | Seen within target (12 months) | Share of first attended appointments in the last 12 months within 30 / 90 / 365 days of the received date | BR §8.1; OPM excluded per §8.3.1 |
 | Median wait, first appointment | Median days from received date to first attended appointment | |
-| Did-not-attend rate | Events with a non-attendance reason ÷ (attended + did not attend) | Excludes cancelled |
-| Telehealth share | Delivery modes TEL, VID, THH, THC, THS | Our grouping |
+| Did-not-attend rate | DNA and DNW events ÷ (attended + DNA + DNW) | Excludes cancelled and non-client events |
+| Telehealth share | Delivery modes TEL, THH, THC, THS (and VID up to 30 Jun 2023) | Our grouping (BR §9.5 lists THH, THS, THC, TEL as the virtual modes) |
 | Referrals, last 12 months | Count of received dates in the last 365 days | |
 
 ## 5. What is probably *not* in the collection
@@ -87,31 +93,31 @@ The questions it helps people ask:
 Treat each as "not available until someone confirms it is". The demo cannot show these from NADC alone, and it should not pretend to.
 
 - **People who were never referred, or who were referred outside the public system** (private specialists, GP-only care).
-- **The booking and scheduling record**: dates offered, cancelled by the hospital, rescheduled, or "booked in the future". The NADC is an activity collection, so it sees appointments that took place or were recorded as DNA, not the planned appointment book. ❓
+- **The booking and scheduling record**: dates offered, cancelled by the hospital, rescheduled, or "booked in the future". The NADC is an activity collection, so it sees appointments that took place or were recorded as DNA, not the planned appointment book.
 - **Waiting list position** and whether a person was *offered* an earlier appointment and declined.
 - **Reason for referral / diagnosis / clinical urgency detail** beyond the priority category. Clinical content is deliberately out of scope for this tool.
 - **What happens next in another system**: admitted care (HMDS), emergency (EDDC), private hospital stays, primary care (MBS/PBS) unless separately linked.
-- **Referrals closed by "validation" processes** if they are not recorded in the collection. ❓
+- **Referrals closed by "validation" processes** if they are not recorded in the collection.
 - **Patient-reported outcomes and experience.**
-- **Telephone and video activity** that sits in other systems or is not reported as a service event. ❓
+- **Telephone and video activity** that sits in other systems or is not reported as a service event.
 - **Exact travel distance and cost to the patient** (only postcode-level geography is proposed).
 - **Non-WA-resident detail** beyond a state or "other" flag.
 
 ## 6. Suggested extract format
 
-Two flat CSV files, UTF-8, one header row, **column names and date format as in the Specification** (DDMMYYYY), blank for missing. See `data/sample/` for 25 synthetic rows each, and [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md) for the columns.
+Two flat CSV files, UTF-8, one header row, **column names and date format as in the Specification** (snake_case, ISO `YYYY-MM-DD`), blank for missing. See `data/sample/` for 25 synthetic rows each, and [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md) for the columns.
 
 Recommended handling:
 
 * **Pseudonymise before it leaves the custodian.** Person and referral keys should be project-specific, not UR numbers.
 * **No names, addresses, dates of birth, Medicare numbers or free text.** Age in whole years, or banded.
-* **Scope:** all referrals received or active between about 1 July 2022 and 30 June 2026, plus every appointment on those referrals, so the playback starts with a realistic queue. The clock starts in July 2023.
+* **Scope:** all referrals received or active between about 1 July 2022 and 30 June 2026, plus every appointment on those referrals, so the playback starts with a realistic queue. The simulation clock starts in July 2023.
 * **Volume:** 5,000 to 20,000 referrals runs smoothly on a phone. A pilot with one HSP and a few clinics is sensible.
 
 ## 7. Privacy, ethics and governance
 
 - **No real data in this repository, ever.** `.gitignore` already excludes `data/real*.json`. If you host a real build anywhere, host it privately and behind access control, not on public GitHub Pages.
-- **Approvals first.** Using a WA Health collection for a new purpose normally needs a data request to the data custodian and, depending on the use, a Human Research Ethics Committee decision or a documented quality-improvement exemption. ❓ Confirm the correct pathway with the Data Linkage / Purchasing and System Performance teams (or their current equivalents).
+- **Approvals first.** Using a WA Health collection for a new purpose normally needs a data request to the data custodian and, depending on the use, a Human Research Ethics Committee decision or a documented quality-improvement exemption. Confirm the correct pathway with the Data Linkage / Purchasing and System Performance teams (or their current equivalents).
 - **Aboriginal data.** Indigenous status is sensitive. Using it requires attention to Aboriginal data governance and, for research, review by the **WA Aboriginal Health Ethics Committee**. The synthetic data deliberately does **not** let Aboriginal status drive any outcome, and the click-card does not show it. If it is ever used, it should be for equity monitoring *alongside* Aboriginal partners, never to label individuals.
 - **Small numbers.** A crowd of dots makes small groups visible. Suppress or merge small cells in any view that could identify a person (for example, a rare clinic at a remote site).
 - **Characters are not people.** The faces and growth are metaphors. They must not be used to make decisions about an individual, and the click-card on real data should be switched off for anyone who is not authorised to see record-level data.
@@ -120,4 +126,4 @@ Recommended handling:
 
 ## 8. Open questions
 
-The list is in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). Resolved by the Specification since round 1: a referral identifier exists (element 33); the wait starts at Referral Received Date (element 43); priority timeframes are 30 / 90 / 365 days (BR §8.1); there is no attendance-status element (attended = outcome allocated).
+The list is in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). The 2026 documents closed the earlier questions about the attendance code, priority mapping, category codes, and which establishments report (the Establishment List's Reports to NADC column). What remains open is mainly: the eight inferred NADC flags, why private hospitals and a few community sites report, how a DNA row carries an outcome, whether future bookings are in extracts, and the Tier 1 / Tier 2 pairing.

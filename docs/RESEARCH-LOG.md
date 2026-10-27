@@ -1,4 +1,4 @@
-# Research log (round 2)
+# Research log (rounds 2 and 3)
 
 Times are Australia/Perth (AWST, UTC+8). Entries from before 21:00 on 27 Oct 2026 were not timestamped when they happened and are grouped.
 The round-2 brief: use the public WA Health NADC documents and establishment information to align the simulation with the real collection, then iterate.
@@ -79,3 +79,15 @@ Round of varied searches (Referral Priority code list; Business Rules section 9 
 * Rework the visuals (real map, Perth inset, HSP cells, establishment view, target indicators, explainers).
 * Write the establishment, business-rules and open-questions documents.
 * Final retry of the official PDFs, then a fact-check pass.
+
+## Round 3: 28 Oct 2026, from about 05:44 AWST (new authoritative sources)
+
+The user supplied four official WA Health PDFs: Business Rules (July 2026), Data Specifications (July 2026), Data Dictionary (2026) and the Establishment List (May 2026, v0.1), with the instruction that the List's **Reports to NADC** column defines the establishments reporting to the collection.
+
+* Read all four with the file-read tool. Saved working extracts outside the repository (not committed; PDFs not committed).
+* **Establishment List.** The Reporting table has 191 rows: 125 Reports to NADC = Y, 66 not. The read tool does not preserve column positions, so the NADC column was taken from a column-aware extract of the same publication found via search (edition unstated) and cross-checked against the supplied PDF's Y counts. 8 rows inferred (433, 434, 436, 437, 438, 249, 359, 251). See SOURCES §1.1.
+* Rebuilt `data/reference/establishments.json` from the 125 official rows: official codes, names and types; HSP, region and coordinates from SLIP / CRS / OpenStreetMap. 20 added, 12 dropped against the 117-site round-2 list (Peel re-coded 0645 → 0145). HSP counts: NMHS 9, SMHS 7, EMHS 7, CAHS 1, WACHS 101. Three sites cannot be placed (4275, 4506, 0652).
+* **Data model** realigned to Spec Appendix B (snake_case field names, ISO dates, attendance code, Tier 1 / Tier 2, 22 clinic categories from Appendix D). Added non-client events (chart only, MCC; BR §10.2.7) as a fourth event kind that never stops the wait. Added ESC closure code and the OPM = Technical transfer label. Dropped the adult psychiatry category (BR §6.11, §10.1.1).
+* **Documents rewritten:** SOURCES, BUSINESS-RULES-SUMMARY (24 rules with section numbers), CHANGES-2026-vs-2021 (Spec App G pp.59-60; BR App D p.49), DATA-DICTIONARY-MAPPING, DATA-REQUIREMENTS, OPEN-QUESTIONS, ESTABLISHMENTS. OFFICIAL-EXCERPTS marked historical. Old "unconfirmed" markers removed where the documents confirm.
+* Inconsistencies noted inside the 2026 documents are listed in SOURCES §1.2.
+* Previously unresolved items that the documents settled: attendance code set, priority mapping, category codes, duplicate codes, collection name, and which editions are current.

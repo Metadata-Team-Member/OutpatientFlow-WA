@@ -6,7 +6,7 @@
 
 **Live demo:** https://metadata-team-member.github.io/OutpatientFlow-WA/
 
-**Documents:** [Sources and what was (not) obtained](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Official excerpts](docs/OFFICIAL-EXCERPTS.md) · [Research log](docs/RESEARCH-LOG.md)
+**Documents:** [Sources (four official 2026 documents)](docs/SOURCES.md) · [Establishments](docs/ESTABLISHMENTS.md) · [2026 vs 2021 changes](docs/CHANGES-2026-vs-2021.md) · [Business rules summary](docs/BUSINESS-RULES-SUMMARY.md) · [Open questions for the custodian](docs/OPEN-QUESTIONS.md) · [Data requirements](docs/DATA-REQUIREMENTS.md) · [Dictionary mapping](docs/DATA-DICTIONARY-MAPPING.md) · [Official excerpts](docs/OFFICIAL-EXCERPTS.md) · [Research log](docs/RESEARCH-LOG.md)
 
 ![Desktop view](docs/img/desktop.png)
 
@@ -22,20 +22,23 @@ Every little character is one referral.
 
 Slim = still waiting, or little care so far; broad = lots of attended care. The simulation opens **paused**; press **Play**.
 
-## What changed in round 2
+## What changed in round 3 (official 2026 documents)
 
-* **Real establishments.** 117 sites in 5 HSPs (86 hospitals, 31 nursing posts; [list](docs/ESTABLISHMENTS.md)): 112 flagged "Outpatient Reporting" in the WA Government's HEALTH-001 dataset, plus 5 that a verbatim extract of the official WA Health Establishment List shows with "Reports to NADC" = Y but that HEALTH-001 does not flag (Abrolhos Islands, Beacon, Bencubbin, Brookton, Bethesda). Only the first 28 rows of the official list (A to "Cambridge Day Surgery") could be read, so 19 sites are confirmed on it and the rest are not. In that slice HEALTH-001 matched 14 of 19, so the list is probably incomplete. See the [open question](docs/OPEN-QUESTIONS.md).
-* **Real geography.** WA outline, 10 health regions and 34 districts (HEALTH-002), simplified, plus a Perth metro inset.
-* **Specification-aligned data.** Column names and code sets from the NADC Data Specifications v1.0 (July 2021): Referral Priority AWT/NUR/SEM/UNK/URG, closure reasons, delivery modes, non-attendance and cancellation codes and so on. See [mapping](docs/DATA-DICTIONARY-MAPPING.md).
-* **Rule-aware indicators.** Attended = attendance code ATT with an outcome allocated; wait runs from received date to first attended appointment; OPM referrals are excluded from new-appointment wait measures ([summary](docs/BUSINESS-RULES-SUMMARY.md)).
-* **HSP view, establishment spotlight, establishment table**, and a "Rules in the sim" dialog that lists what is and is not simulated.
-* **Attendance code.** The 2021 Specification has no attendance-status element, but later official documents (Validation Manual, a current Dental Specification) use an Appointment Attendance Code (ATT / DNA / DNW). The simulation generates it. See [official excerpts](docs/OFFICIAL-EXCERPTS.md) (partial, from the search index; edition unknown).
+The user supplied four official WA Health documents: the **Business Rules (July 2026)**, **Data Specifications (July 2026)**, **Data Dictionary (2026)** and the **Establishment List (May 2026, v0.1)**. The simulation was realigned to them ([sources](docs/SOURCES.md)).
+
+* **Reporting establishments = Reports to NADC = Y.** **125 establishments**: NMHS 9, SMHS 7, EMHS 7, CAHS 1, WACHS 101 ([list](docs/ESTABLISHMENTS.md)). Codes, names and types are official. **HSP, region and map positions are not in the List**; they come from SLIP and the CRS page and are marked as non-official. Eight of the NADC flags are inferred (see the Honest limits).
+* **2026 data model.** snake_case field names and ISO dates; attendance code ATT / DNA / DNW / MCC / NCE; Clinic Category with NMDS Tier 1 and Tier 2 codes (22 categories); closure code ESC; OPM = Technical transfer; delivery modes THH / THS / THC / TEL (VID only up to 30 June 2023).
+* **Business rules in the sim.** DNA, cancelled and chart-only / MCC events leave a referral waiting; chart-only and MCC events are shown as grey non-client events (BR §10.2.7); OPM referrals are not counted as waiting for a first appointment ([24 rules with sections](docs/BUSINESS-RULES-SUMMARY.md)).
+* **Dropped:** adult psychiatry (out of scope, BR §6.11) and all "unverified code" placeholders.
+* [What changed from 2021 to 2026](docs/CHANGES-2026-vs-2021.md) and [open questions](docs/OPEN-QUESTIONS.md).
+
+Round 2 (July 2021 mirrors, SLIP-flag establishment list of 117) is recorded in [docs/RESEARCH-LOG.md](docs/RESEARCH-LOG.md).
 
 ## What the demo includes
 
 * KPI strip: referrals (12 months), waiting for a first appointment, seen within target, median wait, telehealth and did-not-attend shares.
 * Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, busiest clinics.
-* About 11,000 referrals and 36,000 appointments across 95 active establishments, July 2022 to June 2026. Playback runs July 2023 to June 2026.
+* About 11,000 referrals and 39,000 events across 102 active establishments (of the 125), July 2022 to June 2026. Playback runs July 2023 to June 2026.
 * A six-step **guided tour** (header button, intro card, or `?tour=1`): characters, inside-versus-outside growth, waiting list against targets, did-not-attend, telehealth, and what is real versus synthetic. Every figure in the tour text is computed from the loaded data. Arrow keys move through it and Esc closes it.
 * Print / Save as PDF button: a landscape print layout (scene on page 1, charts after). Keyboard skip link, visible focus rings, and muted text lifted to at least 4.5:1 contrast on the panels.
 * Plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
@@ -61,7 +64,7 @@ node tools/build_data.mjs                                            # data/synt
 # or both: npm run data
 ```
 
-Code sets are in `config/dimensions.json` (from the Specification). The **weights, tiers and scope are invented**. Establishments come from `data/reference/establishments.json`.
+Code sets are in `config/dimensions.json` (from the 2026 Specification). The **weights, tiers and scope are invented**. Establishments come from `data/reference/establishments.json`.
 
 ## Rebuild the reference data
 
@@ -76,7 +79,7 @@ node tools/build_establishments_doc.mjs   # writes docs/ESTABLISHMENTS.md
 
 1. Get approval first. See [section 7 of the requirements log](docs/DATA-REQUIREMENTS.md#7-privacy-ethics-and-governance). **Do not commit real data and do not host it on public GitHub Pages.**
 2. Produce `referrals.csv` and `appointments.csv` with the columns in [the mapping](docs/DATA-DICTIONARY-MAPPING.md). `data/sample/` has 25-row examples. Header names are case-insensitive, a BOM is fine, and dates may be `DDMMYYYY` (optionally followed by a time), `DD/MM/YYYY` or `YYYY-MM-DD`.
-   - Required columns: referrals `ESTABLISHMENT_CODE, REFERRAL_ACCOUNT_NUMBER, REFERRAL_RECEIVED_DATE, REFERRAL_PRIORITY_CODE, DERIVED_HEALTH_DISTRICT`; appointments `REFERRAL_ACCOUNT_NUMBER, APPOINTMENT_DATE, APPOINTMENT_DELIVERY_MODE_CODE`.
+   - Required columns (2026 names, matched case-insensitively): referrals `establishment_code, referral_account_number, referral_received_date, referral_priority_code, derived_health_district`; appointments `referral_account_number, appointment_date, appointment_delivery_mode_code`. The 2021 upper-case names still work.
    - `--real` has been exercised only against a **small fake extract** (`npm run test:real`), never against real data. Treat the first real run as a trial: read the "Notes" list it prints.
 3. Update `config/dimensions.json` with the real code lists if they differ. Codes the file does not know (up to 16 delivery modes and 64 of each other list) are appended automatically and reported, and referrals from unknown establishments or districts are skipped and counted, never silently dropped.
 4. Build it:
@@ -112,10 +115,11 @@ URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8`
 ## Honest limits
 
 * Synthetic activity: no real patterns, and no conclusions about real services.
-* The Specification and Business Rules were read as **July 2021 v1.0 editions through third-party mirrors**. The Business Rules were read only to section 8.5. The official Data Dictionary was **not obtained**, and the Validation Manual and some other PDFs were seen only as **partial search extracts** ([excerpts](docs/OFFICIAL-EXCERPTS.md)), and a "Business Rules 2024" is cited by the current Outpatient Services Policy (MP 0191/25). See [SOURCES.md](docs/SOURCES.md).
-* The establishment list is an inference from a spatial dataset flag, not an official NADC list.
-* The URG / SEM / NUR to priority 1 / 2 / 3 mapping and the way a did-not-attend is recorded are assumptions.
-* Five clinic category codes (CAR, DER, END, ENT, GAS) are unverified placeholders.
+* **Establishment flags.** The Establishment List PDF could be read only as text without column positions, so the Reports to NADC flags were taken from a column-aware text extract of the same WA Health publication (via search; edition not stated) and cross-checked against the supplied May 2026 PDF's count of 125. **Eight rows are inferred** (433, 434, 436, 437, 438, 249, 359, 251) and are marked ‡. The custodian should confirm them.
+* **HSP, region and coordinates are not official**; they are not in the Establishment List. Three sites cannot be placed on the map and a few positions are approximate (⚑ in the establishment table).
+* Not in the documents, so assumed: the Tier 1 / Tier 2 pairing per clinic category; how a DNA row carries an outcome; VID becoming THH after 30 June 2023; whether future bookings are in extracts. See [open questions](docs/OPEN-QUESTIONS.md).
+* Conflicts with the sim's concept are listed at the end of the [rules summary](docs/BUSINESS-RULES-SUMMARY.md): adult psychiatry and community care are excluded by the rules, and some private hospitals and a home-care service report anyway.
+* The Validation Manual and the Information Compendium were not supplied; no validation rules are simulated.
 * The characters are a metaphor. They are not people, and nobody should be judged by them.
 
 ## Attribution and licence

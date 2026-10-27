@@ -1,172 +1,69 @@
 # Sources
 
-Every factual claim in this repository about the real WA Non-Admitted Patient Activity collection is meant to trace back to a row below.
-If it does not, treat it as an assumption and see [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md).
-All **activity data in the simulation is synthetic**. No real patient data was used or seen.
+Every factual claim in this repository about the real WA Non-Admitted Data Collection (NADC) is meant to trace back to a row below. If it does not, it is an assumption and is listed in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). All **activity data in the simulation is synthetic**; no real patient data was used or seen.
 
-Retrieval date for everything below: **27 October 2026** (Australia/Perth, AWST), unless stated.
+Times are Australia/Perth (AWST, UTC+8). This file was rewritten on **28 Oct 2026** after the user supplied the four official documents below.
 
-**Naming.** The 2021 Specification and Business Rules call the collection the *Non-Admitted Patient (Activity) Data Collection* (NAPDC). The policy page and the Data collections page call it the *Non-Admitted Data Collection*. This repository says "NADC", as the data custodian does. The custodian's contact on the Data collections page is `NADCdata@health.wa.gov.au`.
+## 1. Primary sources (retrieved from the user, 28 Oct 2026)
 
-## 1. Document status at a glance
+The user supplied these four official WA Health PDFs to the project. They are **the** sources for the simulation's field names, code sets, business rules and reporting establishments. The PDFs are **not** committed to this repository (copyright is vested in the State of Western Australia; only short, cited quotations are used).
 
-| Document | Status | How it was read |
-|---|---|---|
-| **Non-Admitted Patient Data Collection Data Specifications** v1.0 (1 July 2021, MP 0164/21) | **Read in full** (Appendix B complete; Appendix C only partly, see below) | Third-party mirror (readkong), **not** the official PDF |
-| **Non-Admitted Patient Activity Data Business Rules** | **Partly read**: contents page and sections 1 to 8.5 (to page 18). Sections 9 onward and Appendix A are **not read** | Third-party mirror (readkong). The mirror is paywalled after section 8.5 |
-| **Non-Admitted Data Collection Data Dictionary** (official PDF 1.9 MB) | **Not obtained** | Official URL known, not retrievable from this environment |
-| **Non-Admitted Data Collection Validation Manual** | **Not obtained** | URL known from search results, not retrievable |
-| **Patient Activity Data Policy MP 0164/21** (policy page) | **Read** (HTML page) | Official WA Health page |
-| **Patient Activity Data Policy Information Compendium** | **Not obtained** | Linked from the policy page, not retrievable |
-| **Non-Admitted Dental Data Collection Data Specifications** | Not obtained, out of scope for this demo | n/a |
-| WA Health **Data collections** page (NADC entry) | **Read** (HTML page) | Official WA Health page |
-| **Central Referral Service** pages and other outpatient pages | **Read** (HTML) | Official WA Health pages |
-| **Establishments list** (official PDF) | **Not obtained** | Retrieval failed. Replaced by SLIP HEALTH-001 flag, see section 4 |
-| Spatial reference data (SLIP HEALTH-001 / HEALTH-002) | **Obtained** by script | SLIP public REST service |
+| Code | Document | Edition / version | Printed pages | Used for |
+|---|---|---|---|---|
+| **BR** | *Non-Admitted Data Collection Business Rules* (Patient Activity Data Business Rules) | **July 2026**; revision history in Appendix D (p.49) | Appendix A pp.40-43 (referral categories), Appendix D p.49 | Rules for what counts as an attended appointment, waiting time, delivery modes, scope. Section numbers are cited in [BUSINESS-RULES-SUMMARY.md](BUSINESS-RULES-SUMMARY.md) |
+| **Spec** | *Non-Admitted Data Collection Data Specifications* | **July 2026**, version V003, effective 1 July 2026 (file-name version V003; Ref F-AA-74148, MP 0164/21) | Appendix B pp.8-34 (element listing), C p.35, D pp.36-49 (reference codes), E pp.50-53 (Tier 1), F pp.54-58 (Tier 2), G pp.59-60 (revisions) | Field names, mandatory / conditional / optional status, code sets, Tier 1 / Tier 2 codes, file naming and extract timing |
+| **DD** | *Non-Admitted Data Collection Data Dictionary* | **2026** | Establishment p.95; Appointment - Attendance derivation pp.5-6; client type pp.10-11; delivery mode pp.14-15; outcome pp.24-25; referral priority p.154; referral reason p.155 | Definitions and derivation logic (for example how attendance derives from outcome and processing status) |
+| **EL** | *WA Health Establishment List*, **May 2026, version 0.1** | May 2026 v0.1 | "Establishment List, Reporting" table; Appendix A (establishment types) and Appendix D (Multi-Purpose Services), pp.27-30 | The **Reports to NADC** column: the simulation's reporting establishments are exactly the rows with Y |
 
-The official health.wa.gov.au PDFs could not be retrieved from the environment that built this demo (details in section 6).
-Anything taken from a mirror should be re-checked against the official PDF by the custodian before it is relied on.
+The user's description of the List: *"In the establishment list is a column called Reports to NADC, these are the establishments reporting to this data collection."*
 
-## 2. Official documents and where they live
+### 1.1 How the PDFs were read, and the limits
 
-| Document | Official URL (as published) |
-|---|---|
-| Patient Activity Data Policy (MP 0164/21) | https://www.health.wa.gov.au/About-us/Policy-frameworks/Information-Management/Mandatory-requirements/Collection/Patient-Activity-Data |
-| Data collections (includes the NADC entry, date range "2012 – previous month") | https://www.health.wa.gov.au/Articles/A_E/data-linkage/How-to-apply-for-data/data-collections |
-| Non-Admitted Patient Activity Data Business Rules (PDF, 818 KB) | https://www.health.wa.gov.au/~/media/Corp/Policy-Frameworks/Information-Management/Patient-Activity-Data-Policy/Supporting/Non-Admitted-Patient-Activity-Data-Business-Rules.pdf |
-| Non-Admitted Data Collection Data Dictionary (PDF, 1.9 MB) | https://www.health.wa.gov.au/~/media/Corp/Policy-Frameworks/Information-Management/Patient-Activity-Data-Policy/Supporting/Non-Admitted-Data-Collection-Data-Dictionary.pdf |
-| Non-Admitted Data Collection Validation Manual (PDF) | https://www.health.wa.gov.au/-/media/Corp/Documents/Health-for/PAD/Non-Admitted-Data-Collection-Validation-Manual.pdf |
+* The four PDFs were opened with the project's file-read tool only; no other tool touched them. Working extracts used for the build are kept **outside** the repository.
+* **Limit that affects the establishment list.** The read tool returns the text of the Establishment List but does **not preserve column positions**, so a "Y" cannot be attributed to the NADC column (as opposed to the other collection columns) from it alone. The column assignment therefore comes from a **column-aware text extract of the same WA Health publication returned through a web search index** (its edition is not stated). Its NADC = Y total was **cross-checked against the user-supplied May 2026 PDF**, and they agree at **125**. **8 rows are inferred** rather than read directly: 433, 434, 436, 437, 438, 249, 359 and 251. They are flagged ‡ in the app and in [ESTABLISHMENTS.md](ESTABLISHMENTS.md). The custodian should check them.
+* Every claim below that cites these documents is by section or page of the PDF; where a page was not recorded the section number alone is given.
 
-The policy page lists, under "Non-Admitted activity", the Business Rules, the Data Specifications, the Data Dictionary and the Non-Admitted Dental Data Specifications as related documents.
-It also lists the Patient Activity Data Policy Information Compendium as supporting (not mandatory).
-The policy is effective **1 July 2021** and is a mandatory requirement under section 26(2)(k) of the *Health Services Act 2016* (policy page).
+### 1.2 Inconsistencies found inside the 2026 documents
 
-## 3. Documents read, and what each contributed
+* The Specification's file-format section (§4.1, page not recorded) says csv, while Appendix G (1 July 2024) says "double pipe delimited". (Appendix G, p.59.)
+* Delivery mode **VID** is in Spec Appendix D but not in the Appendix B listing; the Data Dictionary end-dates it **30 June 2023**.
+* Cancellation / non-attendance code labels differ between Appendix B and Appendix D (for example **CUR** "Currently in hospital" vs "Current Inpatient any site"; **APE** "Currently in hospital" vs "Inpatient or Outpatient Appointment Elsewhere").
+* The Appendix G entry for 1 July 2026 ends with a bullet "Appendix F - Clinic Tier 2 Codes and Description:" with no text after it (p.60).
+* BR §10.3.2 and §11.3.2 word the same-day-service rule differently.
+* The definition of THS differs between BR §9.5.2 and the DD.
+* Spec Appendix B lists *Appointment Outcome Code* as Mandatory, but BR §9.3.2 says the outcome field is not used for a DNA and the DD derives attendance from outcome / processing status. How a DNA row is meant to carry an outcome is an open question; the simulation leaves it blank (DNW rows carry PLN).
 
-### 3.1 Data Specifications v1.0 (July 2021), read via mirror
-
-* Mirror: https://www.readkong.com/page/non-admitted-patient-data-collection-data-specifications-3842279
-* Version control (Appendix D): v1.0, released 1 July 2021, approved by the Assistant Director General, Purchasing and System Performance. Produced by Information and Performance Governance, Department of Health. Ref F-AA-74148, MP 0164/21.
-* **Confidence: high** for content (the mirror reproduces the PDF text). **Caveat:** it is the 2021 version. A later version may exist, see [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md).
-* Used for:
-  * File naming `NAP_DATAPROVIDER_PASSYSTEM_YYYYMMDD_YYYYMMDD.csv`, secure FTP transfer, daily extracts before 2 am, monthly extracts by 3 pm on the third working day.
-  * Record types REF, APP, RES, CAN and change types I and U.
-  * The 115 data elements of Appendix B: names, formats, Mandatory / Conditional / Optional status, and every code list quoted in [DATA-DICTIONARY-MAPPING.md](DATA-DICTIONARY-MAPPING.md).
-  * Appendix C referral and clinic category codes (the mirror shows only the codes from `GEN` to `YCS`; the rows before `GEN` are missing, so codes such as Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology could **not** be verified).
-* Page numbers: the mirror keeps the printed page numbers. Appendix C starts on p. 30 (contents page). This repository cites **element names and numbers** rather than page numbers for the Specification, because the mirror's page breaks are approximate.
-
-### 3.2 Business Rules, read via mirror (sections 1 to 8.5 only)
-
-* Mirror: https://www.readkong.com/page/non-admitted-patient-activity-data-business-rules-5282487
-* **Confidence: high** for the sections read. **Not read:** section 9 onward (appointment classification, attendance, delivery modes, cancelled appointments, activity recording and reporting) and Appendix A (p. 35). The mirror stops at section 8.5.
-* Page numbers below are the printed page numbers (footer), taken from the contents page:
-
-| Topic | Section | Page |
-|---|---|---|
-| Attended appointment is completed by allocating an outcome code | 5.1 | 3 |
-| Clinic registration (five fixed codes) | 7 | 8 |
-| Registering referrals; priority timeframes 30 / 90 / 365 days | 8.1 | 14 |
-| Source of referrals; "immediate attention" goes to the hospital directly | 8.2 | 15 |
-| Referral reason | 8.3 | 15 |
-| OPM referrals excluded from new-appointment wait reporting | 8.3.1 | 16 |
-| Referral received date is never changed, even on transfer | 8.4 | 16 |
-| Referral closure | 8.5 | 17 |
-| Not read (contents page only): 9.1 p. 19, 9.2 p. 20, 9.3 p. 21, 9.4 pp. 22 to 25, 9.5 p. 25, 10 p. 26, 12.6 p. 30, Appendix A p. 35 | 9 onward | n/a |
-
-See [BUSINESS-RULES-SUMMARY.md](BUSINESS-RULES-SUMMARY.md) for the plain-English summary. Third-party text is **not** copied into this repository: it is paraphrased with short quotations.
-
-### 3.3 Official HTML pages (read directly)
+## 2. Other official sources read earlier (HTML pages, 27 Oct 2026)
 
 | Page | URL | Used for |
 |---|---|---|
-| Patient Activity Data Policy | (section 2) | Policy number, effective date, related document list |
-| Data collections | (section 2) | NADC date range; official PDF URLs; custodian contact; precedent of "Preview Synthetic Data" for other collections (the page lists 20-row samples for EDDC, HMDC, MHDC, MNS and WACR, and **none for the NADC**) |
-| The Central Referral Service (CRS), last reviewed 8 Sep 2026 | https://www.health.wa.gov.au/Articles/A_E/About-the-Central-Referral-Service | Which referrals the CRS handles; metropolitan and regional specialty lists; which referrals go directly to hospitals; hospital lists by Health Service Provider (HSP) |
-| Guide for referring to WA public outpatient services | https://www.health.wa.gov.au/Articles/A_E/Central-Referral-Service-guide-for-referrers | Category 1 (0 to 30 days), Category 2 (31 to 90 days), Category 3 (91 to 365 days) guide timeframes; immediate referrals (review within 7 days) |
-| Outpatient Direct (HealthyWA) | https://www.healthywa.wa.gov.au/Articles/N_R/Outpatient-Direct | Patient-facing description; supports rescheduling and cancelling existing appointments |
-| EMHS site: St John of God Midland Public Hospital page (updated 26 Oct 2026) | https://www.emhs.health.wa.gov.au | 307 beds; public hospital run by St John of God; EMHS lists "Mount Lawley Hospital" |
-| WA Government media statement, "Cook Labor Government acquires Mount Lawley Hospital" (published 1 May 2026) | https://www.wa.gov.au/government/media-statements/Cook%20Labor%20Government/Cook-Labor-Government-acquires-Mount-Lawley-Hospital--20260430 | $80M purchase from St John of God; State ownership from 31 Aug 2026; EMHS to commission |
+| Patient Activity Data Policy (MP 0164/21) | https://www.health.wa.gov.au/About-us/Policy-frameworks/Information-Management/Mandatory-requirements/Collection/Patient-Activity-Data | Policy number; related documents |
+| Data collections | https://www.health.wa.gov.au/Articles/A_E/data-linkage/How-to-apply-for-data/data-collections | NADC date range; custodian contact |
+| The Central Referral Service (last reviewed 8 Sep 2026) | https://www.health.wa.gov.au/Articles/A_E/About-the-Central-Referral-Service | Which hospitals belong to which HSP (the **HSP grouping is not in the Establishment List**) |
+| Outpatient Services Policy MP 0191/25 (effective 26 Nov 2025) | health.wa.gov.au policy page | Context only |
+| EMHS site (St John of God Midland Public Hospital page, updated 26 Oct 2026) and WA Government media statement of 1 May 2026 (Mount Lawley Hospital) | emhs.health.wa.gov.au; wa.gov.au | HSP overrides for 6007 and 629 |
+| WA Government media statement of 9 Sep 2026 | wa.gov.au | A Women, Babies and Children HSP is planned from July 2027 (one source; not modelled) |
 
-Other facts used and where they come from (all HTML pages read on 27 Oct 2026; see [RESEARCH-LOG.md](RESEARCH-LOG.md)):
+## 3. Geography and reference data (not in the four documents)
 
-* Peel Health Campus returned to public hands under SMHS on 13 August 2024, and the CRS page lists it under SMHS.
-* A new "Women, Babies and Children" HSP is planned from July 2027, combining CAHS, KEMH and the Women and Babies Hospital (WA Government media statement of 9 Sep 2026). **Medium confidence**: read once, not cross-checked against a second source.
+* **Regions, districts, hospital coordinates, beds, HSP geographic service:** SLIP public service `SLIP_Public_Services/Health/MapServer`, datasets **HEALTH-001** (Hospitals, layer 7; Nursing Posts, layer 6), **HEALTH-002** (Health Districts, layer 2), HEALTH-003 (regions). © Government of Western Australia, Department of Health; the SLIP catalogue lists the licence as "not specified". https://public-services.slip.wa.gov.au/public/rest/services/SLIP_Public_Services/Health/MapServer
+* **Coordinates for sites SLIP does not have:** OpenStreetMap contributors (ODbL), via Nominatim, for the few sites marked `osm-*` in `data/reference/establishments.json`.
+* **None of these is in the Establishment List.** The List has no HSP, region or coordinates, so the simulation's **HSP grouping, region and map positions are not official**. The join is documented per site in [ESTABLISHMENTS.md](ESTABLISHMENTS.md) (`hspBasis`, `locationStatus`).
+* Geometry was simplified for the browser (`tools/build_geo.py`). Raw downloads are git-ignored; `node tools/fetch_reference.mjs` recreates them.
 
-### 3.4 Version warning: newer editions than the ones this demo read (found 27 Oct 2026, about 21:45 AWST)
+## 4. Historical and fallback sources (superseded)
 
-The only copies of the Specification and Business Rules that could be read are **third-party mirrors of the July 2021 v1.0 editions** (the mirrored Business Rules cover page says "July 2021", "Current version: 1.0", "Original approval date 2 June 2021").
-Two official WA Health pages that were read directly point to later material:
+These were used in round 2, **before** the official 2026 documents were available. Where they disagree with section 1, section 1 wins and the contradicted claim has been removed from the repository.
 
-* The **Outpatient Services Policy, MP 0191/25** (official page, date of effect **26 November 2025**; supersedes OD 0503/14 *Central Referral Allocation, Outpatient Services* and OD 0530/14 *Specialist Outpatient Services Access Policy*). Its "to be read in conjunction with" list names **"Non-Admitted Patient Activity Business Rules 2024"**. So a 2024 edition of the Business Rules exists and was **not obtained**. The simulation's rules (section 8 priorities and so on) come from the 2021 edition and may differ from the 2024 edition. This is confirmed by the official page and replaces the earlier "not asserted" note about the 26 Nov 2025 policy.
-* The Patient Activity Data Policy page (MP 0164/21, still dated 1 July 2021) lists the Business Rules, the Data Specifications and the Data Dictionary without version numbers.
+| Material | What it was | Status now |
+|---|---|---|
+| Data Specifications **v1.0, July 2021** via a third-party mirror (readkong) | 2021 baseline for field names and codes | **Superseded** by Spec July 2026. Differences are listed in [CHANGES-2026-vs-2021.md](CHANGES-2026-vs-2021.md) |
+| Business Rules **v1.0, July 2021** via a third-party mirror, sections 1-8.5 only | 2021 baseline | **Superseded** by BR July 2026 |
+| Search-index extracts of the Validation Manual, the Dental Specification, MDG-10-001 and the Establishment List | See [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) | **Historical.** Not used for any simulated rule. The Validation Manual is still not in hand (see OPEN-QUESTIONS) |
+| SLIP HEALTH-001 "Outpatient Reporting" flag | Used in round 2 as a proxy for NADC reporting | **Superseded** by the List's Reports to NADC column. The flag is **not** the NADC set: against the earlier 117-site list, 11 sites are dropped and 19 added (Peel re-coded 0645 → 0145) |
+| AIHW METEOR, 2016-17 data set specification 648949 | Background | Background only |
+| Search-engine summaries (V002, "July 2026 version exists", CAR / DER / END category labels) | Unverified | The 2026 documents settle these: the current Specification is V003 (July 2026), and category codes are those in Spec Appendix D |
 
-Search-engine summaries (machine-written, **not confirmed by any page that could be read**) also said that a Specification / Dictionary version 2.0 ("V002") applies from 1 July 2025 with a changed file name pattern, and that the Validation Manual is dated March 2025. These are listed in section 5 and are **not** used.
-The custodian should therefore treat the field names and code sets in this demo as the 2021 baseline, and tell us which later changes matter (see OPEN-QUESTIONS.md).
+## 5. Software
 
-### 3.5 Extracts of official PDFs reached through the search index
-
-Several official PDFs cannot be downloaded here but are partly indexed by a web search tool, which returns short extracts. They are collected, with quoted text kept separate from paraphrase, in **[OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md)**:
-
-* Non-Admitted Data Collection **Validation Manual** (severities Fatal / Critical / Warning / Review; nightly load from Health Support Services; Data Quality Dashboard; several rule texts).
-* Non-Admitted **Dental** Data Collection Data Specifications (`appointment_attendance_code`, Mandatory; ATT, DNA, DNW, NCE, NSP).
-* **MDG-10-001 Outpatient OOS Individual Definition v1.1** (what counts as an attended outpatient appointment).
-* **WA Health Establishment List** (Establishments-list.pdf): existence and purpose only; contents not reliably extractable.
-* The **Establishment List 2021/2022** (Hospital Morbidity version) via a DocsLib copy, for establishment codes and type codes.
-
-## 4. Establishment list and geography
-
-### 4.1 Which establishments report to the NADC
-
-The official Establishments list PDF (`Establishments-list.pdf`, with a per-collection reporting flag) could not be fetched directly. A search-index highlight reproduced its first 28 rows verbatim (Abbotsford Private Hospital to Cambridge Day Surgery, see OFFICIAL-EXCERPTS.md section 4). For the full list the repository uses the Department of Health's own spatial layer, with the five extra NADC = Y sites from that extract. The layer is only a proxy: in the 28 verbatim rows it matched 14 of the 19 NADC = Y sites, with no false positives. The layer's, with its **"Outpatient Reporting"** attribute:
-
-* **Source:** SLIP public service `SLIP_Public_Services/Health/MapServer`, layers 7 (Hospitals) and 6 (Nursing Posts), dataset **HEALTH-001**, field `outpatient` (alias "Outpatient Reporting").
-  https://public-services.slip.wa.gov.au/public/rest/services/SLIP_Public_Services/Health/MapServer
-* **Rule applied:** an establishment is included if `outpatient = 'Y'`. This gives **112 establishments** (85 hospitals and 27 nursing posts). Five more are added from the verbatim extract of the official WA Health Establishment List (rows A to C only, see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 4), giving **117** (86 hospitals, 31 nursing posts), listed in [ESTABLISHMENTS.md](ESTABLISHMENTS.md).
-* **Caveat (important):** HEALTH-001 does not say that "Outpatient Reporting" means "reports to the NADC". The match is an inference. This is the first question in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md). The establishment list is therefore labelled "flagged as outpatient-reporting in HEALTH-001" everywhere it appears.
-* **Codes:** the code shown is the HEALTH-001 `estab_id` left-padded to four digits. The Specification defines *Establishment Code* as "a unique four-digit number assigned by the Department of Health" (Appendix B element 1). That the SLIP identifier is the same number as the NADC *Establishment Code* is an **assumption** (it looks right for the well-known hospitals but was not checked against any official list). See OPEN-QUESTIONS.md.
-* **Reporting group (HSP):** the HSP for each site comes from the CRS page's hospital lists (last reviewed 8 Sep 2026) and, for a handful of exceptions, the pages named in the `hspNote` of each record in `data/reference/establishments.json` (Peel, Joondalup, Midland, Mount Lawley, PCH, SJOG Bunbury).
-* **Not found in HEALTH-001 and therefore not included** (questions for the custodian): Graylands Hospital, Selby, Next Step, CAHS community sites, Byford Health Hub (listed on the EMHS website), Murray District Hospital (present in SLIP but not flagged), and the Dwellingup and Rottnest nursing posts (present but not flagged).
-
-### 4.2 Coordinates, districts and regions
-
-* Coordinates are the point geometry of the same SLIP layers (converted to WGS 84).
-* Region and district boundaries: **HEALTH-002 Health Districts** (layer 2, 34 districts), grouped into 10 health regions as in the same dataset (HEALTH-003 gives the region polygons).
-* Geometry was simplified for the browser (`tools/build_geo.py`, topology-preserving simplification, 3-decimal coordinates). The files are `data/reference/wa_regions.geojson` and `data/reference/perth_metro.geojson`.
-* **Licence caveat:** the SLIP catalogue entry for these datasets shows the licence as "not specified". They are © Government of Western Australia, Department of Health. They are used here for a non-commercial prototype with attribution: **"© Government of Western Australia, Department of Health, via SLIP / data.wa.gov.au"**. The custodian should confirm that this use is acceptable. If it is not, the boundaries can be swapped for ABS ASGS (CC BY) boundaries.
-* The raw SLIP downloads are **not** committed (`data/reference/raw/` is git-ignored). `node tools/fetch_reference.mjs` re-creates them.
-
-## 5. Facts that are low confidence and are NOT asserted by the simulation
-
-Web search tools returned machine-written summaries on the topics below. They were not backed by a page or extract that could be read, so none of it is used:
-
-* A claim that a July 2026 version of the Specification and Dictionary exists, and a claim that version 2.0 (V002, file pattern `NADD_..._V002_...`) applies from 1 July 2025. (A search extract does show a *current* Dental Specification with an attendance-code element; see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 3. Its edition date was not shown.)
-* A claim that the Validation Manual is v1.0 dated March 2025. (The Manual itself was reached as search extracts; its date was not shown. See OFFICIAL-EXCERPTS.md section 1.)
-* A claim that the Referral Category codes are `CAR` Cardiology, `DER` Dermatology and `END` Endocrinology.
-* Referral category codes for Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology (`CAR`, `DER`, `END`, `ENT`, `GAS`). They are used in the simulation only as **provisional, unverified** labels and are flagged `verified: false` in `config/dimensions.json`.
-* Rule numbers (OUT0004 and so on) given in search summaries of the Validation Manual: two runs of the same query disagreed. The demo does not use them.
-
-**Items moved out of this list on 27 Oct 2026 (about 21:55 AWST)** because quoted extracts of the official PDF supported them: the existence and structure of the Validation Manual (OUT / GEN validation IDs, four severities), the five-working-day triage validation, and an Appointment Attendance Code with ATT / DNA / DNW. See [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md).
-
-## 6. Retrieval attempts that failed (so the custodian knows what was and was not seen)
-
-| Attempt | Result |
-|---|---|
-| Data Dictionary PDF (official URL) via a web fetch tool | HTTP 500 |
-| Business Rules, Validation Manual, Establishments list, HMDS Part B PDFs, Outpatient attended appointment definition, Information Compendium, Outpatient Services Policy (official PDF URLs) via a web fetch tool | HTTP 500 |
-| `www.health.wa.gov.au` and `ww2.health.wa.gov.au` via `curl` with a browser user agent | TLS connection reset ("unexpected eof"). The environment's network filter blocks the host |
-| `wget` | Failed (exit status 4) |
-| Headless Chrome | Rendered no content |
-| Internet Archive (Wayback) copies | 404 or blocked |
-| Search for other mirrors of the Business Rules and the Dictionary | Only the two readkong pages were found. The Dictionary has no mirror |
-| Business Rules mirror, section 9 onward | Paywalled on the mirror |
-
-A retry was made later in the session (27 Oct 2026, about 21:40 AWST): the Data Dictionary, the Validation Manual and the Non-Admitted Dental Specification PDFs again returned HTTP 500. See [RESEARCH-LOG.md](RESEARCH-LOG.md).
-Pages on `health.wa.gov.au` that are plain HTML were readable through the fetch tool. The PDFs were not.
-
-## 7. Fallback sources used for background only
-
-AIHW METEOR (https://meteor.aihw.gov.au) is a national metadata registry. It hosts one WA data set specification, the 2016-17 predecessor of this collection (identifier 648949, read in full on 27 Oct 2026, see [OFFICIAL-EXCERPTS.md](OFFICIAL-EXCERPTS.md) section 6). It is used for background and for its scope statement only, and it is a fallback, not the current WA specification. Round 1 used METEOR to guess concept names; **round 2 removed METEOR-derived items wherever the WA Specification or the Validation Manual contradicts them.**
-
-## 8. Software
-
-No third-party libraries or fonts are loaded by the live site. Build tools use Node.js and Python (shapely) on the author's machine only.
+No third-party libraries, fonts or CDNs are loaded by the live site. Build tools use Node.js and Python (shapely) on the author's machine only.
