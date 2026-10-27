@@ -25,7 +25,7 @@ Each question says why it matters to this demo. Everything in the demo is synthe
 
 ## D. Rules and codes
 
-13. **How is a did-not-attend recorded?** The Specification has no attendance-status element; we assumed "non-attendance reason present, outcome blank". Is that right, or is DNA an outcome or status in practice? The Specification's outcome list includes CAN (Cancelled), and the Appointment Status Code (element 78) is not explained in our copy.
+13. **How is a did-not-attend recorded?** The Specification has no attendance-status element; we assumed "non-attendance reason present, outcome blank". Is that right, or is DNA an outcome or status in practice? The Specification's outcome list includes CAN (Cancelled), and the Appointment Status Code (element 78) has the values PR Processed, PP Part processed, UN Unprocessed / Unknown, FU Future appointment, RS To be rescheduled and CA Cancelled appointment, which look like a processing status rather than an attendance status. Is that how it is used? The simulation does not generate this element.
 14. **Priority mapping.** Do URG / SEM / NUR map to Business Rules priorities 1 / 2 / 3 (30 / 90 / 365 days)? What is AWT (awaiting triage) for, and how are patients waiting for triage counted?
 15. **Immediate and CRS referrals.** How do referrals handled directly by hospitals (for example "immediate, under 7 days") and CRS-allocated referrals appear in the NADC, and does the CRS rollout in the Wheatbelt and Kimberley change reporting?
 16. **Referral categories.** We could not read Appendix C rows beginning A to F. Codes for Cardiology, Dermatology, Endocrinology, ENT and Gastroenterology are provisional (`CAR, DER, END, ENT, GAS`). What are the real codes?
