@@ -62,7 +62,7 @@ The earlier version (round 2) had ${OLD.length} sites, taken from the SLIP "Outp
 for (const e of E.filter((e) => e.hspNote)) m += `\n* **${e.code} ${e.name}** (${e.hsp}): ${e.hspNote}`;
 m += `
 
-### Positions that are approximate (${locFlag.length})
+### Positions that are approximate or shared (${locFlag.length}; the 6 marked not-found, nearest-town or osm-similar-name carry ⚑ in the app, the other 2 are minor)
 
 `;
 for (const e of locFlag) m += `* **${e.code} ${e.name}** (${e.locationStatus}): ${e.locationNote || ''}\n`;

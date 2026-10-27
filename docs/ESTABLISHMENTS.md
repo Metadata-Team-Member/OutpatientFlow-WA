@@ -69,7 +69,7 @@ The earlier version (round 2) had 117 sites, taken from the SLIP "Outpatient Rep
 * **4519 Kwinana Community Health Centre** (SMHS): HSP not stated in the documents; Kwinana is in the SMHS catchment; display grouping.
 * **6007 St John of God Midland Health Campus** (EMHS): St John of God Midland Public Hospital: operated by St John of God Health Care under a public-private arrangement; listed under EMHS (EMHS website, DoH CRS page).
 
-### Positions that are approximate (8)
+### Positions that are approximate or shared (8; the 6 marked not-found, nearest-town or osm-similar-name carry ⚑ in the app, the other 2 are minor)
 
 * **0110 Oral Health Centre of WA** (osm-named): OpenStreetMap: "Oral Health Centre of WA (OHCWA)", 17 Monash Avenue, Nedlands.
 * **0113 Mount Lawley Hospital** (shared-site): Plotted 60 m from 629 (same suburb, assumed same site).
