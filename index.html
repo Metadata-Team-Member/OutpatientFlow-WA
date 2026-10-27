@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<a class="skip" href="#main">Skip to the simulation</a>
 <header class="top">
   <div class="brand">
     <svg class="logo" viewBox="0 0 44 44" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7ae7d6"/><stop offset="1" stop-color="#2aa7c9"/></linearGradient></defs><path d="M22 9c-1 3-4 5-4 8" stroke="#8be69e" stroke-width="2.2" fill="none" stroke-linecap="round"/><ellipse cx="17" cy="11" rx="4.5" ry="2.4" transform="rotate(-30 17 11)" fill="#8be69e"/><ellipse cx="27" cy="9.5" rx="4.5" ry="2.4" transform="rotate(25 27 9.5)" fill="#52c97a"/><rect x="8" y="14" width="28" height="26" rx="13" fill="url(#lg)"/><circle cx="17" cy="24" r="3" fill="#fff"/><circle cx="27" cy="24" r="3" fill="#fff"/><circle cx="17.6" cy="24.4" r="1.5" fill="#0b2233"/><circle cx="27.6" cy="24.4" r="1.5" fill="#0b2233"/><path d="M18 31q4 3.4 8 0" stroke="#0b2233" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
@@ -20,14 +21,16 @@
   </div>
   <div class="top-right">
     <span class="badge-syn" title="Every person, number and date of activity on this page is invented. Only the map and the establishment list are real reference data.">SYNTHETIC EXAMPLE DATA · not real WA Health data</span>
+    <button class="btn ghost" id="btnTour">Guided tour</button>
     <button class="btn ghost" id="btnHow">How to read this</button>
     <button class="btn ghost" id="btnRules">Rules in the sim</button>
     <button class="btn ghost" id="btnEst">Establishments &amp; sources</button>
     <button class="btn ghost" id="btnData">Data we'd need</button>
+    <button class="btn ghost" id="btnPrint">Print / PDF</button>
   </div>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
 <section class="kpis" id="kpis" aria-label="Key measures"></section>
 
 <section class="stage">
@@ -52,8 +55,8 @@
       <div class="intro-card">
         <div class="intro-badge">SYNTHETIC EXAMPLE DATA</div>
         <h2>Who gets seen, and who is still waiting?</h2>
-        <p>Every little character is one invented referral. It arrives from a real WA health region, <b>waits thin</b> in the queue, and <b>grows larger</b> with every attended outpatient appointment at a real WA Health reporting establishment. The map and establishments are real reference data; everything that happens to the characters is made up.</p>
-        <button class="btn primary big" id="introPlay"><span>▶</span> Press Play to begin</button>
+        <p>Each character is one <b>invented</b> referral. It arrives from a real WA health region, <b>waits thin</b> in the queue, and <b>grows larger</b> with every attended appointment at a real WA establishment. The map and sites are real reference data; everything that happens to the characters is made up.</p>
+        <div class="intro-btns"><button class="btn primary big" id="introPlay"><span>▶</span> Press Play to begin</button><button class="btn big" id="introTour">Take the guided tour</button></div>
         <small>Hover a dot on the map to see an establishment, click it to filter. Click a character for its (fake) record. Space plays and pauses.</small>
       </div>
     </div>
@@ -165,6 +168,7 @@
 <script src="js/sprites.js"></script>
 <script src="js/scene.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/tour.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

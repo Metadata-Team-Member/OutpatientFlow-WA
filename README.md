@@ -36,6 +36,8 @@ Slim = still waiting, or little care so far; broad = lots of attended care. The 
 * KPI strip: referrals (12 months), waiting for a first appointment, seen within target, median wait, telehealth and did-not-attend shares.
 * Charts: wait by priority against target, monthly flow, HSP comparison (in person, telehealth, DNA, cancelled), region comparison, busiest clinics.
 * About 11,000 referrals and 36,000 appointments across 95 active establishments, July 2022 to June 2026. Playback runs July 2023 to June 2026.
+* A six-step **guided tour** (header button, intro card, or `?tour=1`): characters, inside-versus-outside growth, waiting list against targets, did-not-attend, telehealth, and what is real versus synthetic. Every figure in the tour text is computed from the loaded data. Arrow keys move through it and Esc closes it.
+* Print / Save as PDF button: a landscape print layout (scene on page 1, charts after). Keyboard skip link, visible focus rings, and muted text lifted to at least 4.5:1 contrast on the panels.
 * Plain HTML, CSS and JavaScript on a canvas. No build step, no framework, no CDN, no tracking.
 
 ## Run it locally
@@ -95,6 +97,7 @@ js/data.js              loads and indexes the data file, derived measures
 js/sprites.js           the blob characters
 js/scene.js             canvas scene: map, queue lanes, HSP cells, establishment spotlight, playback
 js/charts.js            small charts
+js/tour.js              guided tour
 js/ui.js                filters, KPIs, controls, dialogs, click-card
 config/dimensions.json  code sets (from the Specification) and invented weights
 tools/                  generators, reference-data builders
@@ -104,7 +107,7 @@ data/sample/            25-row sample CSVs in Specification column style
 docs/                   sources, establishments, rules summary, open questions, requirements
 ```
 
-URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N characters), `?color=stage|spec|region|prio`, `?data=file.json`.
+URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N characters), `?color=stage|spec|region|prio`, `?data=file.json`, `?tour=1`.
 
 ## Honest limits
 

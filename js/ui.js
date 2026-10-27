@@ -44,7 +44,7 @@
       ['k4', 'Median wait, first appt'], ['k5', 'Did-not-attend rate'], ['k6', 'Attended events per patient'],
     ].map(([id, lab]) => '<div class="kpi" id="' + id + '"><div class="lab">' + lab + '</div><div class="val">–</div><div class="note"></div></div>').join('');
   }
-  function setK(id, val, note, cls) { const el = $(id); el.querySelector('.val').textContent = val; el.querySelector('.note').textContent = note || ''; el.className = 'kpi' + (cls ? ' ' + cls : ''); }
+  function setK(id, val, note, cls) { const el = $(id); el.querySelector('.val').textContent = val; el.querySelector('.note').textContent = note || ''; el.className = 'kpi' + (cls ? ' ' + cls : '') + (el.dataset.hl ? ' tour-hl' : ''); }
   function updateKpis() {
     const s = S; const d = s.refsPrev12 ? (s.refs12 - s.refsPrev12) / s.refsPrev12 : 0; const dm = D.dims;
     setK('k1', fmt(s.refs12), S.day >= 730 ? (d >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(d * 100)) + '% on the 12 months before' : (S.day < 365 ? 'part year: data starts ' + D.fmtDate(0).replace(/^\d+ /, '') : 'no full prior year to compare'));
@@ -107,7 +107,7 @@
     $('card').innerHTML = '<h4><span>Referral ' + esc(r.id) + '</span><button class="x" aria-label="Close" id="cardX">×</button></h4><div class="syn">SYNTHETIC RECORD · NOT A REAL PERSON</div><dl>' +
       '<dt>Status</dt><dd>' + esc(status) + '</dd><dt>Clinic category</dt><dd>' + esc(r.spec.name) + ' (' + r.spec.code + ')</dd><dt>Establishment</dt><dd>' + esc(r.site.short) + ' · ' + r.hsp.code + '</dd><dt>Priority</dt><dd>' + esc(r.prio.label) + ' (' + r.prio.code + ')</dd>' +
       '<dt>Referral source</dt><dd>' + esc(r.src.label) + '</dd><dt>Referral reason</dt><dd>' + esc(r.reason.label) + '</dd><dt>Received</dt><dd>' + D.fmtDate(r.ref) + '</dd><dt>Lives in</dt><dd>' + esc(r.district.name) + ' · ' + esc(r.region.name) + '</dd><dt>Age group</dt><dd>' + r.ageGrp + '</dd>' +
-      '<dt>Attended events</dt><dd>' + (r.st.att + r.prior) + ' <small style="color:#6b7d99">(' + r.prior + ' prior)</small></dd><dt>DNA · cancelled</dt><dd>' + r.st.dna + ' · ' + r.st.can + '</dd></dl>' +
+      '<dt>Attended events</dt><dd>' + (r.st.att + r.prior) + ' <small style="color:#8799b5">(' + r.prior + ' prior)</small></dd><dt>DNA · cancelled</dt><dd>' + r.st.dna + ' · ' + r.st.can + '</dd></dl>' +
       '<div class="tl">' + dots + '</div><div class="cap">Dots: green attended · blue telehealth/phone · amber did not attend · grey cancelled. Hover a dot for the reason.</div>';
     $('cardX').addEventListener('click', closeCard);
   }
@@ -170,16 +170,24 @@
     $('btnPlay').addEventListener('click', () => { if (Scene.finished) { seekTo(simStart); } setPlaying(!playing); });
     $('introPlay').addEventListener('click', () => setPlaying(true));
     $('btnRestart').addEventListener('click', () => { seekTo(simStart); setPlaying(false); });
-    document.querySelectorAll('.speed button').forEach((b) => b.addEventListener('click', () => { speed = +b.dataset.speed; document.querySelectorAll('.speed button').forEach((x) => x.classList.toggle('on', x === b)); }));
+    document.querySelectorAll('.speed button').forEach((b) => b.addEventListener('click', () => { speed = +b.dataset.speed; document.querySelectorAll('.speed button').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); }));
     if (qs.get('speed')) { speed = +qs.get('speed'); }
     Scene.onPick = (i) => { if (i >= 0) openCard(i); else closeCard(); };
-    $('btnHow').addEventListener('click', () => $('dlgHow').showModal()); $('btnData').addEventListener('click', () => $('dlgData').showModal());
+    $('btnPrint').addEventListener('click', () => window.print()); $('btnHow').addEventListener('click', () => $('dlgHow').showModal()); $('btnData').addEventListener('click', () => $('dlgData').showModal());
     $('btnRules').addEventListener('click', () => $('dlgRules').showModal()); $('btnEst').addEventListener('click', () => { $('dlgEst').showModal(); });
-    document.addEventListener('keydown', (e) => { if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || e.target.tagName === 'TR') return; if (e.code === 'Space' && !document.querySelector('dialog[open]')) { e.preventDefault(); $('btnPlay').click(); } if (e.key === 'Escape') closeCard(); });
+    document.addEventListener('keydown', (e) => { if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT' || e.target.tagName === 'TR' || e.target.closest('#tour') || e.target.tagName === 'A') return; if (e.code === 'Space' && !document.querySelector('dialog[open]')) { e.preventDefault(); $('btnPlay').click(); } if (e.key === 'Escape') closeCard(); });
     let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { Scene.resize(); buildLegend(); dirty = true; }, 120); });
     $('loading').style.display = 'none';
     if (qs.get('autoplay')) setPlaying(true);
     last = performance.now(); requestAnimationFrame(frame);
+    OF.UI = {
+      setPlaying, seekTo, simStart: () => simStart, isPlaying: () => playing,
+      setSpeed: (v) => { speed = v; document.querySelectorAll('.speed button').forEach((x) => x.classList.toggle('on', +x.dataset.speed === v)); },
+      statsAt: (day) => D.stats(day, null),
+      filters: (o) => { const m = { hsp: 'fHsp', site: 'fSite', spec: 'fSpec', region: 'fRegion', prio: 'fPrio', mode: 'fMode' }; Object.keys(m).forEach((k) => { if (k in o) $(m[k]).value = String(o[k]); }); UI.onChange(); },
+      resetFilters: () => $('btnReset').click(),
+    };
+    if (OF.Tour) { OF.Tour.init(); $('btnTour').addEventListener('click', () => OF.Tour.start()); $('introTour').addEventListener('click', () => OF.Tour.start()); if (qs.get('tour')) OF.Tour.start(); }
     window.__of = { D, Scene, get playing() { return playing; } };
   }
   main();
