@@ -110,9 +110,25 @@
     });
   }
 
+
+  function hspChart(cv, S) {
+    const { c, w, h } = prep(cv); const hs = D.dims.hsps; const T = 34, B = 8, rowH = (h - T - B) / hs.length, lw = 52;
+    const cols = ['#5ad19a', '#7aa7ff', '#f5b94a', '#9aa7bd']; const labs = ['In person', 'Telehealth / phone', 'Did not attend', 'Cancelled'];
+    font(c, 10, 600); c.textAlign = 'left';
+    labs.forEach((l, k) => { const lx = 4 + (k % 2) * 124, ly = 6 + (k > 1 ? 14 : 0); c.fillStyle = cols[k]; c.fillRect(lx, ly, 9, 9); c.fillStyle = '#c4d1e6'; c.fillText(l, lx + 13, ly + 8.5); });
+    const tot = hs.map((_, i) => { const q = S.hsp12[i]; return q[0] + q[1] + q[2] + q[3]; }); const mx = Math.max(1, ...tot); const pw = w - lw - 62;
+    hs.forEach((hp, i) => {
+      const y = T + i * rowH + rowH * 0.16, bh = rowH * 0.62; const q = S.hsp12[i]; const f = (D.filter.hsp === i);
+      font(c, 11, 700); c.textAlign = 'right'; c.fillStyle = f ? '#fff' : (OF.Scene.hspCol[hp.code] || '#c6d4ec'); c.fillText(hp.code, lw - 8, y + bh * 0.72);
+      let xx = lw; q.forEach((v, k) => { const bw = pw * v / mx; c.fillStyle = cols[k]; c.fillRect(xx, y, bw, bh); xx += bw; });
+      font(c, 10); c.textAlign = 'left'; c.fillStyle = '#e3ecfb'; c.fillText(fmt(tot[i]), xx + 5, y + bh * 0.68);
+      const tele = tot[i] ? Math.round(q[1] / tot[i] * 100) : 0; font(c, 9); c.fillStyle = TXT2; c.fillText(tele + '% tele', xx + 5, y + bh * 1.05 + 1);
+    });
+  }
+
   C.draw = function (S, t) {
     const $ = (id) => document.getElementById(id);
-    hist($('cHist'), S); waitChart($('cWait'), S); timeline($('cTime'), S, t); regions($('cReg'), S); specChart($('cSpec'), S);
+    hist($('cHist'), S); waitChart($('cWait'), S); timeline($('cTime'), S, t); regions($('cReg'), S); specChart($('cSpec'), S); hspChart($('cHsp'), S);
   };
   C.init = function () {
     const cv = document.getElementById('cSpec');

@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 /**
- * OutpatientFlow WA - SYNTHETIC data generator
- * -------------------------------------------
- * Produces fake, deterministic (seeded) referral + appointment extracts whose COLUMN NAMES mirror the
- * WA Health Non-Admitted Data Collection (NADC). Nothing here is real. It exists so the visualisation can be
- * built and tuned before any real extract is requested.
+ * OutpatientFlow WA - SYNTHETIC data generator (round 2)
+ * ------------------------------------------------------
+ * Produces fake, deterministic (seeded) referral + appointment extracts. Column names follow the data element
+ * names of the WA Health NAPDC Data Specifications v1.0 (1 July 2021) - e.g. REFERRAL_RECEIVED_DATE,
+ * APPOINTMENT_OUTCOME_CODE - and code values come from its Appendix B/C. Columns starting DERIVED_ are NOT NADC
+ * elements: they stand in for things a real extract would derive (person key, age, health district).
+ * Establishments are the 112 SLIP "outpatient reporting" facilities in data/reference/establishments.json.
+ * Everything else (volumes, waits, DNA rates, who goes where) is an INVENTED model - see config/dimensions.json.
  *
  *   node tools/generate_synthetic.mjs [--patients 10000] [--seed 20261027]
  *   -> data/csv/referrals.csv , data/csv/appointments.csv   (git-ignored, regenerate any time)
@@ -13,12 +16,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadGeo, loadEstablishments, tierOf } from './lib_ref.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = Object.fromEntries(process.argv.slice(2).reduce((a, v, i, arr) => (v.startsWith('--') ? [...a, [v.slice(2), arr[i + 1]]] : a), []));
-const N = +(args.patients || 10000);
+const N = +(args.patients || 11000);
 const SEED = +(args.seed || 20261027);
 const dims = JSON.parse(fs.readFileSync(path.join(ROOT, 'config/dimensions.json'), 'utf8'));
+const { est, hspIndex } = loadEstablishments(ROOT, dims);
+const { districts, regionIdx } = loadGeo(ROOT, dims);
 
 // ---------- seeded random helpers ----------
 function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
@@ -26,68 +32,17 @@ const rnd = mulberry32(SEED);
 const u = () => rnd();
 const normal = () => { let a = 0, b = 0; while (!a) a = u(); b = u(); return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b); };
 const logn = (median, sigma) => median * Math.exp(sigma * normal());
-const pick = (arr, w) => { const tot = w.reduce((s, x) => s + x, 0); let r = u() * tot; for (let i = 0; i < arr.length; i++) { r -= w[i]; if (r <= 0) return arr[i]; } return arr[arr.length - 1]; };
+const pickW = (items, wf) => { let tot = 0; const w = items.map((x, i) => { const v = wf(x, i); tot += v; return v; }); let r = u() * tot; for (let i = 0; i < items.length; i++) { r -= w[i]; if (r <= 0) return items[i]; } return items[items.length - 1]; };
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
 // ---------- calendar ----------
-const D0 = Date.UTC(...dims.start.split('-').map((v, i) => (i === 1 ? +v - 1 : +v)));
-const DAYS = Math.round((Date.UTC(...dims.end.split('-').map((v, i) => (i === 1 ? +v - 1 : +v))) - D0) / 864e5);
-const fmt = (d) => new Date(D0 + d * 864e5).toISOString().slice(0, 10);
+const ymd = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+const D0 = ymd(dims.start);
+const DAYS = Math.round((ymd(dims.end) - D0) / 864e5) + 1;
+const ddmmyyyy = (d) => { const t = new Date(D0 + d * 864e5); return String(t.getUTCDate()).padStart(2, '0') + String(t.getUTCMonth() + 1).padStart(2, '0') + t.getUTCFullYear(); };
 const isWeekend = (d) => { const w = new Date(D0 + d * 864e5).getUTCDay(); return w === 0 || w === 6; };
 const nextWeekday = (d) => { while (isWeekend(d)) d++; return d; };
 
-// ---------- illustrative behaviour tables (ALL INVENTED) ----------
-const SPEC = {
-  //        share meanAtt interval dna  tele  waitF  ageMix(0-14,15-24,25-44,45-64,65-79,80+)
-  CAR: { share: 9,  att: 4.2, iv: 75, dna: 0.07, tele: 0.10, wait: 0.9, age: [1, 1, 4, 8, 9, 4] },
-  ORT: { share: 12, att: 3.0, iv: 45, dna: 0.09, tele: 0.05, wait: 1.5, age: [3, 5, 9, 10, 8, 3] },
-  OPH: { share: 8,  att: 3.2, iv: 90, dna: 0.08, tele: 0.02, wait: 1.4, age: [2, 1, 3, 7, 11, 6] },
-  DER: { share: 8,  att: 2.8, iv: 80, dna: 0.11, tele: 0.14, wait: 1.3, age: [3, 4, 9, 8, 6, 3] },
-  END: { share: 6,  att: 6.2, iv: 95, dna: 0.10, tele: 0.28, wait: 1.1, age: [1, 2, 7, 10, 7, 2] },
-  NEU: { share: 6,  att: 4.5, iv: 85, dna: 0.09, tele: 0.20, wait: 1.3, age: [2, 2, 7, 9, 8, 4] },
-  ENT: { share: 8,  att: 2.5, iv: 60, dna: 0.10, tele: 0.06, wait: 1.5, age: [6, 3, 6, 6, 5, 2] },
-  GAS: { share: 7,  att: 3.6, iv: 90, dna: 0.09, tele: 0.14, wait: 1.2, age: [1, 2, 7, 9, 7, 3] },
-  REN: { share: 3,  att: 9.0, iv: 70, dna: 0.06, tele: 0.18, wait: 0.7, age: [0, 1, 3, 8, 9, 5] },
-  RES: { share: 6,  att: 4.8, iv: 85, dna: 0.08, tele: 0.18, wait: 1.0, age: [2, 1, 4, 8, 9, 4] },
-  PAE: { share: 8,  att: 4.0, iv: 70, dna: 0.13, tele: 0.14, wait: 1.1, age: [1, 0, 0, 0, 0, 0] },
-  WOM: { share: 7,  att: 3.0, iv: 55, dna: 0.09, tele: 0.12, wait: 1.0, age: [0, 3, 10, 5, 3, 1] },
-  MEN: { share: 8,  att: 8.0, iv: 40, dna: 0.18, tele: 0.34, wait: 0.8, age: [3, 6, 8, 6, 3, 1] },
-  PAI: { share: 4,  att: 6.5, iv: 50, dna: 0.12, tele: 0.24, wait: 1.1, age: [0, 1, 5, 9, 6, 2] },
-};
-const REG = {
-  PER: { share: 77, wait: 1.0, dna: 1.0, tele: 1.0, att: 1.0, ind: 0.026, remote: 0 },
-  SWE: { share: 6,  wait: 1.1, dna: 1.1, tele: 1.4, att: 0.95, ind: 0.03, remote: 0 },
-  GSO: { share: 2.5, wait: 1.15, dna: 1.1, tele: 1.7, att: 0.92, ind: 0.05, remote: 1 },
-  WHE: { share: 3.2, wait: 1.2, dna: 1.15, tele: 1.7, att: 0.9, ind: 0.04, remote: 1 },
-  GEF: { share: 3.0, wait: 1.3, dna: 1.25, tele: 2.0, att: 0.85, ind: 0.12, remote: 1 },
-  MID: { share: 3.3, wait: 1.25, dna: 1.2, tele: 1.9, att: 0.87, ind: 0.10, remote: 1 },
-  PIL: { share: 2.4, wait: 1.45, dna: 1.35, tele: 2.4, att: 0.8, ind: 0.16, remote: 2 },
-  KIM: { share: 2.6, wait: 1.5, dna: 1.4, tele: 2.6, att: 0.78, ind: 0.38, remote: 2 },
-};
-const SITEW = { // region -> site weight
-  PER: { 'SYN-A': 1.3, 'SYN-B': 1.15, 'SYN-C': 0.8, 'SYN-D': 1.0, 'SYN-E': 0, 'SYN-F': 0 },
-  SWE: { 'SYN-A': 0.35, 'SYN-B': 0.3, 'SYN-C': 0.1, 'SYN-D': 0.15, 'SYN-E': 3, 'SYN-F': 0 },
-  GSO: { 'SYN-A': 0.5, 'SYN-B': 0.4, 'SYN-C': 0.1, 'SYN-D': 0.2, 'SYN-E': 1.6, 'SYN-F': 0 },
-  WHE: { 'SYN-A': 1, 'SYN-B': 0.9, 'SYN-C': 0.3, 'SYN-D': 0.4, 'SYN-E': 0.4, 'SYN-F': 0 },
-  GEF: { 'SYN-A': 1, 'SYN-B': 0.8, 'SYN-C': 0.2, 'SYN-D': 0.4, 'SYN-E': 0, 'SYN-F': 1.4 },
-  MID: { 'SYN-A': 1, 'SYN-B': 0.8, 'SYN-C': 0.2, 'SYN-D': 0.4, 'SYN-E': 0, 'SYN-F': 1.2 },
-  PIL: { 'SYN-A': 0.7, 'SYN-B': 0.6, 'SYN-C': 0.1, 'SYN-D': 0.3, 'SYN-E': 0, 'SYN-F': 3 },
-  KIM: { 'SYN-A': 0.6, 'SYN-B': 0.5, 'SYN-C': 0.1, 'SYN-D': 0.3, 'SYN-E': 0, 'SYN-F': 3 },
-};
-const SRC_W = { GEP: 50, PRN: 3, SPR: 13, MEP: 3, NPR: 2, AHP: 2, MHC: 2.5, OTH: 3.5, SLF: 0.8, OPH: 9, EMD: 6, INW: 5 };
-const PRIO_W = { URG: 14, SEM: 31, ROU: 55 };
-const PRIO_WAITMED = { URG: 0.42, SEM: 0.52, ROU: 0.55 }; // median wait as fraction of target (external referrals)
-const FINAL = [['DIS', 38], ['RGP', 40], ['RAS', 6], ['RWL', 8], ['ADM', 2], ['ROH', 3], ['REA', 3]];
-const POSTCODES = []; const pcIndex = {};
-dims.regions.forEach((r) => r.postcodes.forEach((p) => { if (pcIndex[p] == null) { pcIndex[p] = POSTCODES.length; POSTCODES.push(p); } }));
-
-const sites = dims.sites;
-const specs = dims.specialties.map((s) => s.code);
-const regionsArr = dims.regions.map((r) => r.code);
-const prioTarget = Object.fromEntries(dims.priorities.map((p) => [p.code, p.targetDays]));
-const srcInternal = Object.fromEntries(dims.sources.map((s) => [s.code, s.internal]));
-
-// referral volume by day: gentle growth, summer/winter dips, quiet Christmas
 function dayWeight(d) {
   const dt = new Date(D0 + d * 864e5); const m = dt.getUTCMonth(); const dom = dt.getUTCDate();
   let w = 1 + 0.03 * (d / 365);
@@ -97,93 +52,144 @@ function dayWeight(d) {
 }
 const dayCum = []; let acc = 0; for (let d = 0; d < DAYS; d++) { acc += dayWeight(d); dayCum.push(acc); }
 function drawRefDay() { const r = u() * acc; let lo = 0, hi = DAYS - 1; while (lo < hi) { const mid = (lo + hi) >> 1; if (dayCum[mid] < r) lo = mid + 1; else hi = mid; } return lo; }
-// waiting-time pressure over the 4 years: builds up, peaks mid-2025, eases a little
+// invented: waiting-time pressure builds over the four years, peaks around mid-2025, eases a little
 function pressure(d) { const x = d / DAYS; return 0.85 + 0.55 * Math.sin(Math.PI * Math.min(1, x * 1.15)) + (x > 0.8 ? -0.1 : 0); }
+
+// ---------- geography helpers ----------
+const km = (a, b) => { const dx = (a.lon - b.lon) * Math.cos(((a.lat + b.lat) / 2) * Math.PI / 180) * 111.2, dy = (a.lat - b.lat) * 111.2; return Math.hypot(dx, dy); };
+const specs = dims.specialties;
+// district weights: region share spread across its districts with a fixed jitter
+const dJit = districts.map((d, i) => 0.8 + 0.4 * ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1);
+const regCount = {}; districts.forEach((d) => { regCount[d.region] = (regCount[d.region] || 0) + 1; });
+const dW = districts.map((d, i) => dims.regionShare[d.region] / regCount[d.region] * dJit[i]);
+const dRegion = districts.map((d) => regionIdx[d.region]);
+const metro = (rName) => /Metro$/.test(rName);
+
+// site weight for a (district, specialty, age) combination, precomputed per district x specialty x isChild
+const siteW = new Map();
+function siteWeights(di, si, child) {
+  const key = di * 100 + si * 2 + (child ? 1 : 0);
+  let c = siteW.get(key); if (c) return c;
+  const d = districts[di], sp = specs[si]; const dMetro = metro(d.region);
+  const w = est.map((e) => {
+    const scope = (dims.scopeByTier[e.tier] || {})[sp.code] || 0; if (!scope) return 0;
+    let ageF = 1;
+    if (e.tier === 'PAED') ageF = child ? 8 : 0; else if (child && sp.code !== 'PAE') ageF = e.tier === 'TERT' ? 0.3 : 0.5; else if (child && e.tier !== 'PAED') ageF = 0.4;
+    if (!ageF) return 0;
+    const cap = Math.pow(Math.max(e.mbeds, 12), 0.85);
+    const dist = km(d, e);
+    const lam = e.tier === 'TERT' || e.tier === 'PAED' || e.tier === 'WOMN' ? (dMetro ? 30 : 60) : (dMetro ? 14 : 40);
+    const local = !dMetro && !metro(e.region) ? 5 : 1; // invented: regional residents mostly use a local service where one exists
+    return cap * scope * ageF * local / (1 + Math.pow(dist / lam, 2));
+  });
+  c = { w, tot: w.reduce((a, b) => a + b, 0) }; siteW.set(key, c); return c;
+}
+function pickSite(di, si, child) {
+  const { w, tot } = siteWeights(di, si, child); let r = u() * tot;
+  for (let i = 0; i < w.length; i++) { r -= w[i]; if (r <= 0) return i; }
+  return w.findIndex((x) => x > 0);
+}
+
+const srcAll = dims.sources.filter((s) => s.w > 0);
+const prioCodes = dims.priorities.map((p) => p.code);
+const prioTarget = Object.fromEntries(dims.priorities.map((p) => [p.code, p.targetDays]));
+const finalOut = Object.entries(dims.finalOutcomeWeights);
+const outMap = Object.fromEntries(dims.outcomes.map((o) => [o.code, o]));
+const ageRanges = [[0, 14], [15, 24], [25, 44], [45, 64], [65, 79], [80, 95]];
+const REMOTE_MODES = ['TEL', 'VID'];
 
 const refRows = []; const appRows = []; let appId = 1;
 const header = {
-  ref: ['REF_ID', 'PER_PERSON_ID', 'REF_SOURCE_CODE', 'REF_PRIORITY_CODE', 'REF_RECEIVED_DATE', 'REF_DISCHARGE_DATE', 'REF_CLOSURE_REASON_CODE', 'CLINIC_CATEGORY_CODE', 'ESTABLISHMENT_ID', 'PER_ADDRESS_POSTCODE', 'PER_REGION_CODE', 'PER_AGE_YEARS', 'PER_INDIGENOUS_STATUS_CODE', 'PRIOR_ATTENDED_24M'],
-  app: ['APP_ID', 'REF_ID', 'APP_DATE', 'APP_ATTENDANCE_CODE', 'APP_OUTCOME_CODE', 'APP_NON_ATTENDANCE_REASON_CODE', 'APP_DELIVERY_TYPE_CODE', 'APP_NEW_FOLLOWUP_CODE', 'CLINIC_CATEGORY_CODE', 'ESTABLISHMENT_ID'],
+  ref: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'REFERRAL_CATEGORY_CODE', 'REFERRAL_CREATED_DATE', 'REFERRAL_RECEIVED_DATE', 'REFERRAL_PRIORITY_CODE', 'REFERRAL_REASON_CODE', 'REFERRAL_SOURCE_CODE', 'REFERRAL_STATUS_CODE', 'REFERRAL_CLOSED_DATE', 'REFERRAL_REASON_FOR_CLOSURE_CODE', 'DERIVED_PERSON_KEY', 'DERIVED_AGE_YEARS', 'DERIVED_HEALTH_DISTRICT', 'DERIVED_PRIOR_ATTENDED'],
+  app: ['ESTABLISHMENT_CODE', 'REFERRAL_ACCOUNT_NUMBER', 'APPOINTMENT_ACCOUNT_NUMBER', 'CLINIC_CATEGORY_CODE', 'APPOINTMENT_DATE', 'APPOINTMENT_TYPE_CODE', 'APPOINTMENT_DELIVERY_MODE_CODE', 'APPOINTMENT_SESSION_TYPE_CODE', 'APPOINTMENT_OUTCOME_CODE', 'APPOINTMENT_NON_ATTENDANCE_REASON_CODE', 'APPOINTMENT_CANCELLATION_CODE', 'APPOINTMENT_CANCELLATION_DATE'],
 };
 
 for (let n = 1; n <= N; n++) {
-  const refId = 'SYN-R' + String(n).padStart(6, '0');
-  const pid = 'SYN-P' + String(n).padStart(6, '0');
-  const region = pick(regionsArr, regionsArr.map((c) => REG[c].share)); const R = REG[region];
-  const spec = pick(specs, specs.map((c) => SPEC[c].share)); const S = SPEC[spec];
-  const src = pick(Object.keys(SRC_W), Object.values(SRC_W).map((w, i) => { const c = Object.keys(SRC_W)[i]; if (c === 'MHC' && spec !== 'MEN') return w * 0.2; if (c === 'SPR' && R.remote === 2) return w * 0.5; return w; }));
-  const internal = srcInternal[src];
-  const prio = pick(['URG', 'SEM', 'ROU'], [PRIO_W.URG * (internal ? 1.6 : 1), PRIO_W.SEM, PRIO_W.ROU * (internal ? 0.6 : 1)]);
-  const siteOptions = sites.filter((s) => s.specs.includes(spec));
-  const site = pick(siteOptions, siteOptions.map((s) => SITEW[region][s.id] + 0.001));
-  const ageGrp = pick(dims.ageGroups, S.age.map((w) => w + 0.01));
-  const [a0, a1] = [[0, 14], [15, 24], [25, 44], [45, 64], [65, 79], [80, 95]][dims.ageGroups.indexOf(ageGrp)];
-  const age = Math.floor(a0 + u() * (a1 - a0 + 1));
-  const indRoll = u(); const ind = indRoll < R.ind ? pick(['1', '2', '3'], [92, 3, 5]) : indRoll < R.ind + 0.02 ? '9' : '4';
-  const postcode = dims.regions.find((r) => r.code === region).postcodes[Math.floor(u() * dims.regions.find((r) => r.code === region).postcodes.length)];
-  const refDay = drawRefDay();
-  const target = prioTarget[prio];
-  const prior = internal ? Math.min(8, Math.round(logn(2.4, 0.7))) : (u() < 0.3 ? 1 + Math.floor(u() * 3) : 0);
+  const refNo = 'SYN' + String(n).padStart(8, '0');
+  const di = pickW(districts, (d, i) => dW[i]).idx;
+  const dist = districts[di]; const R = dims.regionFactor[dist.region];
+  const spI = specs.indexOf(pickW(specs, (s) => s.share)); const S = specs[spI];
+  const ageGrp = pickW([0, 1, 2, 3, 4, 5], (g) => S.age[g] + 0.01);
+  const child = ageGrp === 0;
+  const opm = u() < dims.opmShare;
+  const siI = pickSite(di, spI, child); const site = est[siI];
+  const distKm = km(dist, site);
+  const srcW = (s) => { if (s.code === 'MHC' && S.code !== 'PSY') return s.w * 0.1; if (s.code === 'SPR' && R.tele > 2) return s.w * 0.5; if (site.tier === 'POST' && s.internal) return s.w * 0.1; return s.w; };
+  const src = opm ? dims.sources.find((s) => s.code === 'CON') : pickW(srcAll, srcW);
+  const internal = src.internal;
+  const prio = pickW(prioCodes, (c) => dims.priorityWeight[c] * (c === 'URG' && internal && !opm ? 1.6 : 1) * (c === 'NUR' && internal && !opm ? 0.6 : 1) * (opm && c === 'URG' ? 0.1 : 1));
+  const reason = opm ? 'OPM' : u() < 0.62 ? 'ASS' : 'TRE';
+  const [a0, a1] = ageRanges[ageGrp]; const age = Math.floor(a0 + u() * (a1 - a0 + 1));
+  const refDay = drawRefDay(); const target = prioTarget[prio];
+  const prior = opm ? Math.min(8, Math.max(1, Math.round(logn(2.8, 0.55)))) : (u() < 0.22 ? 1 + Math.floor(u() * 3) : 0);
 
-  // ---- wait for first appointment ----
-  const medFrac = PRIO_WAITMED[prio] * S.wait * R.wait * pressure(refDay) * (internal ? 0.2 : 1);
-  let wait = Math.max(1, Math.round(logn(medFrac * target, internal ? 0.75 : 0.8)));
+  // ---- wait for the first appointment ----
+  const medFrac = dims.priorityWaitMedianFraction[prio] * S.wait * R.wait * dims.tierWaitFactor[site.tier] * pressure(refDay) * (opm ? 0.2 : internal ? 0.55 : 1);
+  let wait = Math.max(1, Math.round(logn(medFrac * target, opm ? 0.7 : 0.8)));
   wait = Math.min(wait, Math.round(target * 4));
-  let closedWithoutSeen = false; let closeDay = null; let closeReason = null;
-  const pClose = internal ? 0.01 : 0.04 + 0.04 * R.remote + (wait > target ? 0.05 : 0);
-  if (u() < pClose) { closedWithoutSeen = true; closeDay = nextWeekday(refDay + Math.max(5, Math.round(wait * (0.35 + 0.6 * u())))); closeReason = pick(['PRQ', 'UTC', 'ELS', 'DEC'], [45, 25, 24, 6]); }
-  const firstDay = nextWeekday(refDay + wait);
-
-  const events = [];
-  let refDischarge = null; let finalReason = null;
-  if (!closedWithoutSeen) {
-    let nAtt = Math.max(1, Math.round(logn(S.att * (internal ? 1.25 : 1) * R.att * 0.9, 0.7)));
-    nAtt = Math.min(nAtt, 26);
-    const dnaP = clamp(S.dna * R.dna * (internal ? 0.6 : 1), 0, 0.45);
-    const teleP = clamp(S.tele * R.tele, 0, 0.8);
-    let day = firstDay; let attended = 0; let consecDNA = 0; let first = true; let abandoned = false;
-    let safety = 0;
-    while (attended < nAtt && safety++ < 60) {
+  let closeDay = null, closeReason = null; let events = [];
+  const pClose = opm ? 0.01 : 0.04 + 0.025 * (R.wait > 1.2 ? 1 : 0) + (wait > target ? 0.05 : 0);
+  if (u() < pClose) {
+    const cr = pickW([['AUD', wait > target ? 40 : 8], ['PDT', 30], ['DEC', 4], ['TFC', 14]], (x) => x[1])[0];
+    closeReason = cr; closeDay = nextWeekday(refDay + Math.max(5, Math.round(wait * (0.35 + 0.6 * u()))));
+  } else {
+    let nAtt = Math.max(1, Math.round(logn(S.att * (opm ? 1.2 : 1) * R.att * 0.9, 0.7))); nAtt = Math.min(nAtt, 26);
+    const dnaP = clamp(S.dna * R.dna * (opm ? 0.6 : 1), 0, 0.45);
+    const cancP = clamp(0.085 * (opm ? 1.1 : 1), 0, 0.3);
+    const farBoost = 1 + clamp((distKm - 80) / 250, 0, 1.4);
+    const teleP = clamp(S.tele * R.tele * farBoost, 0, 0.85);
+    let day = nextWeekday(refDay + wait); let attended = 0, consecDNA = 0, consecCan = 0, safety = 0;
+    while (attended < nAtt && safety++ < 70) {
       if (day > DAYS - 1) break;
-      const mode = u() < (first ? teleP * 0.55 : teleP) ? (u() < 0.5 ? 'VID' : 'TEL') : ((spec === 'PAI' || spec === 'RES') && u() < 0.12 ? 'GCP' : 'CLP');
-      const remote = mode === 'TEL' || mode === 'VID';
-      const thisDna = dnaP * (remote ? 0.6 : 1) * (first ? 1.15 : 1);
-      const roll = u();
+      const first = attended === 0 && !opm; const type = first ? 0 : 1;
+      let mode = 'CLP';
+      if (u() < (first ? teleP * 0.55 : teleP)) {
+        const regional = !metro(dist.region);
+        const r = u();
+        mode = regional && distKm > 100 ? (r < 0.3 ? 'TEL' : r < 0.6 ? 'VID' : r < 0.88 ? 'THH' : 'THC') : (r < 0.5 ? 'TEL' : 'VID');
+      } else if ((S.code === 'PSY' || S.code === 'PHY') && u() < 0.1) mode = 'GCP';
+      const remote = ['TEL', 'VID', 'THH', 'THC'].includes(mode);
+      const roll = u(); const thisDna = dnaP * (remote ? 0.6 : 1) * (first ? 1.15 : 1);
       if (roll < thisDna) {
-        events.push({ day, att: 'DNA', mode, outcome: 'NSP', nf: first ? 'NEW' : 'FUP' });
+        const rs = pickW(dims.nonAttendance, (x) => x.w).code;
+        events.push({ day, kind: 1, mode, code: rs, type });
         consecDNA++;
-        if (consecDNA >= 2 && u() < 0.55) { abandoned = true; refDischarge = nextWeekday(day + 7 + Math.floor(u() * 21)); finalReason = 'DNA'; break; }
+        if (consecDNA >= 2 && u() < 0.55) { closeReason = 'DIP'; closeDay = nextWeekday(day + 7 + Math.floor(u() * 21)); break; }
         day = nextWeekday(day + 14 + Math.floor(u() * 35));
-      } else if (roll < thisDna + 0.008) {
-        events.push({ day, att: 'DNW', mode: 'CLP', outcome: 'NSP', nf: first ? 'NEW' : 'FUP' });
+      } else if (roll < thisDna + cancP) {
+        const cc = pickW(dims.cancellation, (x) => x.w).code;
+        events.push({ day, kind: 2, mode, code: cc, type, cdate: Math.max(refDay, day - Math.floor(1 + u() * 14)) });
+        consecCan++;
+        if (consecCan >= 3 && u() < 0.4) { closeReason = 'PDT'; closeDay = nextWeekday(day + 7 + Math.floor(u() * 14)); break; }
         day = nextWeekday(day + 10 + Math.floor(u() * 25));
       } else {
-        attended++; consecDNA = 0;
+        attended++; consecDNA = 0; consecCan = 0;
         const last = attended >= nAtt;
-        const outcome = last ? pick(FINAL.map((f) => f[0]), FINAL.map((f) => f[1])) : (u() < 0.9 ? 'REV' : 'REA');
-        events.push({ day, att: 'ATT', mode, outcome, nf: first ? 'NEW' : 'FUP' });
-        first = false;
-        if (last) { refDischarge = day; finalReason = 'SEEN'; break; }
+        const out = last ? pickW(finalOut, (x) => x[1])[0] : (u() < 0.9 ? 'REV' : 'REA');
+        events.push({ day, kind: 0, mode, code: out, type });
+        if (last) { closeReason = outMap[out].close; closeDay = day + Math.floor(u() * 7); break; }
         day = nextWeekday(day + Math.max(7, Math.round(logn(S.iv, 0.45))));
       }
     }
-    if (refDischarge != null && refDischarge > DAYS - 1) { refDischarge = null; finalReason = null; }
-  } else { refDischarge = closeDay; finalReason = closeReason; }
-  if (refDischarge != null && refDischarge > DAYS - 1) { refDischarge = null; finalReason = null; }
+  }
+  events = events.filter((e) => e.day <= DAYS - 1);
+  if (closeDay != null && closeDay > DAYS - 1) { closeDay = null; closeReason = null; }
+  const attendedAny = events.some((e) => e.kind === 0);
+  const status = closeDay != null ? 'CL' : attendedAny || opm ? 'OP' : 'WL';
 
-  refRows.push([refId, pid, src, prio, fmt(refDay), refDischarge != null ? fmt(refDischarge) : '', finalReason || '', spec, site.id, postcode, region, age, ind, prior]);
+  refRows.push([site.code, refNo, S.code, ddmmyyyy(refDay), ddmmyyyy(refDay), prio, reason, src.code, status, closeDay != null ? ddmmyyyy(closeDay) : '', closeReason || '', 'P' + String(n).padStart(7, '0'), age, dist.name, prior]);
   for (const e of events) {
-    if (e.day > DAYS - 1) continue;
-    appRows.push([ 'SYN-APP' + String(appId++).padStart(7, '0'), refId, fmt(e.day), e.att, e.outcome, e.att === 'ATT' ? '' : (e.att === 'DNA' ? 'UNK' : ''), e.mode, e.nf, spec, site.id ]);
+    appRows.push([site.code, refNo, 'SYNA' + String(appId++).padStart(7, '0'), S.code, ddmmyyyy(e.day), e.type === 0 ? 'NEW' : 'FOL', e.mode, e.mode === 'GCP' ? 'GRP' : 'IND',
+      e.kind === 0 ? e.code : e.kind === 2 ? 'CAN' : '', e.kind === 1 ? e.code : '', e.kind === 2 ? e.code : '', e.kind === 2 ? ddmmyyyy(e.cdate) : '']);
   }
 }
 const csvDir = path.join(ROOT, 'data/csv'); fs.mkdirSync(csvDir, { recursive: true });
 const toCsv = (h, rows) => [h.join(','), ...rows.map((r) => r.join(','))].join('\n') + '\n';
 fs.writeFileSync(path.join(csvDir, 'referrals.csv'), toCsv(header.ref, refRows));
 fs.writeFileSync(path.join(csvDir, 'appointments.csv'), toCsv(header.app, appRows));
-// tiny sample that IS committed so people can see the shape
+// small samples that ARE committed so people can see the shape (first 25 referrals + their appointments)
 const sampleDir = path.join(ROOT, 'data/sample'); fs.mkdirSync(sampleDir, { recursive: true });
 fs.writeFileSync(path.join(sampleDir, 'referrals.sample.csv'), toCsv(header.ref, refRows.slice(0, 25)));
-const sampleIds = new Set(refRows.slice(0, 25).map((r) => r[0]));
+const sampleIds = new Set(refRows.slice(0, 25).map((r) => r[1]));
 fs.writeFileSync(path.join(sampleDir, 'appointments.sample.csv'), toCsv(header.app, appRows.filter((r) => sampleIds.has(r[1]))));
 console.log(`SYNTHETIC: ${refRows.length} referrals, ${appRows.length} appointments, seed ${SEED}, ${dims.start}..${dims.end}`);
