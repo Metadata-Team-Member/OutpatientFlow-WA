@@ -4,7 +4,7 @@
 Input  : raw SLIP "Health Districts (HEALTH-002)" polygons (fetched by tools/fetch_reference.mjs
          into data/reference/raw/, git-ignored).
 Output : data/reference/wa_regions.geojson   (10 Health Regions + 34 Districts, state scale)
-         data/reference/perth_metro.geojson   (metro districts, larger scale, for the inset)
+         data/reference/perth_metro.geojson   (metro districts, at a more detailed scale, for the inset)
 
 Districts are simplified together with shapely.coverage_simplify so shared borders stay shared,
 then dissolved into regions, so the hierarchy has no gaps or slivers.

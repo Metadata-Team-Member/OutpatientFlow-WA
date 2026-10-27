@@ -40,8 +40,8 @@
 
   function buildKpis() {
     $('kpis').innerHTML = [
-      ['k1', 'Referrals, last 12 months'], ['k2', 'Waiting, first appointment'], ['k3', 'Seen within target (12 mo)'],
-      ['k4', 'Median wait, first appt'], ['k5', 'Did-not-attend rate'], ['k6', 'Attended events per patient'],
+      ['k1', 'Referrals received, last 12 months'], ['k2', 'People waiting for a first appointment'], ['k3', 'First appointments within target (12 months)'],
+      ['k4', 'Median wait for a first appointment'], ['k5', 'Did not attend (DNA) rate'], ['k6', 'Attended events per person'],
     ].map(([id, lab]) => '<div class="kpi" id="' + id + '"><div class="lab">' + lab + '</div><div class="val">–</div><div class="note"></div></div>').join('');
   }
   function setK(id, val, note, cls) { const el = $(id); el.querySelector('.val').textContent = val; el.querySelector('.note').textContent = note || ''; el.className = 'kpi' + (cls ? ' ' + cls : '') + (el.dataset.hl ? ' tour-hl' : ''); }
@@ -53,11 +53,11 @@
     const pw = s.seenAll12 ? s.withinAll12 / s.seenAll12 : null;
     const split = dm.priorities.map((p, i) => p.code + ' ' + (s.seen12[i] ? Math.round(s.within12[i] / s.seen12[i] * 100) + '%' : '–')).join(' · ');
     setK('k3', pw == null ? '–' : Math.round(pw * 100) + '%', split, pw == null ? '' : pw < 0.7 ? 'bad' : pw < 0.85 ? 'warn' : 'good');
-    setK('k4', s.nFirst ? Math.round(s.medFirst) + ' days' : '–', s.nFirst ? 'received → first attended, ' + fmt(s.nFirst) + ' people' : 'no first appointments yet', s.medFirst > 120 ? 'warn' : '');
-    setK('k5', (s.dnaRate * 100).toFixed(1) + '%', fmt(s.att12) + ' attended · ' + fmt(s.dna12) + ' DNA · ' + fmt(s.can12) + ' cancelled', s.dnaRate > 0.12 ? 'warn' : '');
+    setK('k4', s.nFirst ? Math.round(s.medFirst) + ' days' : '–', s.nFirst ? 'received to first attended, ' + fmt(s.nFirst) + ' people' : 'no first appointments yet', s.medFirst > 120 ? 'warn' : '');
+    setK('k5', (s.dnaRate * 100).toFixed(1) + '%', fmt(s.att12) + ' attended · ' + fmt(s.dna12) + ' did not attend · ' + fmt(s.can12) + ' cancelled', s.dnaRate > 0.12 ? 'warn' : '');
     const el = $('k6'); el.className = 'kpi cmpk';
     const mx = Math.max(1, s.avgIn, s.avgOut);
-    el.querySelector('.val').innerHTML = '<div class="cmp"><div><b style="color:#4fd1c5">' + s.avgIn.toFixed(1) + '</b><small>inside network</small><div class="bar" style="background:#4fd1c5;width:' + Math.round(s.avgIn / mx * 100) + '%"></div></div><div><b style="color:#ff8b8b">' + s.avgOut.toFixed(1) + '</b><small>waiting outside</small><div class="bar" style="background:#ff6b6b;width:' + Math.round(s.avgOut / mx * 100) + '%"></div></div></div>';
+    el.querySelector('.val').innerHTML = '<div class="cmp"><div><b style="color:#4fd1c5">' + s.avgIn.toFixed(1) + '</b><small>people in care</small><div class="bar" style="background:#4fd1c5;width:' + Math.round(s.avgIn / mx * 100) + '%"></div></div><div><b style="color:#ff8b8b">' + s.avgOut.toFixed(1) + '</b><small>people waiting</small><div class="bar" style="background:#ff6b6b;width:' + Math.round(s.avgOut / mx * 100) + '%"></div></div></div>';
     el.querySelector('.note').textContent = 'incl. attended events in the prior 24 months';
   }
 
@@ -69,9 +69,9 @@
   }
   function narrate(day) {
     const dm = D.dims, s = S;
-    let top = ''; if (s.site90) { let bi = -1, bv = 0; s.site90.forEach((v, i) => { if (v > bv) { bv = v; bi = i; } }); if (bi >= 0) top = ' Busiest in the last 90 days: ' + dm.establishments[bi].short + ' (' + fmt(bv) + ' attended).'; }
+    let top = ''; if (s.site90) { let bi = -1, bv = 0; s.site90.forEach((v, i) => { if (v > bv) { bv = v; bi = i; } }); if (bi >= 0) top = ' Most attended appointments in the last 90 days: ' + dm.establishments[bi].short + ' (' + fmt(bv) + ' attended).'; }
     const pw = s.seenAll12 ? Math.round(s.withinAll12 / s.seenAll12 * 100) : null;
-    const txt = '<b>' + D.fmtDate(day) + '</b> (synthetic). ' + filterText() + fmt(s.waiting) + ' people waiting for a first appointment, ' + (s.waiting ? Math.round(s.over / s.waiting * 100) : 0) + '% already past their priority target; ' + fmt(s.inside) + ' in care.' + (pw == null ? '' : ' Of first appointments in the last 12 months, ' + pw + '% were within target.') + ' ' + fmt(s.dna12) + ' did not attend and ' + fmt(s.can12) + ' were cancelled.' + top;
+    const txt = '<b>' + D.fmtDate(day) + '</b> (synthetic). ' + filterText() + fmt(s.waiting) + ' people waiting for a first appointment, ' + (s.waiting ? Math.round(s.over / s.waiting * 100) : 0) + '% already past their priority target; ' + fmt(s.inside) + ' in care.' + (pw == null ? '' : ' Of first appointments in the last 12 months, ' + pw + '% were within target.') + ' ' + fmt(s.dna12) + ' appointments were not attended (DNA) and ' + fmt(s.can12) + ' were cancelled.' + top;
     $('narr').innerHTML = txt;
     $('scene').setAttribute('aria-label', 'Synthetic outpatient flow scene. ' + $('narr').textContent);
   }
@@ -79,13 +79,13 @@
   function buildLegend() {
     const lg = $('legend'); const items = Scene.colorLegend();
     let html = '<div class="grp"><b>Colour = ' + $('fColor').selectedOptions[0].textContent + '</b>' + items.map(([n, rgb]) => '<span class="sw"><i style="background:' + SP.rgbCss(rgb) + '"></i>' + esc(n) + '</span>').join('') + '</div>';
-    html += '<div class="grp"><b>Size = attended events</b><div class="sizes" id="sizes"></div></div>';
-    html += '<div class="grp"><b>Moments</b><span class="sw"><i style="background:#5ad19a"></i>door glows green: attended</span><span class="sw"><i style="background:#f5b94a"></i>amber: did not attend</span><span class="sw"><i style="background:#7aa7ff"></i>blue beam: telehealth / phone</span><span class="sw"><i style="background:#8fb4ff"></i>✕ cancelled by hospital</span><span class="sw"><i style="background:#ff6b6b"></i>red dashed line: target</span></div>';
+    html += '<div class="grp" title="Rings on the ground around a marker show the number of attended outpatient events (service use). No ring: none so far. More and wider rings: more attended events. This is a count only; it does not judge whether care was too little or too much."><b>Ring size = attended outpatient events (service use)</b><div class="sizes" id="sizes" role="img" aria-label="Examples of marker rings for no, 2, 5, 10 and 20 or more attended events"></div><span class="sw dim">lower service use ← → higher service use</span></div>';
+    html += '<div class="grp"><b>Moments</b><span class="sw"><i style="background:#5ad19a"></i>door glows green: attended</span><span class="sw"><i style="background:#f5b94a"></i>amber: did not attend (DNA)</span><span class="sw"><i style="background:#7aa7ff"></i>blue beam: telehealth / phone</span><span class="sw"><i style="background:#8fb4ff"></i>✕ cancelled by hospital</span><span class="sw"><i style="background:#ff6b6b"></i>red dashed line: target</span></div>';
     html += '<div class="grp"><b>Map dots</b><span class="sw">size = beds</span>' + D.dims.hsps.map((h, i) => '<span class="sw"><i style="background:' + Scene.hspCol[h.code] + '"></i>' + h.code + '</span>').join('') + '</div>';
     lg.innerHTML = html;
     const host = $('sizes');
-    [[0, 'none'], [2, '2'], [5, '5'], [10, '10'], [20, '20+']].forEach(([n, lab]) => {
-      const b = Math.round(D.growth(n) * (SP.NB - 1)); const s = SP.get([79, 209, 197], b, n === 0 ? 2 : 1);
+    [[0, '0'], [2, '2'], [5, '5'], [10, '10'], [20, '20+']].forEach(([n, lab]) => {
+      const b = Math.round(D.careLevel(n) * (SP.NB - 1)); const s = SP.get([79, 209, 197], b, n === 0 ? 2 : 1);
       const fig = document.createElement('figure'); const cv = document.createElement('canvas'); cv.width = s.w * 2; cv.height = s.h * 2; cv.style.width = s.w * 1.1 + 'px'; cv.style.height = s.h * 1.1 + 'px';
       cv.getContext('2d').drawImage(s.cv, 0, 0, cv.width, cv.height); fig.appendChild(cv); const cap = document.createElement('figcaption'); cap.textContent = lab; fig.appendChild(cap); host.appendChild(fig);
     });
@@ -96,20 +96,20 @@
   function closeCard() { selectedI = -1; Scene.select(-1); $('card').hidden = true; }
   function renderCard() {
     if (selectedI < 0) return; const r = D.record(selectedI, Math.floor(Scene.t)); const dm = D.dims;
-    let status; if (r.st.state === 0) status = 'Not yet referred'; else if (r.st.state === 3) status = 'Episode closed' + (r.close ? ' · ' + r.close.label : ''); else if (r.st.state === 2) status = r.internal ? 'In care (technical transfer)' : 'In care'; else status = 'Waiting ' + Math.round(Scene.t - r.ref) + ' days (' + Math.round((Scene.t - r.ref) / r.target * 100) + '% of ' + r.target + '-day target)';
+    let status; if (r.st.state === 0) status = 'Not yet referred'; else if (r.st.state === 3) status = 'Episode closed' + (r.close ? ' · ' + r.close.label : ''); else if (r.st.state === 2) status = r.internal ? 'In care (technical transfer)' : 'In care'; else status = 'Waiting for a first appointment: ' + Math.round(Scene.t - r.ref) + ' days (' + Math.round((Scene.t - r.ref) / r.target * 100) + '% of the ' + r.target + '-day target)';
     const dots = r.events.map((e) => {
       let col, lab;
       if (e.kind === 0) { col = dm.modes[e.mode].remote ? '#7aa7ff' : '#5ad19a'; lab = 'Attended · ' + dm.modes[e.mode].label; }
-      else if (e.kind === 1) { col = '#f5b94a'; lab = 'Did not attend / wait · ' + (dm.nonAttendance[e.code] ? dm.nonAttendance[e.code].label : ''); }
+      else if (e.kind === 1) { col = '#f5b94a'; lab = 'Did not attend (DNA / DNW) · ' + (dm.nonAttendance[e.code] ? dm.nonAttendance[e.code].label : ''); }
       else if (e.kind === 3) { col = '#c9d3e6'; lab = 'Non-client event (never stops the wait) · ' + (dm.nonClient[e.code] ? dm.nonClient[e.code].label : ''); }
       else { col = '#9aa7bd'; lab = 'Cancelled · ' + (dm.cancellation[e.code] ? dm.cancellation[e.code].label : ''); }
       return '<i title="' + esc(D.fmtDate(e.day) + ' · ' + lab) + '" style="background:' + col + '"></i>';
     }).join('');
     $('card').innerHTML = '<h4><span>Referral ' + esc(r.id) + '</span><button class="x" aria-label="Close" id="cardX">×</button></h4><div class="syn">SYNTHETIC RECORD · NOT A REAL PERSON</div><dl>' +
       '<dt>Status</dt><dd>' + esc(status) + '</dd><dt>Clinic category</dt><dd>' + esc(r.spec.name) + ' (' + r.spec.code + ')</dd><dt>Tier 1 · Tier 2</dt><dd>' + esc(r.spec.tier1 + ' · ' + r.spec.tier2) + ' <small style="color:#8799b5">(pairing assumed)</small></dd><dt>Establishment</dt><dd>' + esc(r.site.short) + ' · ' + r.hsp.code + '</dd><dt>Priority</dt><dd>' + esc(r.prio.label) + ' (' + r.prio.code + ')</dd>' +
-      '<dt>Referral source</dt><dd>' + esc(r.src.label) + '</dd><dt>Referral reason</dt><dd>' + esc(r.reason.label) + '</dd><dt>Received</dt><dd>' + D.fmtDate(r.ref) + '</dd><dt>Lives in</dt><dd>' + esc(r.district.name) + ' · ' + esc(r.region.name) + '</dd><dt>Age group</dt><dd>' + r.ageGrp + '</dd>' +
-      '<dt>Attended events</dt><dd>' + (r.st.att + r.prior) + ' <small style="color:#8799b5">(' + r.prior + ' prior)</small></dd><dt>DNA · cancelled · chart only/MCC</dt><dd>' + r.st.dna + ' · ' + r.st.can + ' · ' + (r.st.nce || 0) + '</dd></dl>' +
-      '<div class="tl">' + dots + '</div><div class="cap">Dots: green attended · blue telehealth/phone · amber did not attend · grey cancelled · pale non-client event (chart only / MCC). Hover a dot for the reason.</div>';
+      '<dt>Referral source</dt><dd>' + esc(r.src.label) + '</dd><dt>Referral reason</dt><dd>' + esc(r.reason.label) + '</dd><dt>Received</dt><dd>' + D.fmtDate(r.ref) + '</dd><dt>Residential district</dt><dd>' + esc(r.district.name) + ' · ' + esc(r.region.name) + '</dd><dt>Age group</dt><dd>' + r.ageGrp + '</dd>' +
+      '<dt>Attended events (service use)</dt><dd>' + (r.st.att + r.prior) + ' <small style="color:#8799b5">(' + r.prior + ' before this referral)</small></dd><dt>Did not attend · cancelled · chart only / MCC</dt><dd>' + r.st.dna + ' · ' + r.st.can + ' · ' + (r.st.nce || 0) + '</dd></dl>' +
+      '<div class="tl">' + dots + '</div><div class="cap">Dots: green attended · blue telehealth/phone · amber did not attend (DNA) · grey cancelled · pale non-client event (chart only / MCC). Hover a dot for the reason.</div>';
     $('cardX').addEventListener('click', closeCard);
   }
 

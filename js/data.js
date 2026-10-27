@@ -130,7 +130,7 @@
     return o;
   };
 
-  D.growth = (n) => 1 - Math.exp(-n / 6);
+  D.careLevel = (n) => 1 - Math.exp(-n / 6);
 
   // Per-frame statistics for filtered referrals at day t.
   D.stats = function (t, S) {

@@ -40,8 +40,8 @@
       c.fillStyle = 'rgba(79,209,197,.9)'; rr(c, x + bw * 0.5, T + ph - b, bw * 0.38, Math.max(0.5, b), 3); c.fill();
       c.fillStyle = TXT2; c.textAlign = 'center'; c.fillText(i === bins - 1 ? '11+' : i, x + bw / 2, h - 10);
     }
-    font(c, 10.5, 600); c.textAlign = 'left'; c.fillStyle = TEAL; c.fillRect(L + 2, 6, 9, 9); c.fillText('Inside network · avg ' + S.avgIn.toFixed(1), L + 15, 14);
-    c.fillStyle = RED; const x2 = L + 15 + 135 * Math.min(1, pw / 300); c.fillRect(x2, 6, 9, 9); c.fillText('Waiting outside · avg ' + S.avgOut.toFixed(1), x2 + 13, 14);
+    font(c, 10.5, 600); c.textAlign = 'left'; c.fillStyle = TEAL; c.fillRect(L + 2, 6, 9, 9); c.fillText('People in care · avg ' + S.avgIn.toFixed(1), L + 15, 14);
+    c.fillStyle = RED; const x2 = L + 15 + 135 * Math.min(1, pw / 300); c.fillRect(x2, 6, 9, 9); c.fillText('People waiting · avg ' + S.avgOut.toFixed(1), x2 + 13, 14);
   }
 
   function waitChart(cv, S) {
@@ -58,9 +58,9 @@
       font(c, 11, 700); c.textAlign = 'left'; c.fillStyle = n && over / n > 0.3 ? RED : '#d5e0f3'; c.fillText(n ? Math.round(over / n * 100) + '%' : '–', L + pw + 7, y + bh * 0.68);
     });
     c.lineWidth = 1;
-    font(c, 9.5); c.fillStyle = TXT2; c.textAlign = 'left'; c.fillText('just referred', L, h - 6); c.textAlign = 'right'; c.fillText('longer than 1.75× target →', L + pw, h - 6);
+    font(c, 9.5); c.fillStyle = TXT2; c.textAlign = 'left'; c.fillText('just referred', L, h - 6); c.textAlign = 'right'; c.fillText('more than 1.75× the target →', L + pw, h - 6);
     c.textAlign = 'center'; c.fillStyle = '#ffb3b3'; c.fillText('┆ = at target (1.0×)', L + pw / 2 - 20, T - 6);
-    c.fillStyle = '#d5e0f3'; c.textAlign = 'left'; c.fillText('% over target', L + pw - 4 - 52, T - 6);
+    c.fillStyle = '#d5e0f3'; c.textAlign = 'left'; c.fillText('% past target', L + pw - 4 - 52, T - 6);
   }
 
   function timeline(cv, S, t) {
@@ -81,13 +81,13 @@
     // clock marker
     const cm = (() => { for (let i = n - 1; i >= 0; i--) if (months.starts[i] <= t) return i + (t - months.starts[i]) / (months.starts[i + 1] - months.starts[i]); return 0; })();
     const mxp = L + cm * bw; c.strokeStyle = '#fff'; c.lineWidth = 1.2; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(mxp, T); c.lineTo(mxp, T + ph); c.stroke(); c.setLineDash([]);
-    font(c, 10.5, 600); c.textAlign = 'left'; let x = L + 4; [['Referrals / month', 'rgba(122,167,255,.8)'], ['Attended events / month', TEAL], ['Waiting (month end)', AMB]].forEach(([tx, col]) => { c.fillStyle = col; c.fillRect(x, 4, 9, 9); c.fillStyle = '#c4d1e6'; c.fillText(tx, x + 13, 12.5); x += 13 + c.measureText(tx).width + 14; });
+    font(c, 10.5, 600); c.textAlign = 'left'; let x = L + 4; [['Referrals / month', 'rgba(122,167,255,.8)'], ['Attended events / month', TEAL], ['People waiting (month end)', AMB]].forEach(([tx, col]) => { c.fillStyle = col; c.fillRect(x, 4, 9, 9); c.fillStyle = '#c4d1e6'; c.fillText(tx, x + 13, 12.5); x += 13 + c.measureText(tx).width + 14; });
   }
 
   function regions(cv, S) {
     const { c, w, h } = prep(cv); const rs = D.dims.regions; const T = 28, B = 6, rowH = (h - T - B) / rs.length; const lw = Math.min(110, w * 0.3);
     const colW = (w - lw - 10) / 2 - 8; let mxw = 30, mxe = 3; rs.forEach((r, i) => { mxw = Math.max(mxw, S.regMed[i]); const q = S.regIn[i]; if (q.n) mxe = Math.max(mxe, q.ev / q.n); });
-    font(c, 10, 600); c.textAlign = 'left'; c.fillStyle = AMB; c.fillText('Median wait (days)', lw, 14); c.fillStyle = TEAL; c.fillText('Events / patient in care', lw + colW + 16, 14);
+    font(c, 10, 600); c.textAlign = 'left'; c.fillStyle = AMB; c.fillText('Median wait (days)', lw, 14); c.fillStyle = TEAL; c.fillText('Events per person in care', lw + colW + 16, 14);
     rs.forEach((r, i) => {
       const y = T + i * rowH + rowH * 0.18, bh = rowH * 0.58;
       font(c, 10.5); c.fillStyle = '#c6d4ec'; c.textAlign = 'right'; c.fillText(r.name.replace(' Metropolitan', ''), lw - 8, y + bh * 0.8);
@@ -114,7 +114,7 @@
 
   function hspChart(cv, S) {
     const { c, w, h } = prep(cv); const hs = D.dims.hsps; const T = 34, B = 8, rowH = (h - T - B) / hs.length, lw = 52;
-    const cols = ['#5ad19a', '#7aa7ff', '#f5b94a', '#9aa7bd']; const labs = ['In person', 'Telehealth / phone', 'Did not attend / wait', 'Cancelled'];
+    const cols = ['#5ad19a', '#7aa7ff', '#f5b94a', '#9aa7bd']; const labs = ['In person', 'Telehealth / phone', 'Not attended (DNA)', 'Cancelled'];
     font(c, 10, 600); c.textAlign = 'left';
     labs.forEach((l, k) => { const lx = 4 + (k % 2) * 124, ly = 6 + (k > 1 ? 14 : 0); c.fillStyle = cols[k]; c.fillRect(lx, ly, 9, 9); c.fillStyle = '#c4d1e6'; c.fillText(l, lx + 13, ly + 8.5); });
     const tot = hs.map((_, i) => { const q = S.hsp12[i]; return q[0] + q[1] + q[2] + q[3]; }); const mx = Math.max(1, ...tot); const pw = w - lw - 62;

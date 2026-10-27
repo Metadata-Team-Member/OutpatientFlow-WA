@@ -55,7 +55,7 @@ function dayWeight(d) {
 }
 const dayCum = []; let acc = 0; for (let d = 0; d < DAYS; d++) { acc += dayWeight(d); dayCum.push(acc); }
 function drawRefDay() { const r = u() * acc; let lo = 0, hi = DAYS - 1; while (lo < hi) { const mid = (lo + hi) >> 1; if (dayCum[mid] < r) lo = mid + 1; else hi = mid; } return lo; }
-// invented: waiting-time pressure builds over the four years, peaks around mid-2025, eases a little
+// invented: waiting times lengthen over the four years, peak around mid-2025, and ease a little
 function pressure(d) { const x = d / DAYS; return 0.85 + 0.55 * Math.sin(Math.PI * Math.min(1, x * 1.15)) + (x > 0.8 ? -0.1 : 0); }
 
 // ---------- geography helpers ----------

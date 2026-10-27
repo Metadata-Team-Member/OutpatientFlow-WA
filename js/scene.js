@@ -1,9 +1,9 @@
-/* OutpatientFlow WA — the animated scene.
+/* OutpatientFlow WA — the animated scene (one marker per referral).
    1 Where referrals come from (real WA health regions + Perth metro inset, establishment dots)
    2 The waiting queue (one lane per referral priority, red line = BR §8.1 target)
-   3 Inside the network: one block per Health Service Provider, one door per clinic category, plus an establishment spotlight.
+   3 Outpatient services: one block per Health Service Provider, one door per clinic category, plus an establishment spotlight.
    Time model: simulation clock `t` is float days since dims.start. Events (spawn / appointment / end) are pre-sorted;
-   seeking rebuilds all characters instantly at their correct place. */
+   seeking rebuilds all markers instantly at their correct place. */
 (function (g) {
   'use strict';
   const OF = (g.OF = g.OF || {});
@@ -109,7 +109,7 @@
     zone(L.map, '1 · WHERE REFERRALS COME FROM  (WA health regions)');
     zone(L.yard, '2 · WAITING FOR A FIRST APPOINTMENT');
     c.fillStyle = '#9db0cf'; c.font = '700 ' + fz(11) + 'px ' + FONT; c.textAlign = 'left';
-    c.fillText(L.portrait ? '3 · INSIDE THE NETWORK  (5 HSPs · ' + dm.establishments.length + ' NADC sites)' : '3 · INSIDE THE NETWORK  (5 Health Service Providers · ' + dm.establishments.length + ' establishments with Reports to NADC = Y)', L.portrait ? 14 : L.cells[0].x + 4, L.portrait ? L.hospTitleY : 42);
+    c.fillText(L.portrait ? '3 · OUTPATIENT SERVICES  (5 HSPs · ' + dm.establishments.length + ' NADC sites)' : '3 · OUTPATIENT SERVICES  (5 Health Service Providers · ' + dm.establishments.length + ' establishments with Reports to NADC = Y)', L.portrait ? 14 : L.cells[0].x + 4, L.portrait ? L.hospTitleY : 42);
     // WA regions
     if (geo) {
       const regF = geo.regions.filter((f) => f.properties.level === 'region'), disF = geo.regions.filter((f) => f.properties.level === 'district');
@@ -207,7 +207,7 @@
   Scene.colorLegend = function () {
     const dm = D.dims;
     switch (Scene.colorBy) {
-      case 'stage': return [['Waiting, no care yet', SP.palette.stage[0]], ['1–2 events', SP.palette.stage[1]], ['3–5 events', SP.palette.stage[2]], ['6+ events', SP.palette.stage[3]]];
+      case 'stage': return [['Waiting, no attended events yet', SP.palette.stage[0]], ['1–2 events', SP.palette.stage[1]], ['3–5 events', SP.palette.stage[2]], ['6+ events', SP.palette.stage[3]]];
       case 'spec': return dm.specialties.map((s) => [s.name, SP.specColor(s.hue)]);
       case 'region': return dm.regions.map((r, i) => [r.name, SP.regionColor(i)]);
       case 'hsp': return dm.hsps.map((h, i) => { const c = hcol(i); return [h.code, [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)]]; });
@@ -225,7 +225,7 @@
 
   function makeAgent(i, st, t) {
     const a = { i, x: 0, y: 0, tx: 0, ty: 0, state: st.state === 2 ? 2 : 1, att: st.att, tot: D.prior[i] + st.att, jx: D.hash(i, 5), jy: D.hash(i, 6), ph: D.hash(i, 9) * 9, alpha: 1, pop: 1, vis: 1, script: [], si: 0, mood: -1, mt: 0, moving: false, wt: D.hash(i, 3) * 3, dead: false, u: 0, cell: D.hspOfSite[D.site[i]], door: null };
-    a.gd = D.growth(a.tot);
+    a.gd = D.careLevel(a.tot);
     const cell = L.cells[a.cell]; a.door = cell.doorOf[D.spec[i]] || cell.doors[0];
     if (a.state === 1) { const p = waitTarget(a, t); a.tx = p[0]; a.ty = p[1]; } else { const p = careBase(a); a.tx = p[0]; a.ty = p[1]; }
     a.x = a.tx; a.y = a.ty;
@@ -247,7 +247,7 @@
   }
   const pulse = (a) => { const e = ests[D.site[a.i]]; if (e) e.pulse = 1; };
 
-  function grow(a) { a.att++; a.tot++; a.pop = 1.45; }
+  function attend(a) { a.att++; a.tot++; a.pop = 1.45; }
 
   function approach(a) {
     const cell = L.cells[a.cell], d = a.door, steps = [];
@@ -266,20 +266,20 @@
     if (!tele) {
       const steps = approach(a);
       steps.push(call((q) => { q.vis = 0; d.glow = 1; d.gc = '#5ad19a'; pop(d.x, d.y - d.h - 14, '+1', '#7ff0b0'); }), hold(0.45),
-        call((q) => { grow(q); q.vis = 1; q.state = 2; q.mt = 1.6; q.mo = 1; }),
+        call((q) => { attend(q); q.vis = 1; q.state = 2; q.mt = 1.6; q.mo = 1; }),
         walk(...careBase(a)));
       run(a, steps);
     } else {
       const steps = [];
       const md = D.dims.modes[mode];
       steps.push(call((q) => { effects.push({ type: 'beam', a: q, d, life: 1.5, age: 0, video: md.code === 'VID' || md.code === 'THH' || md.code === 'THS' }); d.glow = 1; d.gc = '#7aa7ff'; q.mt = 1.5; q.mo = 1; }), hold(1.0),
-        call((q) => { grow(q); pop(q.x, q.y - 40 * K, '+1 ' + (md.code === 'VID' || md.code === 'THH' ? 'video' : md.code === 'TEL' ? 'phone' : 'telehealth'), '#9cc4ff'); }), hold(0.4));
+        call((q) => { attend(q); pop(q.x, q.y - 40 * K, '+1 ' + (md.code === 'VID' || md.code === 'THH' ? 'video' : md.code === 'TEL' ? 'phone' : 'telehealth'), '#9cc4ff'); }), hold(0.4));
       if (wasWaiting) steps.push(call((q) => { q.state = 2; }), walk(...careBase(a), 90));
       run(a, steps);
     }
   }
   const short = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
-  // Non-client event (BR 2026 §6.9, §10.2.7): chart only or MCC. The person is not present, so the character does not walk, grow or leave the queue.
+  // Non-client event (BR 2026 §6.9, §10.2.7): chart only or MCC. The person is not present, so the marker does not walk, gain a ring or leave the queue.
   function onNonClient(i, k) {
     const a = agents.get(i); if (!a) return; const nc = D.dims.nonClient[D.evs[i][k + 3]] || { code: 'NCE', label: 'Non-client event' };
     run(a, [call((q) => { q.mt = 1.2; q.mo = 2; pop(q.x, q.y - 40 * K, nc.code === 'MCC' ? 'MCC · patient not present' : 'chart only', '#b6c1d6'); }), hold(0.4)]);
@@ -287,7 +287,7 @@
   function onMiss(i, k) {
     const a = agents.get(i); if (!a) return;
     const kind = D.evs[i][k + 1], code = D.evs[i][k + 3], d = a.door;
-    if (kind === 2) { // cancelled: no walking, a popup on the character
+    if (kind === 2) { // cancelled: no walking, a popup on the marker
       const cc = D.dims.cancellation[code] || { label: 'Cancelled', by: 'unknown' };
       const col = cc.by === 'hospital' ? '#8fb4ff' : cc.by === 'patient' ? '#f5b94a' : '#b6c1d6';
       run(a, [call((q) => { q.mt = 1.6; q.mo = 2; pop(q.x, q.y - 42 * K, '✕ ' + short(cc.label, 22), col); }), hold(0.5)]);
@@ -296,7 +296,7 @@
     const nr = D.dims.nonAttendance[code] || { label: 'DNA' };
     const steps = D.remote[D.evs[i][k + 2]] ? [] : approach(a); if (steps.length) steps.pop();
     if (steps.length) steps.push(walk(d.x, d.y + 26, 120));
-    steps.push(call((q) => { q.mt = 1.6; q.mo = 3; d.glow = 1; d.gc = '#f5b94a'; pop(steps.length > 1 ? d.x : q.x, steps.length > 1 ? d.y - d.h - 14 : q.y - 42 * K, 'DNA · ' + short(nr.label, 20), '#f5b94a'); }), hold(0.7));
+    steps.push(call((q) => { q.mt = 1.6; q.mo = 3; d.glow = 1; d.gc = '#f5b94a'; pop(steps.length > 1 ? d.x : q.x, steps.length > 1 ? d.y - d.h - 14 : q.y - 42 * K, 'Did not attend · ' + short(nr.label, 20), '#f5b94a'); }), hold(0.7));
     steps.push(walk(...(a.state === 1 ? waitTarget(a, Scene.t) : careBase(a)), 120));
     run(a, steps);
   }
@@ -312,7 +312,7 @@
     a.ph += dt * 9; a.moving = false;
     if (a.pop > 1) a.pop = Math.max(1, a.pop - dt * 1.4);
     if (a.mt > 0) { a.mt -= dt; if (a.mt <= 0) a.mo = -1; }
-    const gt = D.growth(a.tot); a.gd += (gt - a.gd) * (1 - Math.exp(-dt * 2.5));
+    const gt = D.careLevel(a.tot); a.gd += (gt - a.gd) * (1 - Math.exp(-dt * 2.5));
     if (a.si < a.script.length) {
       for (let n = 0; n < 5 && a.si < a.script.length; n++) {
         const s = a.script[a.si];
@@ -435,7 +435,7 @@
       if (p.i === D.filter.site || p.i === hoverSite) { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(p.x, p.y, p.r + 3, 0, 7); ctx.stroke(); }
     });
     ctx.globalAlpha = 1;
-    // labels for the larger metro establishments in the inset
+    // labels for the metro establishments with more beds in the inset
     ctx.font = '600 ' + fz(8) + 'px ' + FONT; ctx.textAlign = 'left'; const placed = [];
     ests.filter((p) => p.inset && ['TERT', 'PAED', 'WOMN', 'METR'].includes(dm.establishments[p.i].tier)).sort((a, b) => dm.establishments[b.i].beds - dm.establishments[a.i].beds).forEach((p) => {
       const t = dm.establishments[p.i].short; const w = ctx.measureText(t).width; const bx = { x: p.x + p.r + 2, y: p.y - 8, w, h: 10 };
@@ -484,12 +484,12 @@
     for (let n = 0; n < arr.length; n++) {
       const a = arr[n]; if (!a.vis || a.dead && a.alpha <= 0) continue;
       const s = spriteFor(a); const bob = a.moving ? Math.abs(Math.sin(a.ph)) * 2.6 * K : 0;
-      const sx = (a.pop > 1 ? a.pop : 1);
+      const sx = 1, hop = a.pop > 1 ? (a.pop - 1) * 16 * K : 0; // a short hop (not a change of size) marks a new attended event
       ctx.globalAlpha = clamp(a.alpha, 0, 1) * 0.35; ctx.fillStyle = '#000';
       ctx.beginPath(); ctx.ellipse(a.x, a.y, s.bw * 0.5 * K, 2.4 * K, 0, 0, 7); ctx.fill();
       if (a.state === 1 && a.u > 1 && !a.moving) { ctx.globalAlpha = 0.5 * a.alpha; ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(a.x, a.y, s.bw * 0.5 * K + 2, 3.6 * K, 0, 0, 7); ctx.stroke(); }
       ctx.globalAlpha = clamp(a.alpha, 0, 1);
-      ctx.save(); ctx.translate(a.x, a.y - bob); ctx.scale(sx, sx);
+      ctx.save(); ctx.translate(a.x, a.y - bob - hop); ctx.scale(sx, sx);
       ctx.drawImage(s.cv, -s.cx * K, -s.ground * K, s.w * K, s.h * K);
       ctx.restore();
       if (a.i === selected) { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6 / sc * 0.8 + 0.6; ctx.beginPath(); ctx.ellipse(a.x, a.y - (s.bh * K) / 2 - 3, s.bw * K * 0.5 + 7, s.bh * K * 0.5 + 12, 0, 0, 7); ctx.stroke(); }
@@ -524,7 +524,7 @@
     } else {
       ctx.fillStyle = '#7f93b4'; ctx.font = fz(9.5) + 'px ' + FONT; ctx.fillText((L.portrait ? 'Tap a dot on the map or a name below.' : 'Hover or click a dot on the map to see an establishment.'), c.x + pad, y); y += L.portrait ? 16 : 20;
     }
-    ctx.fillStyle = '#9db0cf'; ctx.font = '700 ' + fz(10) + 'px ' + FONT; ctx.fillText((L.portrait ? 'Busiest, last 90 days' : 'Busiest establishments, last 90 days (click to filter)'), c.x + pad, y); y += L.portrait ? 6 : 8;
+    ctx.fillStyle = '#9db0cf'; ctx.font = '700 ' + fz(10) + 'px ' + FONT; ctx.fillText((L.portrait ? 'Most attended, last 90 days' : 'Most attended appointments, last 90 days'), c.x + pad, y); y += L.portrait ? 6 : 8;
     const idx = stats.site90.map((v, i) => i).sort((a, b) => stats.site90[b] - stats.site90[a]);
     const rows = Math.max(5, Math.floor((c.y + c.h - 8 - y) / (L.portrait ? 16 : 17))); const rh = (c.y + c.h - 8 - y) / rows; const mx = Math.max(1, stats.site90[idx[0]]);
     L.rankHits = [];
