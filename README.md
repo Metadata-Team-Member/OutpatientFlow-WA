@@ -114,7 +114,7 @@ data/sample/            25-row sample CSVs in Specification column style
 docs/                   sources, establishments, rules summary, open questions, requirements
 ```
 
-URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4`, `?density=8` (show 1 in N markers), `?color=stage|spec|region|prio`, `?data=file.json`, `?tour=1`.
+URL options: `?t=2025-03-01` start date, `?autoplay=1`, `?speed=4` (simulated days per real second; the speed buttons are Slow 1, Normal 4, Fast 12, Turbo 40), `?density=8` (show 1 in N markers), `?color=stage|spec|region|prio`, `?data=file.json`, `?tour=1`.
 
 ## Honest limits
 

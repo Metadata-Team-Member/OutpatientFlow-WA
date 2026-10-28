@@ -72,6 +72,7 @@ select:focus,button:focus-visible,input:focus-visible{outline:2px solid var(--ac
 .speed{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .speed button{font:inherit;font-size:.8rem;background:#0c1627;color:var(--muted);border:0;padding:9px 12px;cursor:pointer;border-right:1px solid var(--line)}
 .speed button:last-child{border-right:0}
+.speed button small{display:block;font-size:.62rem;opacity:.75;margin-top:1px;white-space:nowrap}
 .speed button.on{background:#1f3a63;color:#fff}
 .timebox{flex:1;min-width:240px}
 .dateline{display:flex;justify-content:space-between;align-items:baseline;font-size:.8rem;color:var(--muted)}
@@ -142,7 +143,7 @@ table.est tr[data-i]:hover,table.est tr[data-i]:focus{background:#1a2c49;outline
   .filter-grid.open{display:grid}
   .controls{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(13,22,38,.94),#0d1626);padding:8px;margin:8px -8px -8px;border-top:1px solid var(--line);border-radius:0 0 14px 14px;z-index:20;gap:6px 8px;flex-wrap:wrap}
   .play{min-width:0;padding:8px 14px;font-size:.95rem}
-  .speed{flex:1}.speed button{flex:1;padding:9px 4px;font-size:.74rem}
+  .speed{flex:1}.speed button{flex:1;padding:7px 2px;font-size:.74rem}.speed button small{font-size:.56rem}
   #btnRestart{display:none}
   .timebox{flex:1 1 100%;min-width:0}
   .dateline b{font-size:1rem}

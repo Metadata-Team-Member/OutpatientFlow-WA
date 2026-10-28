@@ -6,7 +6,7 @@
   const qs = new URLSearchParams(location.search);
   const fmt = (n) => Math.round(n).toLocaleString('en-AU');
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  let playing = false, speed = 4, last = 0, statAcc = 99, S = null, selectedI = -1, simStart = 0, dirty = true;
+  let playing = false, speed = 4, /* simulated days per real second: Slow 1, Normal 4, Fast 12, Turbo 40 */  last = 0, statAcc = 99, S = null, selectedI = -1, simStart = 0, dirty = true;
 
   function fillSelect(el, items, allLabel) { el.innerHTML = '<option value="-1">' + allLabel + '</option>' + items.map((x, i) => '<option value="' + i + '">' + esc(x) + '</option>').join(''); }
 
