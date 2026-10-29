@@ -391,7 +391,13 @@
         if (ty === 0) {
           if (!agents.has(i)) {
             const a = makeAgent(i, { state: D.internal[i] ? 2 : 1, att: 0 }, Scene.t);
-            if (D.internal[i]) a.pop = 1.4; else { const n = L.spawn[D.district[i]]; a.x = n.x; a.y = n.y; a.alpha = 0.2; a.spawn = 1; }
+            if (D.internal[i]) a.pop = 1.4;
+            else {
+              // The marker fades in directly in its priority lane, and its home district on the map flashes
+              // to show where the referral came from (walking over from the map looked like crossing the lanes).
+              const n = L.spawn[D.district[i]]; a.alpha = 0.2; a.spawn = 1;
+              if (effects.length < 60) effects.push({ type: 'ping', x: n.x, y: n.y, life: 1.2, age: 0 });
+            }
             agents.set(i, a); list.push(a);
           }
         } else if (ty === 1) { const k = ev.k[ptr], kd = D.evs[i][k + 1]; if (kd === 0) onAttend(i, k); else if (kd === 3) onNonClient(i, k); else onMiss(i, k); }
@@ -505,6 +511,10 @@
     }
     ctx.globalAlpha = 1;
     effects.forEach((e) => {
+      if (e.type === 'ping') { // referral origin flash on the map
+        const f = 1 - e.age / e.life; ctx.save(); ctx.globalAlpha = 0.85 * f; ctx.strokeStyle = '#bfe3ff'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(e.x, e.y, 3 + (1 - f) * 10, 0, 7); ctx.stroke(); ctx.restore(); return;
+      }
       if (e.type === 'beam') {
         const f = 1 - e.age / e.life; const ax = e.a.x, ay = e.a.y - 22 * K;
         ctx.save(); ctx.globalAlpha = Math.min(1, f * 1.6); ctx.strokeStyle = e.video ? '#b79cff' : '#7aa7ff'; ctx.lineWidth = 2; ctx.setLineDash([2, 7]); ctx.lineDashOffset = -e.age * 60;
