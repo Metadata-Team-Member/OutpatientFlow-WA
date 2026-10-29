@@ -56,7 +56,7 @@
       }
     }
     D.N = N; D.DAYS = DAYS; D.dims = dm; D.meta = raw.meta;
-    D.ref = ref; D.end = end; D.prior = prior; D.site = site; D.spec = spec; D.region = region; D.district = district; D.prio = prio; D.src = src; D.reason = reason; D.evs = evs; D.internal = internal; D.hspOfSite = hspOfSite; D.remote = remote; D.target = target; D.closeIdx = closeIdx; D.firstAtt = firstAtt;
+    D.ref = ref; D.end = end; D.prior = prior; D.site = site; D.spec = spec; D.region = region; D.district = district; D.prio = prio; D.src = src; D.reason = reason; D.evs = evs; D.internal = internal; D.target = target; D.closeIdx = closeIdx; D.remote = remote; D.hspOfSite = hspOfSite; D.firstAtt = firstAtt;
     D.ids = c.id; D.ages = c.age;
     D.applyFilter();
   }
@@ -99,7 +99,7 @@
       for (let k = 0; k < e.length; k += 5) {
         const d = e[k], kd = e[k + 1];
         if (kd === 0) { att[d]++; bySpec[spec[i]][d]++; bySite[site[i]][d]++; (remote[e[k + 2]] ? hspTele : hspAtt)[h][d]++; }
-        else if (kd === 1) { dna[d]++; hspDna[h][d]++; } else if (kd === 2) { can[d]++; hspCan[h][d]++; } // kind 3 (chart only / MCC) is not a client event: counted nowhere, never ends a wait (BR 2026 §6.9)
+        else if (kd === 1) { dna[d]++; hspDna[h][d]++; } else if (kd === 2) { can[d]++; hspCan[h][d]++; } // kind 3 (chart only / MCC) is not a client event: counted nowhere, never ends a wait (BR 2026 §10.2.7)
       }
       const stop = end[i] >= 0 ? end[i] : DAYS;
       if (internal[i]) { iD[ref[i]]++; iD[stop]--; }
@@ -131,11 +131,10 @@
   };
 
   D.careLevel = (n) => 1 - Math.exp(-n / 6);
-  D.activeDays = function (i, t) {
-    if (t < ref[i]) return 0;
-    const start = firstAtt[i] < 99999 ? firstAtt[i] : ref[i];
-    return Math.max(0, t - start);
-  };
+  // Days in care at day t: time since the person's first attended appointment (0 before it).
+  // Drives the left-to-right drift inside the outpatient services area (concept from JnrRef, 2026-10-28).
+  D.activeDays = (i, t) => (firstAtt[i] <= t ? t - firstAtt[i] : 0);
+  D.CARE_SPAN = 180; // days in care that take a person across the full width of the area
 
   // Per-frame statistics for filtered referrals at day t.
   D.stats = function (t, S) {

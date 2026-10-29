@@ -29,7 +29,7 @@
   /* ---------- geometry helpers ---------- */
   function polysOf(f) { return f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates; }
   function bbox(features) { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; features.forEach((f) => polysOf(f).forEach((p) => p[0].forEach((q) => { a = Math.min(a, q[0]); b = Math.max(b, q[0]); c = Math.min(c, q[1]); d = Math.max(d, q[1]); }))); return { x0: a, x1: b, y0: c, y1: d }; }
-  function pathOf(feat, proj) { const p = new Path2D(); polysOf(feat).forEach((poly) => poly.forEach((ring) => { ring.forEach((q, i) => { const xy = proj(q[0], q[1]); i ? p.lineTo(xy[0], xy[1]) : p.moveTo(xy[0], xy[1]); }); })); return p; }
+  function pathOf(feat, proj) { const p = new Path2D(); polysOf(feat).forEach((poly) => poly.forEach((ring) => { ring.forEach((q, i) => { const xy = proj(q[0], q[1]); i ? p.lineTo(xy[0], xy[1]) : p.moveTo(xy[0], xy[1]); }); p.closePath(); })); return p; }
 
   /* ---------- layout ---------- */
   function computeLayout() {
@@ -54,7 +54,7 @@
     Lo.mapBottom = oy + (LAT0 - LAT1) * s;
     // Perth inset
     const metroBB = geo ? bbox(geo.metro) : { x0: 115.5, x1: 116.5, y0: -32.9, y1: -31.4 };
-    const ib = portrait ? { x: ox + (LON1 - LON0) * sx + 16, y: mapPanel.y + 26, w: mapPanel.x + mapPanel.w - (ox + (LON1 - LON0) * sx + 16) - 10, h: 235 } : { x: mapPanel.x + 10, y: Lo.mapBottom - 230, w: mapPanel.w - 20, h: 230 };
+    const ib = portrait ? { x: ox + (LON1 - LON0) * sx + 16, y: mapPanel.y + 26, w: mapPanel.x + mapPanel.w - (ox + (LON1 - LON0) * sx + 16) - 10, h: 235 } : { x: mapPanel.x + 10, y: Lo.mapBottom + 16, w: 176, h: mapPanel.y + mapPanel.h - Lo.mapBottom - 26 };
     const isc = Math.min(ib.w / ((metroBB.x1 - metroBB.x0) * cosφ), ib.h / (metroBB.y1 - metroBB.y0));
     const iox = ib.x + (ib.w - (metroBB.x1 - metroBB.x0) * cosφ * isc) / 2, ioy = ib.y + (ib.h - (metroBB.y1 - metroBB.y0) * isc) / 2;
     Lo.inset = ib; Lo.insetProj = (lon, lat) => [iox + (lon - metroBB.x0) * cosφ * isc, ioy + (metroBB.y1 - lat) * isc];
@@ -83,7 +83,7 @@
       c.bld = { x: c.x + 10, y: bt, w: c.w - 20, h: portrait ? 56 : 62 };
       c.court = { x: c.x + 8, y: c.bld.y + c.bld.h + 10, w: c.w - 16, h: c.y + c.h - 8 - (c.bld.y + c.bld.h + 10) };
       const step = (c.bld.w - 16) / nSpec, dw = Math.min(24, step - 3);
-      c.doors = dm.specialties.map((sp, k) => ({ spec: k, code: sp.code, w: dw, h: Math.min(26, c.bld.h * 0.45), x: c.bld.x + 8 + step * (k + 0.5), y: c.bld.y + c.bld.h, glow: 0, gc: '#5ad19a', kind: 'door' }));
+      c.doors = dm.specialties.map((sp, k) => ({ spec: k, code: sp.code, w: dw, h: Math.min(26, c.bld.h * 0.45), x: c.bld.x + 8 + step * (k + 0.5), y: c.bld.y + c.bld.h, glow: 0, gc: '#5ad19a', k }));
       c.doorOf = {}; c.doors.forEach((d) => { c.doorOf[d.spec] = d; });
       c.exit = { x: c.court.x + c.court.w - 22, y: c.court.y + c.court.h - 4 };
     });
@@ -109,32 +109,34 @@
     zone(L.map, '1 · WHERE REFERRALS COME FROM  (WA health regions)');
     zone(L.yard, '2 · WAITING FOR A FIRST APPOINTMENT');
     c.fillStyle = '#9db0cf'; c.font = '700 ' + fz(11) + 'px ' + FONT; c.textAlign = 'left';
-    c.fillText(L.portrait ? '3 · OUTPATIENT SERVICES  (5 HSPs · ' + dm.establishments.length + ' NADC sites)' : '3 · OUTPATIENT SERVICES  (5 Health Service Providers · ' + dm.establishments.length + ' NADC sites)', 830, 30);
+    c.fillText(L.portrait ? '3 · OUTPATIENT SERVICES  (5 HSPs · ' + dm.establishments.length + ' NADC sites)' : '3 · OUTPATIENT SERVICES  (5 Health Service Providers · ' + dm.establishments.length + ' establishments with Reports to NADC = Y)', L.portrait ? 14 : L.cells[0].x + 4, L.portrait ? L.hospTitleY : 42);
     // WA regions
     if (geo) {
       const regF = geo.regions.filter((f) => f.properties.level === 'region'), disF = geo.regions.filter((f) => f.properties.level === 'district');
       const hspOf = (name) => { const r = dm.regions.find((q) => q.name === name); return r ? r.hsp : 'WACHS'; };
       const hspCol = (code) => Scene.hspCol[code];
       c.lineJoin = 'round';
-      disF.forEach((f) => { const col = hspCol(hspOf(f.properties.region)); const p = pathOf(f, L.proj); c.fillStyle = col + '1f'; c.fill(p, 'evenodd'); c.strokeStyle = col + '40'; c.lineWidth = 1; c.stroke(p); });
+      disF.forEach((f) => { const col = hspCol(hspOf(f.properties.region)); const p = pathOf(f, L.proj); c.fillStyle = col + '1f'; c.fill(p, 'evenodd'); c.strokeStyle = col + '40'; c.lineWidth = 0.5; c.stroke(p); });
       regF.forEach((f) => { const col = hspCol(hspOf(f.properties.name)); const p = pathOf(f, L.proj); c.strokeStyle = col + 'aa'; c.lineWidth = 1.2; c.stroke(p); });
+      // region labels (non-metro)
       c.font = '700 ' + fz(9) + 'px ' + FONT; c.textAlign = 'center'; c.fillStyle = 'rgba(200,220,255,.55)';
       const lab = (t, x, y, al) => { c.textAlign = al || 'center'; c.lineWidth = 3; c.strokeStyle = 'rgba(9,17,29,.85)'; c.strokeText(t, x, y); c.fillText(t, x, y); };
-      const k = Math.max(0.7, Math.min(1.3, L.map.w / 360));
+      const k = Math.max(0.7, Math.min(1.3, L.map.w / 360)); // label offsets scale with the map
       regF.forEach((f) => { if (hspOf(f.properties.name) !== 'WACHS') return; const q = L.proj(f.properties.cx, f.properties.cy); const nm = f.properties.name;
-        if (nm === 'South West') lab('SW', q[0] - 16 * k, q[1] + 14 * k, 'center');
+        if (nm === 'South West') lab('SW', q[0] - 16 * k, q[1] + 14 * k, 'center'); // abbreviated: the full name is in the list
         else if (nm === 'Great Southern') lab('Great Southern', q[0] + 34 * k, q[1] + 4 * k, 'left');
         else if (nm === 'Wheatbelt') lab(nm, q[0] + 22 * k, q[1] - 14 * k);
-        else lab(nm, q[0], q[1]);
-      });
+        else lab(nm, q[0], q[1]); });
       c.lineWidth = 1;
+      // Perth marker + inset connector
       const pr = L.perth, ib = L.insetBox;
       c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 1; c.beginPath(); c.arc(pr[0], pr[1], 9, 0, 7); c.stroke();
       c.setLineDash([3, 4]); c.beginPath(); c.moveTo(pr[0] - 4, pr[1] + 8); c.lineTo(ib.x + ib.w * 0.5, ib.y); c.stroke(); c.setLineDash([]);
       c.fillStyle = 'rgba(255,255,255,.7)'; c.font = '700 ' + fz(9) + 'px ' + FONT; c.textAlign = 'right'; c.fillText('Perth', pr[0] - 12, pr[1] - 2);
+      // inset
       const ins = L.inset; rrect(c, ins.x - 2, ins.y - 2, ins.w + 4, ins.h + 4, 8); c.fillStyle = 'rgba(8,15,27,.6)'; c.fill(); c.strokeStyle = 'rgba(255,255,255,.25)'; c.stroke();
       c.save(); rrect(c, ins.x - 2, ins.y - 2, ins.w + 4, ins.h + 4, 8); c.clip();
-      geo.metro.forEach((f) => { const col = hspCol(hspOf(f.properties.region)); const p = pathOf(f, L.insetProj); c.fillStyle = col + '30'; c.fill(p, 'evenodd'); c.strokeStyle = col + '99'; c.lineWidth = 1; c.stroke(p); });
+      geo.metro.forEach((f) => { const col = hspCol(hspOf(f.properties.region)); const p = pathOf(f, L.insetProj); c.fillStyle = col + '30'; c.fill(p, 'evenodd'); c.strokeStyle = col + '99'; c.lineWidth = 0.8; c.stroke(p); });
       c.restore();
       c.fillStyle = '#9db0cf'; c.font = '700 ' + fz(9) + 'px ' + FONT; c.textAlign = 'left'; c.fillText('PERTH METRO (inset)', ins.x, ins.y - 6 + (L.portrait ? -2 : 0));
       c.fillStyle = 'rgba(150,175,215,.5)'; c.font = fz(8.5) + 'px ' + FONT; c.fillText('34 health districts → 10 regions', L.map.x + 12, L.map.y + 16);
@@ -157,7 +159,7 @@
       c.fillStyle = 'rgba(255,150,150,.6)'; c.font = fz(9.5) + 'px ' + FONT; c.fillText('past target', ln.x + ln.w - 8, ln.y + ln.h - 7);
       c.fillStyle = 'rgba(150,175,215,.55)'; c.textAlign = 'left'; c.fillText('just referred', ln.x + 10, ln.y + ln.h - 7);
     });
-    c.fillStyle = 'rgba(150,175,215,.55)'; c.font = fz(9) + 'px ' + FONT; c.textAlign = 'left'; c.fillText('Targets: Business Rules (Jul 2026) §8.1, 30 / 90 / 365 days.', L.yard.x + 12, L.yard.y + L.yard.h + 18);
+    c.fillStyle = 'rgba(150,175,215,.55)'; c.font = fz(9) + 'px ' + FONT; c.textAlign = 'left'; c.fillText('Targets: Business Rules (Jul 2026) §8.1, 30 / 90 / 365 days.', L.yard.x + 12, L.yard.y + L.yard.h - 6 + (L.portrait ? 0 : 0));
     // HSP blocks
     L.cells.forEach((cell) => {
       rrect(c, cell.x, cell.y, cell.w, cell.h, 14); c.fillStyle = 'rgba(18,31,54,.6)'; c.fill(); c.strokeStyle = 'rgba(140,170,220,.14)'; c.stroke();
@@ -179,16 +181,16 @@
       const nE = dm.establishments.filter((e) => e.hsp === cell.hsp).length;
       c.fillStyle = '#e8f0ff'; c.font = '700 ' + fz(12) + 'px ' + FONT; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
       c.fillText(hp.code, cell.x + 12, cell.y + (L.portrait ? 16 : 21));
-      c.fillStyle = '#8ea1c2'; c.font = fz(9.5) + 'px ' + FONT; const hw = c.measureText(hp.code).width; c.font = '700 ' + fz(12) + 'px ' + FONT; const hw2 = c.measureText(hp.code).width; c.font = '600 ' + fz(9.5) + 'px ' + FONT; if (!L.portrait) c.fillText(nE + (nE === 1 ? ' establishment' : ' establishments'), cell.x + 12 + hw2 + 8, cell.y + (L.portrait ? 16 : 21));
+      c.fillStyle = '#8ea1c2'; c.font = fz(9.5) + 'px ' + FONT; const hw = c.measureText(hp.code).width; c.font = '700 ' + fz(12) + 'px ' + FONT; const hw2 = c.measureText(hp.code).width; c.font = fz(9.5) + 'px ' + FONT;
+      if (!L.portrait) c.fillText(nE + (nE === 1 ? ' establishment' : ' establishments'), cell.x + 12 + hw2 + 8, cell.y + (L.portrait ? 16 : 21));
       cell.doors.forEach((d, n) => {
         const sp = dm.specialties[d.spec];
         const alpha = sp.verified ? 1 : 0.7;
         c.globalAlpha = alpha; c.fillStyle = hueCss(sp.hue, 58, 48); c.beginPath(); c.moveTo(d.x - d.w / 2, d.y); c.lineTo(d.x - d.w / 2, d.y - d.h + d.w / 2); c.arc(d.x, d.y - d.h + d.w / 2, d.w / 2, Math.PI, 0); c.lineTo(d.x + d.w / 2, d.y); c.closePath(); c.fill();
-        c.fillStyle = 'rgba(5,12,24,.55)'; c.beginPath(); c.moveTo(d.x - d.w / 2 + 2.5, d.y); c.lineTo(d.x - d.w / 2 + 2.5, d.y - d.h + d.w / 2); c.arc(d.x, d.y - d.h + d.w / 2, d.w / 2 - 2.5, Math.PI, 0); c.lineTo(d.x + d.w / 2 - 2.5, d.y); c.closePath(); c.fill();
+        c.fillStyle = 'rgba(5,12,24,.55)'; c.beginPath(); c.moveTo(d.x - d.w / 2 + 2.5, d.y); c.lineTo(d.x - d.w / 2 + 2.5, d.y - d.h + d.w / 2); c.arc(d.x, d.y - d.h + d.w / 2, d.w / 2 - 2.5, Math.PI, 0); c.lineTo(d.x + d.w / 2 - 2.5, d.y); c.closePath(); c.fill(); c.globalAlpha = 1;
         const show = !L.portrait || n % 2 === 0;
-        if (show) { c.fillStyle = '#dce8ff'; c.font = '700 ' + Math.max(7 / sc * 0.9, 6.6) + 'px ' + FONT; c.textAlign = 'center'; c.fillText(sp.code, d.x, d.y - d.h - 3 - (!L.portrait && n % 2 ? 10 : 0)); }
+        if (show) { c.fillStyle = '#dce8ff'; c.font = '700 ' + Math.max(7 / sc * 0.9, 6.6) + 'px ' + FONT; c.textAlign = 'center'; c.fillText(sp.code, d.x, d.y - d.h - 3 - (!L.portrait && n % 2 ? 8 : 0)); }
       });
-      c.globalAlpha = 1;
     });
   }
 
@@ -219,18 +221,17 @@
     const ln = laneOf(a); const u = (t - D.ref[a.i]) / D.target[D.prio[a.i]]; a.u = u;
     return [L.laneX(ln, u) + (a.jx - 0.5) * 12, ln.y + gTop() + a.jy * Math.max(6, ln.h - gTop() - 20)];
   }
+  // In care: people drift left to right with time since their first attended appointment,
+  // mirroring the waiting lanes. They wander gently inside a narrow band around that point.
   function careBase(a, t = Scene.t) {
-    const c = L.cells[a.cell].court;
-    const duration = Number.isFinite(a.activeDays) ? a.activeDays : (a.i != null && typeof D.activeDays === 'function' ? D.activeDays(a.i, t) : 0);
-    const progress = clamp(duration / 180, 0, 1);
-    const x = c.x + 14 + progress * (c.w - 28) + (a.jx - 0.5) * 8;
-    const y = c.y + 18 + a.jy * Math.max(6, c.h - 26);
-    return [x, y];
+    const c = L.cells[a.cell].court, band = Math.min(46, c.w * 0.22);
+    const p = clamp(D.activeDays(a.i, t) / D.CARE_SPAN, 0, 1);
+    const wx = a.wx != null ? a.wx : a.jx, wy = a.wy != null ? a.wy : a.jy;
+    return [c.x + 10 + p * (c.w - 20 - band) + wx * band, c.y + 18 + wy * Math.max(6, c.h - 26)];
   }
 
   function makeAgent(i, st, t) {
-    const a = { i, x: 0, y: 0, tx: 0, ty: 0, state: st.state === 2 ? 2 : 1, att: st.att, tot: D.prior[i] + st.att, jx: (0.5 + i * 0.7548776662) % 1, jy: (0.5 + i * 0.569840291) % 1, alpha: 1, vis: 1, mt: 0, mo: 0, wt: 2 + Math.random() * 4, ph: Math.random() * Math.PI * 2, script: [], si: 0, dead: false, pop: 1, activeDays: typeof D.activeDays === 'function' ? D.activeDays(i, t) : 0 };
-    a.cell = D.hspOfSite[D.site[i]];
+    const a = { i, x: 0, y: 0, tx: 0, ty: 0, state: st.state === 2 ? 2 : 1, att: st.att, tot: D.prior[i] + st.att, jx: (0.5 + i * 0.7548776662) % 1, jy: (0.5 + i * 0.569840291) % 1, /* evenly spread offsets: markers fill lanes and yards without piling up */ ph: D.hash(i, 9) * 9, alpha: 1, pop: 1, vis: 1, script: [], si: 0, mood: -1, mt: 0, moving: false, wt: D.hash(i, 3) * 3, dead: false, u: 0, cell: D.hspOfSite[D.site[i]], door: null };
     a.gd = D.careLevel(a.tot);
     const cell = L.cells[a.cell]; a.door = cell.doorOf[D.spec[i]] || cell.doors[0];
     if (a.state === 1) { const p = waitTarget(a, t); a.tx = p[0]; a.ty = p[1]; } else { const p = careBase(a, t); a.tx = p[0]; a.ty = p[1]; }
@@ -247,13 +248,13 @@
   const hold = (d) => ({ t: 'hold', d, el: 0 });
   const call = (f) => ({ t: 'call', f });
   function pop(x, y, text, color) {
-    if (popups.length >= 16) return;
+    if (popups.length >= 16) return; // keep the scene readable when many things happen at once
     for (let k = 0; k < popups.length; k++) { const q = popups[k]; if (Math.abs(q.x - x) < 70 && Math.abs(q.y - y) < 12) return; }
     popups.push({ x, y, text, color, life: 1.6, age: 0 });
   }
   const pulse = (a) => { const e = ests[D.site[a.i]]; if (e) e.pulse = 1; };
 
-  function attend(a) { a.att++; a.tot++; a.pop = 1.45; a.activeDays = 0; }
+  function attend(a) { a.att++; a.tot++; a.pop = 1.45; }
 
   function approach(a) {
     const cell = L.cells[a.cell], d = a.door, steps = [];
@@ -278,12 +279,14 @@
     } else {
       const steps = [];
       const md = D.dims.modes[mode];
-      steps.push(call((q) => { effects.push({ type: 'beam', a: q, d, life: 1.5, age: 0, video: md.code === 'VID' || md.code === 'THH' || md.code === 'THS' }); d.glow = 1; d.gc = '#7aa7ff'; q.mt = 1.2; q.mo = 1; pop(q.x, q.y - 40 * K, '+1 ' + (md.code === 'VID' || md.code === 'THH' ? 'video' : md.code === 'TEL' ? 'phone' : 'telehealth'), '#9cc4ff'); }), hold(0.4));
+      steps.push(call((q) => { effects.push({ type: 'beam', a: q, d, life: 1.5, age: 0, video: md.code === 'VID' || md.code === 'THH' || md.code === 'THS' }); d.glow = 1; d.gc = '#7aa7ff'; q.mt = 1.5; q.mo = 1; }), hold(1.0),
+        call((q) => { attend(q); pop(q.x, q.y - 40 * K, '+1 ' + (md.code === 'VID' || md.code === 'THH' ? 'video' : md.code === 'TEL' ? 'phone' : 'telehealth'), '#9cc4ff'); }), hold(0.4));
       if (wasWaiting) steps.push(call((q) => { q.state = 2; }), walk(...careBase(a), 90));
       run(a, steps);
     }
   }
   const short = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+  // Non-client event (BR 2026 §6.9, §10.2.7): chart only or MCC. The person is not present, so the marker does not walk, gain a ring or leave the queue.
   function onNonClient(i, k) {
     const a = agents.get(i); if (!a) return; const nc = D.dims.nonClient[D.evs[i][k + 3]] || { code: 'NCE', label: 'Non-client event' };
     run(a, [call((q) => { q.mt = 1.2; q.mo = 2; pop(q.x, q.y - 40 * K, nc.code === 'MCC' ? 'MCC · patient not present' : 'chart only', '#b6c1d6'); }), hold(0.4)]);
@@ -291,7 +294,7 @@
   function onMiss(i, k) {
     const a = agents.get(i); if (!a) return;
     const kind = D.evs[i][k + 1], code = D.evs[i][k + 3], d = a.door;
-    if (kind === 2) {
+    if (kind === 2) { // cancelled: no walking, a popup on the marker
       const cc = D.dims.cancellation[code] || { label: 'Cancelled', by: 'unknown' };
       const col = cc.by === 'hospital' ? '#8fb4ff' : cc.by === 'patient' ? '#f5b94a' : '#b6c1d6';
       run(a, [call((q) => { q.mt = 1.6; q.mo = 2; pop(q.x, q.y - 42 * K, '✕ ' + short(cc.label, 22), col); }), hold(0.5)]);
@@ -300,7 +303,7 @@
     const nr = D.dims.nonAttendance[code] || { label: 'DNA' };
     const steps = D.remote[D.evs[i][k + 2]] ? [] : approach(a); if (steps.length) steps.pop();
     if (steps.length) steps.push(walk(d.x, d.y + 26, 120));
-    steps.push(call((q) => { q.mt = 1.6; q.mo = 3; d.glow = 1; d.gc = '#f5b94a'; pop(steps.length > 1 ? d.x : q.x, steps.length > 1 ? d.y - d.h - 14 : q.y - 42 * K, 'Did not attend · ' + short(nr.label, 20), '#f5b94a'); }));
+    steps.push(call((q) => { q.mt = 1.6; q.mo = 3; d.glow = 1; d.gc = '#f5b94a'; pop(steps.length > 1 ? d.x : q.x, steps.length > 1 ? d.y - d.h - 14 : q.y - 42 * K, 'Did not attend · ' + short(nr.label, 20), '#f5b94a'); }), hold(0.7));
     steps.push(walk(...(a.state === 1 ? waitTarget(a, Scene.t) : careBase(a)), 120));
     run(a, steps);
   }
@@ -308,7 +311,7 @@
     const a = agents.get(i); if (!a) return;
     const rc = D.closeIdx[i] >= 0 ? D.dims.closeReasons[D.closeIdx[i]] : { code: 'TRE', label: 'Closed' };
     const cell = L.cells[a.cell]; const happy = rc.code === 'TRE' || rc.code === 'DIP';
-    if (a.state === 2 && happy) run(a, [walk(cell.exit.x, cell.exit.y - 14, 70), call((q) => { q.mt = 1; q.mo = 1; pop(q.x, q.y - 40 * K, '♥ ' + short(rc.label, 20), '#ff9ec2'); }), { t: 'fade', rate: 0.9 }]);
+    if (a.state === 2 && happy) run(a, [walk(cell.exit.x, cell.exit.y - 14, 70), call((q) => { q.mt = 1; q.mo = 1; pop(q.x, q.y - 40 * K, '♥ ' + short(rc.label, 20), '#ff9ec2'); }), { t: 'fade', rate: 1.2 }]);
     else run(a, [call((q) => { q.mt = 2; q.mo = 2; pop(q.x, q.y - 40 * K, short(rc.label, 22), '#a7b3c8'); }), { t: 'fade', rate: 0.9 }]);
   }
 
@@ -335,17 +338,13 @@
     if (a.state === 1) {
       const p = waitTarget(a, Scene.t); a.tx = p[0]; a.ty = p[1];
       const dx = a.tx - a.x, dy = a.ty - a.y, dist = Math.hypot(dx, dy);
-      if (dist > 0.5) { const k = Math.min(1, dt * Scene.animF * (dist > 60 ? 3.2 : 4)); const stp = Math.min(dist, Math.max(dist * k, Math.min(dist, 40 * dt))); a.x += dx / dist * stp; a.y += dy / dist * stp; a.moving = true; }
+      if (dist > 0.5) { const k = Math.min(1, dt * Scene.animF * (dist > 60 ? 3.2 : 4)); const stp = Math.min(dist, Math.max(dist * k, Math.min(dist, 40 * dt))); a.x += dx / dist * stp; a.y += dy / dist * stp; a.moving = dist > 3 && stp / dt > 18; }
     } else {
-      a.activeDays = typeof D.activeDays === 'function' ? D.activeDays(a.i, Scene.t) : 0;
       a.wt -= dt;
-      if (a.wt <= 0) { const p = careBase({ cell: a.cell, jx: Math.random(), jy: Math.random(), i: a.i, activeDays: a.activeDays }, Scene.t); a.tx = p[0]; a.ty = p[1]; a.wt = 2 + Math.random() * 4; }
+      if (a.wt <= 0) { a.wx = Math.random(); a.wy = Math.random(); a.wt = 2 + Math.random() * 4; }
+      const p = careBase(a); a.tx = p[0]; a.ty = p[1]; // the drift point moves smoothly with the clock
       const dx = a.tx - a.x, dy = a.ty - a.y, dist = Math.hypot(dx, dy);
-      if (dist > 1) { const stp = Math.min(dist, 24 * dt * Scene.animF); a.x += dx / dist * stp; a.y += dy / dist * stp; a.moving = true; }
-      if (a.activeDays > 0) {
-        const p = careBase(a, Scene.t);
-        a.tx = p[0]; a.ty = p[1];
-      }
+      if (dist > 1) { const stp = Math.min(dist, 24 * dt * Scene.animF); a.x += dx / dist * stp; a.y += dy / dist * stp; a.moving = dist > 3 && stp / dt > 8; }
     }
   }
 
@@ -431,7 +430,7 @@
     ctx.setTransform(dpr * sc, 0, 0, dpr * sc, 0, 0);
     if (!bg) { bg = document.createElement('canvas'); bg.width = cv.width; bg.height = cv.height; const b = bg.getContext('2d'); b.setTransform(dpr * sc, 0, 0, dpr * sc, 0, 0); drawBg(b); }
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(bg, 0, 0); ctx.setTransform(dpr * sc, 0, 0, dpr * sc, 0, 0);
-    L.cells.forEach((c) => c.doors && c.doors.forEach((d) => { if (d.glow > 0) { const gr = ctx.createRadialGradient(d.x, d.y - d.h / 2, 2, d.x, d.y - d.h / 2, 26 * d.glow + 10); gr.addColorStop(0, d.gc + 'ff'); gr.addColorStop(1, d.gc + '00'); ctx.fillStyle = gr; ctx.fillRect(d.x - 28, d.y - d.h - 16, 56, 42); } }));
+    L.cells.forEach((c) => c.doors && c.doors.forEach((d) => { if (d.glow > 0) { const gr = ctx.createRadialGradient(d.x, d.y - d.h / 2, 2, d.x, d.y - d.h / 2, 26 * d.glow + 10); gr.addColorStop(0, d.gc + 'cc'); gr.addColorStop(1, d.gc + '00'); ctx.fillStyle = gr; ctx.fillRect(d.x - 50, d.y - 60, 100, 90); } }));
     ctx.textBaseline = 'alphabetic';
     // establishment dots
     const dm = D.dims;
@@ -457,13 +456,14 @@
         const arr = stats.waitByPrio[ln.prio]; let n = 0, over = 0; for (let q = 0; q < 8; q++) { n += arr[q]; if (q >= 4) over += arr[q]; }
         ctx.textAlign = 'right'; ctx.font = '700 ' + fz(11) + 'px ' + FONT; ctx.fillStyle = '#e3ecfb'; const t1 = fmtN(n) + ' waiting'; ctx.fillText(t1, ln.x + ln.w - 8, ln.y + 17);
         if (over) { ctx.font = fz(9.5) + 'px ' + FONT; ctx.fillStyle = '#ff9a9a'; ctx.fillText(fmtN(over) + ' past target', ln.x + ln.w - 8, ln.y + 32); }
+        // rule-aware indicator: of first appointments in the last 12 months, share within target
         const sn = stats.seen12[ln.prio], wn = stats.within12[ln.prio];
         ctx.textAlign = 'left'; ctx.font = '600 ' + fz(9.5) + 'px ' + FONT; ctx.fillStyle = sn ? (wn / sn >= 0.9 ? '#7fe0b4' : wn / sn >= 0.7 ? '#f5b94a' : '#ff8b8b') : '#6f819e';
         const td = dm.priorities[ln.prio].targetDays, pc = sn ? Math.round(wn / sn * 100) : 0;
         const rw = over ? (ctx.font = fz(9.5) + 'px ' + FONT, ctx.measureText(fmtN(over) + ' past target').width) : 0;
         ctx.font = '600 ' + fz(9.5) + 'px ' + FONT;
         const room = ln.w - 22 - 8 - rw - 8;
-        const opts = sn ? ['Seen ≤' + td + ' d (12 mo): ' + pc + '% of ' + fmtN(sn), 'Seen ≤' + td + ' d: ' + pc + '% of ' + fmtN(sn), '≤' + td + ' d: ' + pc + '%'] : ['No first appts in last 12 mo', 'No recent first appts'];
+        const opts = sn ? ['Seen ≤' + td + ' d (12 mo): ' + pc + '% of ' + fmtN(sn), 'Seen ≤' + td + ' d: ' + pc + '% of ' + fmtN(sn), '≤' + td + ' d: ' + pc + '%'] : ['No first appts in last 12 mo', 'No first appts (12 mo)', 'No first appts'];
         let txt = opts.find((o) => ctx.measureText(o).width <= room) || opts[opts.length - 1];
         ctx.fillText(txt, ln.x + 22, ln.y + 32);
       });
@@ -474,6 +474,7 @@
         ctx.fillStyle = '#e3ecfb'; ctx.fillText(wTxt, c.x + c.w - 12, yy); const w2 = ctx.measureText(wTxt).width;
         ctx.fillStyle = '#8ea1c2'; ctx.fillText(tail, c.x + c.w - 12 - w2, yy); ctx.fillStyle = '#7fe0b4'; ctx.fillText(nIn, c.x + c.w - 12 - w2 - wT, yy);
       });
+      // region list
       const rl = L.regList, rs = dm.regions; let mx = 1; rs.forEach((r, i) => { mx = Math.max(mx, stats.regWait[i].length); });
       ctx.font = fz(9.5) + 'px ' + FONT; ctx.textAlign = 'left'; ctx.fillStyle = '#7f93b4'; ctx.fillText('Waiting now, by region of residence', rl.x, rl.y - 8);
       rs.forEach((r, i) => {
@@ -486,20 +487,21 @@
       });
       drawSpotlight();
     }
+    // agents sorted by ground y
     const arr = list.slice().sort((p, q) => p.y - q.y);
     for (let n = 0; n < arr.length; n++) {
       const a = arr[n]; if (!a.vis || a.dead && a.alpha <= 0) continue;
       const s = spriteFor(a); const bob = a.moving ? Math.abs(Math.sin(a.ph)) * 2.6 * K : 0;
-      const sx = 1, hop = a.pop > 1 ? (a.pop - 1) * 16 * K : 0;
+      const sx = 1, hop = a.pop > 1 ? (a.pop - 1) * 16 * K : 0; // a short hop (not a change of size) marks a new attended event
       ctx.globalAlpha = clamp(a.alpha, 0, 1) * 0.35; ctx.fillStyle = '#000';
       ctx.beginPath(); ctx.ellipse(a.x, a.y, s.bw * 0.5 * K, 2.4 * K, 0, 0, 7); ctx.fill();
-      if (a.state === 1 && a.u > 1 && !a.moving) { ctx.globalAlpha = 0.5 * a.alpha; ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(a.x, a.y, s.bw * 0.5 * K + 2, 3.8 * K, 0, 0, 7); ctx.stroke(); }
+      if (a.state === 1 && a.u > 1 && !a.moving) { ctx.globalAlpha = 0.5 * a.alpha; ctx.strokeStyle = '#ff6b6b'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(a.x, a.y, s.bw * 0.5 * K + 2, 3.6 * K, 0, 0, 7); ctx.stroke(); }
       ctx.globalAlpha = clamp(a.alpha, 0, 1);
       ctx.save(); ctx.translate(a.x, a.y - bob - hop); ctx.scale(sx, sx);
       ctx.drawImage(s.cv, -s.cx * K, -s.ground * K, s.w * K, s.h * K);
       ctx.restore();
-      if (a.i === selected) { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6 / sc * 0.8 + 0.6; ctx.beginPath(); ctx.ellipse(a.x, a.y - (s.bh * K) / 2 - 3, s.bw * K * 0.5 + 7, s.bh * K * 0.5 + 7, 0, 0, 7); ctx.stroke(); }
-      else if (a.i === hover) { ctx.globalAlpha = 0.8; ctx.strokeStyle = '#9cc4ff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(a.x, a.y - (s.bh * K) / 2 - 3, s.bw * K * 0.5 + 5, s.bh * K * 0.5 + 5, 0, 0, 7); ctx.stroke(); }
+      if (a.i === selected) { ctx.globalAlpha = 1; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.6 / sc * 0.8 + 0.6; ctx.beginPath(); ctx.ellipse(a.x, a.y - (s.bh * K) / 2 - 3, s.bw * K * 0.5 + 7, s.bh * K * 0.5 + 12, 0, 0, 7); ctx.stroke(); }
+      else if (a.i === hover) { ctx.globalAlpha = 0.8; ctx.strokeStyle = '#9cc4ff'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(a.x, a.y - (s.bh * K) / 2 - 3, s.bw * K * 0.5 + 5, s.bh * K * 0.5 + 9, 0, 0, 7); ctx.stroke(); }
     }
     ctx.globalAlpha = 1;
     effects.forEach((e) => {
@@ -510,10 +512,11 @@
       }
     });
     ctx.textAlign = 'center'; ctx.font = '700 ' + fz(11) + 'px ' + FONT;
-    popups.forEach((p) => { const f = 1 - p.age / p.life; const tw = ctx.measureText(p.text).width; p.x = clamp(p.x, tw / 2 + 4, L.W - tw / 2 - 4); ctx.globalAlpha = clamp(f * 1.8, 0, 1); ctx.lineWidth = 1.4; ctx.fillStyle = p.color; ctx.strokeStyle = 'rgba(8,14,26,.7)'; ctx.beginPath(); ctx.roundRect(p.x - tw / 2 - 8, p.y - 14, tw + 16, 18, 6); ctx.fill(); ctx.stroke(); ctx.fillStyle = '#07131f'; ctx.fillText(p.text, p.x, p.y + 3); });
+    popups.forEach((p) => { const f = 1 - p.age / p.life; const tw = ctx.measureText(p.text).width; p.x = clamp(p.x, tw / 2 + 4, L.W - tw / 2 - 4); ctx.globalAlpha = clamp(f * 1.8, 0, 1); ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(5,10,20,.9)'; ctx.strokeText(p.text, p.x, p.y); ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y); });
     ctx.globalAlpha = 1;
   };
 
+  /* establishment spotlight + ranking (6th panel) */
   function drawSpotlight() {
     const c = L.spot; const dm = D.dims; const pad = 12; let y = c.y + (L.portrait ? 18 : 22);
     ctx.textAlign = 'left'; ctx.fillStyle = '#e8f0ff'; ctx.font = '700 ' + fz(12) + 'px ' + FONT; ctx.fillText('Establishment spotlight', c.x + pad, y);
@@ -525,12 +528,11 @@
       ctx.fillStyle = '#9db0cf'; ctx.font = fz(9.5) + 'px ' + FONT;
       ctx.fillText('Code ' + e.code + ' · ' + dm.hsps[e.hsp].code + ' · ' + (e.type ? e.type + ' ' + e.typeLabel : 'type not in List'), c.x + pad, y); y += L.portrait ? 13 : 14;
       ctx.fillText(dm.regions[e.region].name + ' region · ' + e.district + ' district' + (e.beds ? ' · ' + e.beds + ' beds' : ''), c.x + pad, y); y += L.portrait ? 15 : 17;
-      ctx.font = '600 ' + fz(10) + 'px ' + FONT; ctx.fillStyle = '#e3ecfb'; ctx.fillText(fmtN(inf.waiting) + ' waiting · ' + fmtN(inf.inCare) + ' in care · ' + fmtN(inf.att90) + ' attended (90d)', c.x + pad, y);
+      ctx.font = '600 ' + fz(10) + 'px ' + FONT; ctx.fillStyle = '#e3ecfb'; ctx.fillText(fmtN(inf.waiting) + ' waiting · ' + fmtN(inf.inCare) + ' in care · ' + fmtN(inf.att90) + ' attended (90 d)', c.x + pad, y); y += L.portrait ? 14 : 18;
     } else {
-      ctx.fillStyle = '#7f93b4'; ctx.font = fz(9.5) + 'px ' + FONT; ctx.fillText(L.portrait ? 'Tap a dot on the map or a name below.' : 'Hover or click a dot on the map to see an establishment.', c.x + pad, y);
+      ctx.fillStyle = '#7f93b4'; ctx.font = fz(9.5) + 'px ' + FONT; ctx.fillText((L.portrait ? 'Tap a dot on the map or a name below.' : 'Hover or click a dot on the map to see an establishment.'), c.x + pad, y); y += L.portrait ? 16 : 20;
     }
-    ctx.fillStyle = '#9db0cf'; ctx.font = '700 ' + fz(10) + 'px ' + FONT; ctx.fillText(L.portrait ? 'Most attended, last 90 days' : 'Most attended appointments, last 90 days', c.x + pad, y + (L.portrait ? 22 : 24));
-    y += L.portrait ? 30 : 32;
+    ctx.fillStyle = '#9db0cf'; ctx.font = '700 ' + fz(10) + 'px ' + FONT; ctx.fillText((L.portrait ? 'Most attended, last 90 days' : 'Most attended appointments, last 90 days'), c.x + pad, y); y += L.portrait ? 6 : 8;
     const idx = stats.site90.map((v, i) => i).sort((a, b) => stats.site90[b] - stats.site90[a]);
     const rows = Math.max(5, Math.floor((c.y + c.h - 8 - y) / (L.portrait ? 16 : 17))); const rh = (c.y + c.h - 8 - y) / rows; const mx = Math.max(1, stats.site90[idx[0]]);
     L.rankHits = [];
@@ -559,17 +561,17 @@
   Scene.init = function (canvas, wrapEl) {
     cv = canvas; ctx = cv.getContext('2d'); wrap = wrapEl;
     const toLogical = (e) => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / sc, (e.clientY - r.top) / sc]; };
-    const nearest = (x, y, rad) => { let best = -1, bd = rad * rad; for (const a of list) { if (!a.vis) continue; const hgt = 20 * K; const d = (a.x - x) ** 2 + (a.y - hgt - y) ** 2; if (d < bd) { best = a.i; bd = d; } } return best; };
+    const nearest = (x, y, rad) => { let best = -1, bd = rad * rad; for (const a of list) { if (!a.vis) continue; const hgt = 20 * K; const d = (a.x - x) ** 2 + (a.y - hgt - y) ** 2; if (d < bd) { bd = d; best = a.i; } } return best; };
     const nearSite = (x, y) => { let best = -1, bd = 1e9; ests.forEach((p) => { const d = (p.x - x) ** 2 + (p.y - y) ** 2; const rad = Math.max(p.r + 4, L.portrait ? 11 : 7); if (d < rad * rad && d < bd) { bd = d; best = p.i; } }); return best; };
     const rankAt = (x, y) => { if (!L.rankHits) return -1; const h = L.rankHits.find((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y < r.y + r.h); return h ? h.i : -1; };
     const tip = document.getElementById('tip');
-    const place = (e) => { const wr = wrap.getBoundingClientRect(); tip.hidden = false; tip.style.left = Math.min(e.clientX - wr.left + 14, wr.width - 230) + 'px'; tip.style.top = (e.clientY - wr.top + 18) + 'px'; };
+    const place = (e) => { const wr = wrap.getBoundingClientRect(); tip.hidden = false; tip.style.left = Math.min(e.clientX - wr.left + 14, wr.width - 230) + 'px'; tip.style.top = (e.clientY - wr.top + 14) + 'px'; };
     cv.addEventListener('mousemove', (e) => {
       const [x, y] = toLogical(e); const h = nearest(x, y, 22 * K); hover = h; hoverSite = -1; let cur = 'default';
-      if (h >= 0) { cur = 'pointer'; const r = D.record(h, Scene.t); place(e); tip.innerHTML = '<b>' + r.spec.name + '</b> · ' + r.prio.label + '<br>' + r.site.short + ' · ' + (r.st.att + r.prior) + ' attended events<br>' + (r.st.state === 1 ? 'waiting ' + Math.round(Scene.t - r.ref) + ' days (target ' + r.target + ')' : r.st.state === 3 ? 'closed' : 'in care');
-      } else {
+      if (h >= 0) { cur = 'pointer'; const r = D.record(h, Scene.t); place(e); tip.innerHTML = '<b>' + r.spec.name + '</b> · ' + r.prio.label + '<br>' + r.site.short + ' · ' + (r.st.att + r.prior) + ' attended events<br>' + (r.st.state === 1 ? 'waiting ' + Math.round(Scene.t - r.ref) + ' days (target ' + r.target + ')' : r.st.state === 3 ? 'closed' : 'in care'); }
+      else {
         const s = nearSite(x, y); const rs = s < 0 ? rankAt(x, y) : -1;
-        if (s >= 0) { hoverSite = s; cur = 'pointer'; const inf = Scene.siteInfo(s), q = inf.e; place(e); tip.innerHTML = '<b>' + q.name + '</b><br>Code ' + q.code + ' · ' + D.dims.hsps[q.hsp].code + '<br>' + inf.waiting + ' waiting · ' + inf.inCare + ' in care'; }
+        if (s >= 0) { hoverSite = s; cur = 'pointer'; const inf = Scene.siteInfo(s), q = inf.e; place(e); tip.innerHTML = '<b>' + q.name + '</b><br>Code ' + q.code + ' · ' + D.dims.hsps[q.hsp].code + ' · ' + (q.type ? q.type + ' ' + q.typeLabel : 'type not in List') + '<br>' + D.dims.regions[q.region].name + ' · ' + fmtN(inf.waiting) + ' waiting · ' + fmtN(inf.inCare) + ' in care'; }
         else { tip.hidden = true; if (rs >= 0) { cur = 'pointer'; hoverSite = rs; } }
       }
       cv.style.cursor = cur;
