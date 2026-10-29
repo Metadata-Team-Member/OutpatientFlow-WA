@@ -566,7 +566,7 @@
     const place = (e) => { const wr = wrap.getBoundingClientRect(); tip.hidden = false; tip.style.left = Math.min(e.clientX - wr.left + 14, wr.width - 230) + 'px'; tip.style.top = (e.clientY - wr.top + 18) + 'px'; };
     cv.addEventListener('mousemove', (e) => {
       const [x, y] = toLogical(e); const h = nearest(x, y, 22 * K); hover = h; hoverSite = -1; let cur = 'default';
-      if (h >= 0) { cur = 'pointer'; const r = D.record(h, Scene.t); place(e); tip.innerHTML = '<b>' + r.spec.name + '</b> · ' + r.prio.label + '<br>' + r.site.short + ' · ' + (r.st.att + r.pri[...]
+      if (h >= 0) { cur = 'pointer'; const r = D.record(h, Scene.t); place(e); tip.innerHTML = '<b>' + r.spec.name + '</b> · ' + r.prio.label + '<br>' + r.site.short + ' · ' + (r.st.att + r.prior) + ' attended events<br>' + (r.st.state === 1 ? 'waiting ' + Math.round(Scene.t - r.ref) + ' days (target ' + r.target + ')' : r.st.state === 3 ? 'closed' : 'in care');
       } else {
         const s = nearSite(x, y); const rs = s < 0 ? rankAt(x, y) : -1;
         if (s >= 0) { hoverSite = s; cur = 'pointer'; const inf = Scene.siteInfo(s), q = inf.e; place(e); tip.innerHTML = '<b>' + q.name + '</b><br>Code ' + q.code + ' · ' + D.dims.hsps[q.hsp].code + '<br>' + inf.waiting + ' waiting · ' + inf.inCare + ' in care'; }

@@ -42,7 +42,7 @@
     evs = []; let p = 0;
     for (let i = 0; i < N; i++) {
       const n = c.evN[i]; const a = new Int16Array(n * 5);
-      for (let k = 0; k < n; k++) { const v = c.ev[p++]; a[k * 5] = v & 2047; a[k * 5 + 1] = (v >> 11) & 3; a[k * 5 + 2] = (v >> 13) & 15; a[k * 5 + 3] = (v >> 17) & 63; a[k * 5 + 4] = (v >> 23) & 63; }
+      for (let k = 0; k < n; k++) { const v = c.ev[p++]; a[k * 5] = v & 2047; a[k * 5 + 1] = (v >> 11) & 3; a[k * 5 + 2] = (v >> 13) & 15; a[k * 5 + 3] = (v >> 17) & 63; a[k * 5 + 4] = (v >> 23) & 1; }
       evs.push(a);
     }
     internal = new Uint8Array(N); hasTele = new Uint8Array(N); hasPerson = new Uint8Array(N); firstAtt = new Int32Array(N).fill(99999);
@@ -56,7 +56,7 @@
       }
     }
     D.N = N; D.DAYS = DAYS; D.dims = dm; D.meta = raw.meta;
-    D.ref = ref; D.end = end; D.prior = prior; D.site = site; D.spec = spec; D.region = region; D.district = district; D.prio = prio; D.src = src; D.reason = reason; D.evs = evs; D.internal = internal; D.hspOfSite = hspOfSite; D.remote = remote; D.target = target; D.firstAtt = firstAtt;
+    D.ref = ref; D.end = end; D.prior = prior; D.site = site; D.spec = spec; D.region = region; D.district = district; D.prio = prio; D.src = src; D.reason = reason; D.evs = evs; D.internal = internal; D.hspOfSite = hspOfSite; D.remote = remote; D.target = target; D.closeIdx = closeIdx; D.firstAtt = firstAtt;
     D.ids = c.id; D.ages = c.age;
     D.applyFilter();
   }
@@ -195,7 +195,7 @@
     const est = dm.establishments[site[i]];
     return {
       i, id: raw.cols.id[i], st, events: list, age: raw.cols.age[i], ageGrp: dm.ageGroups[ageGrp[i]], region: dm.regions[region[i]], district: dm.districts[district[i]],
-      src: dm.sources[src[i]], reason: dm.referralReasons[reason[i]], prio: dm.priorities[prio[i]], spec: dm.specialties[spec[i]], site: est, hsp: dm.hsps[est.hsp], ref: ref[i], end: end[i], pri[...]
+      src: dm.sources[src[i]], reason: dm.referralReasons[reason[i]], prio: dm.priorities[prio[i]], spec: dm.specialties[spec[i]], site: est, hsp: dm.hsps[est.hsp], ref: ref[i], end: end[i], prior: prior[i],
       close: closeIdx[i] >= 0 ? dm.closeReasons[closeIdx[i]] : null, internal: !!internal[i], target: target[prio[i]],
     };
   };
